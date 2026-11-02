@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>ส่งค่าร่างกาย | Fit กับณัฒ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F4; --ink:#16241F; --muted:#5B6D63; --card:#FFFFFF; --line:#D8E3DB; --soft:#E3EEE7;
+  --accent:#17806A; --on-accent:#FFFFFF; --warn-bg:#FFF1CC; --warn-ink:#6F5300; --err:#B3382C; --err-bg:#FBE4DF;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1914; --ink:#E7F1EB; --muted:#9BB0A4; --card:#16231D; --line:#273A31; --soft:#1D2E26;
+    --accent:#3FB899; --on-accent:#07261D; --warn-bg:#3A2F10; --warn-ink:#EDD38A; --err:#FF9D90; --err-bg:#3A1F1B;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Prompt','Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.brand{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.brand b{color:var(--accent);font-weight:600}
+h1{font-size:23px;line-height:1.3;margin:2px 0 0;font-weight:700;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid>div{min-width:0}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.in{display:flex;align-items:baseline;gap:6px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px 12px}
+.in:focus-within{border-color:var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.in.bad{border-color:var(--err)}
+.in input{flex:1;min-width:0;width:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:20px;font-weight:600;padding:2px 0;outline:none}
+.in input::placeholder{color:var(--muted);font-weight:400;opacity:.7}
+.in span{font-size:12px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:3px;min-height:18px}
+.hint.e{color:var(--err)}
+.prev{font-size:13px;color:var(--muted)}
+.prev b{color:var(--ink);font-weight:600}
+.btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:9px 13px;font-size:13px}
+.err{background:var(--err-bg);color:var(--err);border-radius:14px;padding:9px 13px;font-size:13px}
+.center{text-align:center;padding:36px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.ok{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center}
+.ok svg{width:32px;height:32px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .card{padding:11px 13px}
+.cmp small{display:block;color:var(--muted);font-size:12px}
+.cmp strong{font-size:22px;font-weight:600}
+.cmp strong i{font-style:normal;font-size:12px;color:var(--muted);font-weight:400}
+.cmp .d{font-size:12px;color:var(--accent);font-weight:500;min-height:18px}
+.cmp svg{width:100%;height:34px;margin-top:4px;display:block}
+.quote{border-left:3px solid var(--accent);padding:2px 0 2px 12px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><span><b>Fit กับณัฒ</b> · ส่งค่าร่างกาย</span><span id="who"></span></div>
+
+  <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
+
+  <section id="vMsg" hidden class="center">
+    <h1 id="msgH"></h1>
+    <p class="sub" id="msgP"></p>
+    <button class="btn ghost" id="msgBtn" hidden></button>
+  </section>
+
+  <section id="vForm" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div>
+      <h1 id="hello">สวัสดีครับ</h1>
+      <p class="sub" id="round"></p>
+    </div>
+    <div class="note" id="sentBefore" hidden></div>
+    <form id="f" novalidate class="card" style="display:flex;flex-direction:column;gap:14px">
+      <div class="grid">
+        <div><label for="weight">น้ำหนัก</label><div class="in" id="w-weight"><input id="weight" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-weight"></div></div>
+        <div><label for="fat">เปอร์เซ็นต์ไขมัน</label><div class="in" id="w-fat"><input id="fat" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>%</span></div><div class="hint" id="h-fat"></div></div>
+        <div><label for="muscle">มวลกล้ามเนื้อ</label><div class="in" id="w-muscle"><input id="muscle" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-muscle"></div></div>
+        <div><label for="visceral">ไขมันช่องท้อง</label><div class="in" id="w-visceral"><input id="visceral" inputmode="decimal" autocomplete="off" placeholder="0"><span>ระดับ</span></div><div class="hint" id="h-visceral"></div></div>
+      </div>
+      <div class="err" id="formErr" hidden role="alert"></div>
+      <button class="btn" id="submit" type="submit">ส่งค่าร่างกาย</button>
+    </form>
+    <p class="sub" style="font-size:13px">รูปเช็คหุ่น ส่งมาในแชทตามเดิมได้เลยครับ ไม่ต้องรีบ ไม่ต้องเป๊ะ ทำตามสบายนะ</p>
+  </section>
+
+  <section id="vDone" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="center" style="padding:14px 8px 0">
+      <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+      <h1 id="doneH">ส่งเรียบร้อยครับ</h1>
+      <p class="sub" id="doneP"></p>
+    </div>
+    <div class="cmp" id="cmp"></div>
+    <div class="quote">ค่อยๆ ไปทีละนิด ไม่ต้องรีบนะครับ — Trainer ณัฒ</div>
+    <button class="btn" id="closeBtn">กลับไปที่แชท</button>
+  </section>
+</main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+<script>
+/* ===== ตั้งค่า (ณัฒ/ผู้ดูแลแก้เฉพาะ 2 บรรทัดนี้) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ================================================== */
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var idToken = "";
+  var state = { prev: null };
+  var FIELDS = [
+    {k:"weight",  name:"น้ำหนัก",          unit:"กก.",  min:20, max:300, dec:1},
+    {k:"fat",     name:"ไขมัน",            unit:"%",    min:3,  max:70,  dec:1},
+    {k:"muscle",  name:"มวลกล้ามเนื้อ",     unit:"กก.",  min:5,  max:150, dec:1},
+    {k:"visceral",name:"ไขมันช่องท้อง",     unit:"",     min:1,  max:60,  dec:1}
+  ];
+
+  function show(id){
+    ["vLoad","vMsg","vForm","vDone"].forEach(function(v){
+      var el=$(v); el.hidden = (v!==id);
+      if(v==="vForm"||v==="vDone") el.style.display = (v===id)?"flex":"none";
+    });
+    window.scrollTo(0,0);
+  }
+  function msg(h,p,btn){
+    $("msgH").textContent=h; $("msgP").textContent=p||"";
+    var b=$("msgBtn");
+    if(btn){ b.hidden=false; b.textContent=btn.text; b.onclick=btn.fn; } else { b.hidden=true; }
+    show("vMsg");
+  }
+  function fmt(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
+  function num(s){ s=String(s||"").replace(/,/g,".").trim(); if(s==="") return null; var n=Number(s); return isNaN(n)?null:n; }
+
+  /* ---------- API ---------- */
+  function api(payload){
+    if(DEMO) return demoApi(payload);
+    payload.idToken = idToken;
+    return fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf("?")>-1?"&":"?") + "liff=1", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow"
+    }).then(function(r){ return r.json(); });
+  }
+  function demoApi(p){
+    return new Promise(function(res){
+      setTimeout(function(){
+        var hist=[{d:"4 ต.ค.",weight:64.8,fat:30.6,muscle:24.1,visceral:7},{d:"11 ต.ค.",weight:63.4,fat:29.9,muscle:24.4,visceral:6}];
+        if(p.action==="bodyInit") return res({ok:true,name:"คุณเมย์",count:2,last:hist[1],history:hist,sentThisWeek:""});
+        var v=p.values; var h2=hist.concat([{d:"18 ต.ค.",weight:v.weight,fat:v.fat,muscle:v.muscle,visceral:v.visceral}]);
+        res({ok:true,name:"คุณเมย์",prev:hist[1],now:h2[2],history:h2});
+      },500);
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    show("vLoad");
+    if(DEMO){ return afterAuth(); }
+    if(CONFIG.LIFF_ID.indexOf("__")===0 || CONFIG.API_URL.indexOf("__")===0){
+      return msg("ยังตั้งค่าไม่ครบ","ผู้ดูแลต้องใส่ LIFF ID และ API URL ในไฟล์หน้านี้ก่อนครับ");
+    }
+    if(!window.liff){ return setTimeout(boot,150); }
+    liff.init({liffId:CONFIG.LIFF_ID}).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({redirectUri:location.href}); return; }
+      idToken = liff.getIDToken();
+      afterAuth();
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+  var retried=false;
+  function afterAuth(){
+    $("loadTxt").textContent="กำลังดึงข้อมูลล่าสุดของคุณ…";
+    api({action:"bodyInit"}).then(function(r){
+      if(!r.ok){
+        if(r.error==="token" && !retried && window.liff){ retried=true; liff.logout(); liff.login({redirectUri:location.href}); return; }
+        if(r.error==="nomatch") return msg("ยังไม่พบข้อมูลของคุณในระบบ","ทักแชทบอกณัฒได้เลยครับ เดี๋ยวณัฒจับคู่ให้");
+        return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+      }
+      state.prev=r.last||null;
+      $("hello").textContent="สวัสดีครับ "+(r.name||"");
+      $("round").textContent = r.count>0 ? ("ครั้งที่ "+(r.count+1)+" · เทียบกับครั้งก่อนให้ทันทีที่ส่ง") : "ครั้งแรก · ไม่ต้องห่วงเรื่องตัวเลขนะ แค่เริ่มเก็บไว้ก่อน";
+      if(r.last){
+        FIELDS.forEach(function(f){
+          var v=r.last[f.k];
+          $("h-"+f.k).innerHTML = (v!=null&&v!=="") ? ("ครั้งก่อน <b>"+fmt(v)+"</b> "+f.unit) : "";
+          $("h-"+f.k).className="hint prev";
+        });
+      }
+      if(r.sentThisWeek){ var n=$("sentBefore"); n.hidden=false; n.textContent="สัปดาห์นี้ส่งไปแล้วเมื่อ "+r.sentThisWeek+" ถ้าส่งอีกครั้ง ณัฒจะใช้ค่าล่าสุดแทนครับ"; }
+      show("vForm");
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้","เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+
+  /* ---------- form ---------- */
+  function readForm(){
+    var vals={}, ok=true, first=null;
+    FIELDS.forEach(function(f){
+      var w=$("w-"+f.k), h=$("h-"+f.k), n=num($(f.k).value);
+      w.classList.remove("bad");
+      if(n===null){ ok=false; w.classList.add("bad"); h.className="hint e"; h.textContent="กรอกตัวเลขด้วยนะครับ"; first=first||f.k; }
+      else if(n<f.min||n>f.max){ ok=false; w.classList.add("bad"); h.className="hint e"; h.textContent="ลองเช็กอีกที (ช่วง "+f.min+"–"+f.max+")"; first=first||f.k; }
+      else { vals[f.k]=Math.round(n*10)/10; if(state.prev&&state.prev[f.k]!=null&&state.prev[f.k]!==""){ h.className="hint prev"; h.innerHTML="ครั้งก่อน <b>"+fmt(state.prev[f.k])+"</b> "+f.unit; } else { h.textContent=""; h.className="hint"; } }
+    });
+    if(!ok){ $(first).focus(); return null; }
+    return vals;
+  }
+  $("f").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var err=$("formErr"); err.hidden=true;
+    var vals=readForm(); if(!vals) return;
+    var b=$("submit"); b.disabled=true; b.textContent="กำลังส่ง…";
+    api({action:"bodySubmit",values:vals}).then(function(r){
+      if(!r.ok){
+        b.disabled=false; b.textContent="ส่งค่าร่างกาย";
+        err.hidden=false;
+        err.textContent = r.error==="range" ? "มีตัวเลขที่ดูผิดปกติ ลองเช็กอีกทีนะครับ"
+          : r.error==="busy" ? "ระบบกำลังยุ่งอยู่ รอสักครู่แล้วกดส่งอีกครั้งนะครับ"
+          : r.error==="token" ? "หน้านี้เปิดค้างนานไป ปิดแล้วเปิดใหม่จากเมนูในแชทนะครับ"
+          : "ส่งไม่สำเร็จ ลองอีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")";
+        return;
+      }
+      renderDone(r);
+    }).catch(function(){
+      b.disabled=false; b.textContent="ส่งค่าร่างกาย";
+      err.hidden=false; err.textContent="เชื่อมต่อไม่ได้ ถ้าไม่แน่ใจว่าส่งไปแล้วหรือยัง ทักแชทบอกณัฒก่อนส่งซ้ำนะครับ";
+    });
+  });
+
+  /* ---------- result ---------- */
+  function spark(pts){
+    if(pts.length<2) return "";
+    var w=100,h=34,mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts),rg=(mx-mn)||1;
+    var xs=pts.map(function(p,i){return [(i/(pts.length-1))*(w-8)+4, h-5-((p-mn)/rg)*(h-10)];});
+    var line=xs.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+    var l=xs[xs.length-1];
+    return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polygon points="4,'+h+' '+line+' '+(w-4)+','+h+'" fill="var(--soft)"/><polyline points="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><circle cx="'+l[0].toFixed(1)+'" cy="'+l[1].toFixed(1)+'" r="3" fill="var(--accent)"/></svg>';
+  }
+  function renderDone(r){
+    $("doneH").textContent="ส่งเรียบร้อยครับ";
+    $("doneP").textContent="ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
+    var html=FIELDS.map(function(f){
+      var cur=r.now[f.k], pv=r.prev?r.prev[f.k]:null, d="";
+      if(pv!=null&&pv!==""){
+        var diff=Math.round((cur-pv)*10)/10;
+        d = diff===0 ? "เท่าเดิม" : (diff<0?"ลดลงจาก ":"เพิ่มขึ้นจาก ")+fmt(pv);
+      } else { d="ครั้งแรกที่บันทึก"; }
+      var pts=(r.history||[]).map(function(x){return x[f.k];}).filter(function(v){return v!=null&&v!=="";}).map(Number);
+      return '<div class="card"><small>'+f.name+'</small><strong>'+fmt(cur)+' <i>'+f.unit+'</i></strong><div class="d">'+d+'</div>'+spark(pts)+'</div>';
+    }).join("");
+    $("cmp").innerHTML=html;
+    show("vDone");
+  }
+  $("closeBtn").addEventListener("click",function(){
+    if(!DEMO && window.liff && liff.isInClient()) liff.closeWindow(); else $("closeBtn").textContent="ปิดหน้านี้ได้เลยครับ";
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
