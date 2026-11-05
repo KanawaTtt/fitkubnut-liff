@@ -91,6 +91,13 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .sh-body th{color:var(--muted);font-weight:500;font-size:12px}
 .sh-body td:not(:first-child),.sh-body th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .bx{border:1px dashed var(--line);border-radius:14px;padding:11px 12px;margin:8px 0}.bx b{font-weight:600;display:block;margin-bottom:8px}.links{display:flex;gap:8px;flex-wrap:wrap}.lk{border:0;border-radius:12px;background:var(--soft);color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer}a.lk{text-decoration:none;display:inline-block}.lk.main{background:var(--accent);color:var(--on-accent)}.lk:disabled{opacity:.7;cursor:default}.lk:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.more{margin-top:14px}
+.opt{font-weight:400;color:var(--muted)}
+.pick{width:100%;border:1.5px dashed var(--line);background:var(--card);color:var(--accent);font:inherit;font-weight:600;font-size:14px;border-radius:14px;padding:13px;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center}
+.pick svg{width:20px;height:20px}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pick[hidden],.pv[hidden]{display:none}
+.pv{display:flex;gap:12px;align-items:center}
+.pv img{width:84px;height:84px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block;background:var(--soft)}
 .src{margin-top:14px;font-size:12px;color:var(--muted)}
 .src a{color:var(--muted)}
 </style>
@@ -120,10 +127,17 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
         <div><div class="lbrow"><label for="muscle">มวลกล้ามเนื้อ</label><button type="button" class="tip" data-tip="muscle" aria-label="วิธีดูค่ามวลกล้ามเนื้อ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-muscle"><input id="muscle" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-muscle"></div></div>
         <div><div class="lbrow"><label for="visceral">ไขมันช่องท้อง</label><button type="button" class="tip" data-tip="visceral" aria-label="วิธีดูค่าไขมันช่องท้อง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-visceral"><input id="visceral" inputmode="decimal" autocomplete="off" placeholder="0"><span>ระดับ</span></div><div class="hint" id="h-visceral"></div></div>
       </div>
+      <div id="photoBox">
+        <div class="lbrow"><label for="photo">รูป Check หุ่น <span class="opt" id="photoOpt">(ไม่บังคับ แต่ช่วยให้เห็นความเปลี่ยนแปลงชัดขึ้น)</span></label></div>
+        <input id="photo" type="file" accept="image/*" hidden>
+        <button type="button" class="pick" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>ถ่ายรูป / เลือกรูป</button>
+        <div class="pv" id="pv" hidden><img id="photoImg" alt="รูปที่เลือกไว้"><button type="button" class="lk" id="photoDel">เอารูปออก</button></div>
+        <div class="hint" id="h-photo"></div>
+      </div>
       <div class="err" id="formErr" hidden role="alert"></div>
       <button class="btn" id="submit" type="submit">ส่งค่าร่างกาย</button>
     </form>
-    <p class="sub" style="font-size:13px">รูปเช็คหุ่น ส่งมาในแชทตามเดิมได้เลยครับ ไม่ต้องรีบ ไม่ต้องเป๊ะ ทำตามสบายนะ</p>
+    <p class="sub" style="font-size:13px">ยังไม่สะดวกถ่ายรูปตอนนี้ ข้ามไปก่อนได้เลยครับ ส่งรูปมาในแชททีหลังก็ได้ ไม่ต้องเป๊ะ ทำตามสบายนะ</p>
     <section id="scaleSec" class="card" hidden style="display:none;flex-direction:column;gap:6px"></section>
   </section>
 
@@ -151,6 +165,8 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 var CONFIG = {
   LIFF_ID: "2012288678-D28CcUj0",
   API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec",
+  /* true = บังคับใส่รูปทุกครั้งเหมือนฟอร์มเดิม / false = ไม่บังคับ (ค่าเริ่มต้น) */
+  PHOTO_REQUIRED: false,
   /* เครื่องชั่งที่ณัฒใช้ — ใส่ชื่อรุ่น (ไม่ใส่ก็ได้) และลิงก์ ช่องไหนเว้นว่างไว้ ปุ่มนั้นจะไม่ขึ้น ถ้าเว้นว่างทั้งหมด ปุ่ม "ดูเครื่องชั่ง" จะไม่ขึ้นเลย */
   SCALE: {
     name: "",
@@ -263,22 +279,55 @@ var CONFIG = {
     if(!ok){ $(first).focus(); return null; }
     return vals;
   }
+  /* ---------- photo ---------- */
+  var photo=null;               /* {mime, data(base64)} */
+  var MAXPX=1440;               /* ย่อรูปด้านยาวสุดไม่เกิน 1440px */
+  function photoHint(t,bad){ var h=$("h-photo"); h.textContent=t||""; h.className="hint"+(bad?" e":""); }
+  function clearPhoto(){ photo=null; $("photo").value=""; $("pv").hidden=true; $("pickBtn").hidden=false; $("photoImg").removeAttribute("src"); }
+  function loadPhoto(file){
+    if(!file) return;
+    photoHint("กำลังย่อรูป…");
+    var url=URL.createObjectURL(file), img=new Image();
+    img.onload=function(){
+      try{
+        var w=img.naturalWidth,h=img.naturalHeight,sc=Math.min(1,MAXPX/Math.max(w,h));
+        var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w*sc)); c.height=Math.max(1,Math.round(h*sc));
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+        var d=c.toDataURL("image/jpeg",0.8);
+        URL.revokeObjectURL(url);
+        if(!d||d.length<1000) throw new Error("empty");
+        photo={mime:"image/jpeg",data:d.split(",")[1]};
+        $("photoImg").src=d; $("pv").hidden=false; $("pickBtn").hidden=true; photoHint("");
+      }catch(e){ URL.revokeObjectURL(url); clearPhoto(); photoHint("ย่อรูปนี้ไม่ได้ ลองเลือกรูปอื่น หรือถ่ายใหม่นะครับ",true); }
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); clearPhoto(); photoHint("เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น หรือถ่ายใหม่นะครับ",true); };
+    img.src=url;
+  }
+  $("pickBtn").addEventListener("click",function(){ $("photo").click(); });
+  $("photo").addEventListener("change",function(){ loadPhoto(this.files&&this.files[0]); });
+  $("photoDel").addEventListener("click",function(){ clearPhoto(); photoHint(""); });
+  if(CONFIG.PHOTO_REQUIRED){ $("photoOpt").textContent="(จำเป็นต้องมี)"; }
+
   $("f").addEventListener("submit",function(ev){
     ev.preventDefault();
     var err=$("formErr"); err.hidden=true;
     var vals=readForm(); if(!vals) return;
-    var b=$("submit"); b.disabled=true; b.textContent="กำลังส่ง…";
-    api({action:"bodySubmit",values:vals}).then(function(r){
+    if(CONFIG.PHOTO_REQUIRED && !photo){ photoHint("ใส่รูปด้วยนะครับ",true); $("pickBtn").focus(); return; }
+    var b=$("submit"); b.disabled=true; b.textContent=photo?"กำลังส่งรูปและค่า…":"กำลังส่ง…";
+    var sentPhoto=!!photo;
+    var payload={action:"bodySubmit",values:vals}; if(photo) payload.photo=photo;
+    api(payload).then(function(r){
       if(!r.ok){
         b.disabled=false; b.textContent="ส่งค่าร่างกาย";
         err.hidden=false;
         err.textContent = r.error==="range" ? "มีตัวเลขที่ดูผิดปกติ ลองเช็กอีกทีนะครับ"
+          : r.error==="photo" ? "ส่งรูปไม่สำเร็จ ลองอีกครั้ง หรือกด “เอารูปออก” แล้วส่งเฉพาะตัวเลขก่อนก็ได้ครับ"
           : r.error==="busy" ? "ระบบกำลังยุ่งอยู่ รอสักครู่แล้วกดส่งอีกครั้งนะครับ"
           : r.error==="token" ? "หน้านี้เปิดค้างนานไป ปิดแล้วเปิดใหม่จากเมนูในแชทนะครับ"
           : "ส่งไม่สำเร็จ ลองอีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")";
         return;
       }
-      renderDone(r);
+      renderDone(r,sentPhoto);
     }).catch(function(){
       b.disabled=false; b.textContent="ส่งค่าร่างกาย";
       err.hidden=false; err.textContent="เชื่อมต่อไม่ได้ ถ้าไม่แน่ใจว่าส่งไปแล้วหรือยัง ทักแชทบอกณัฒก่อนส่งซ้ำนะครับ";
@@ -294,9 +343,9 @@ var CONFIG = {
     var l=xs[xs.length-1];
     return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polygon points="4,'+h+' '+line+' '+(w-4)+','+h+'" fill="var(--soft)"/><polyline points="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><circle cx="'+l[0].toFixed(1)+'" cy="'+l[1].toFixed(1)+'" r="3" fill="var(--accent)"/></svg>';
   }
-  function renderDone(r){
+  function renderDone(r,sentPhoto){
     $("doneH").textContent="ส่งเรียบร้อยครับ";
-    $("doneP").textContent="ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
+    $("doneP").textContent= sentPhoto ? "ณัฒได้รับค่าและรูปแล้ว จะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ" : "ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
     var html=FIELDS.map(function(f){
       var cur=r.now[f.k], pv=r.prev?r.prev[f.k]:null, d="";
       if(pv!=null&&pv!==""){
