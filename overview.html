@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>ภาพรวมของฉัน | Fit กับณัฒ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F4; --ink:#16241F; --muted:#5B6D63; --card:#FFFFFF; --line:#D8E3DB; --soft:#E3EEE7;
+  --accent:#17806A; --on-accent:#FFFFFF; --grid:#E6EEE8; --err:#B3382C; --err-bg:#FBE4DF;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1914; --ink:#E7F1EB; --muted:#9BB0A4; --card:#16231D; --line:#273A31; --soft:#1D2E26;
+    --accent:#3FB899; --on-accent:#07261D; --grid:#22352C; --err:#FF9D90; --err-bg:#3A1F1B;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:'Prompt','Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding:0 16px max(28px,env(safe-area-inset-bottom))}
+main{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding-top:max(16px,env(safe-area-inset-top))}
+.brand{font-size:13px;color:var(--muted)}
+.brand b{color:var(--accent);font-weight:600}
+h1{font-size:23px;line-height:1.3;margin:2px 0 0;font-weight:700;text-wrap:balance}
+h2{font-size:17px;line-height:1.35;margin:0;font-weight:700}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn:focus-visible,.chip:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.center{text-align:center;padding:48px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+
+/* เมนูลัดด้านบน */
+.nav{position:sticky;top:0;z-index:5;margin:0 -16px;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;font-size:13px;font-weight:500;color:var(--ink);background:var(--soft);border-radius:999px;padding:6px 14px;text-decoration:none}
+.nav a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+section.blk{display:flex;flex-direction:column;gap:12px;scroll-margin-top:64px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sel{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:15px;font-weight:500;border-radius:14px;padding:10px 12px;appearance:auto}
+.sel-wrap label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px}
+
+/* ค่าร่างกาย */
+.mets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.met{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px 13px;min-width:0}
+.met small{display:block;color:var(--muted);font-size:12px}
+.met strong{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.met strong i{font-style:normal;font-size:12px;color:var(--muted);font-weight:400}
+.met .d{font-size:12px;color:var(--muted);min-height:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:500;border-radius:999px;padding:5px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chart{width:100%;display:block;touch-action:manipulation}
+.chart text{font-family:inherit;fill:var(--muted);font-size:10px}
+.chart .gl{stroke:var(--grid);stroke-width:1}
+.chart .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .ar{fill:var(--soft)}
+.chart .pt{fill:var(--accent);stroke:var(--card);stroke-width:2}
+.chart .hit{fill:transparent;cursor:pointer}
+.chart .hit:focus{outline:none}
+.chart .hit:focus-visible{stroke:var(--accent);stroke-width:2}
+.chart .vl{fill:var(--ink);font-weight:600;font-size:11px;stroke:var(--card);stroke-width:4px;paint-order:stroke;stroke-linejoin:round}
+.photo-one{display:flex;flex-direction:column;gap:6px;max-width:260px}
+.photo-one img,.ba img{width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:var(--soft);aspect-ratio:3/4;object-fit:cover}
+.ph-empty{aspect-ratio:3/4;border-radius:14px;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center;padding:10px;background:var(--soft)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ba figure{margin:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+.ba figcaption{font-size:12px;color:var(--muted)}
+.ba figcaption b{color:var(--ink);font-weight:600}
+.soft{background:var(--soft);border-radius:14px;padding:10px 13px;font-size:14px}
+details summary{cursor:pointer;font-size:13px;color:var(--muted)}
+table.tb{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;font-variant-numeric:tabular-nums}
+.tbw{overflow-x:auto}
+table.tb th,table.tb td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.tb th:first-child,table.tb td:first-child{text-align:left}
+table.tb th{color:var(--muted);font-weight:500;font-size:12px}
+
+/* โปรแกรม */
+.pmeta{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:12px;background:var(--soft);color:var(--ink);border-radius:999px;padding:3px 10px}
+ul.ex{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ul.ex li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+ul.ex li:last-child{border-bottom:0}
+.no{flex:none;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.en{font-size:15px;font-weight:500;line-height:1.35}
+.em{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ความสม่ำเสมอ + อารมณ์ */
+.wk{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.wk div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.wk i{display:block;width:100%;max-width:30px;aspect-ratio:1;border-radius:50%;border:2px solid var(--line);background:var(--card)}
+.wk .on i{background:var(--accent);border-color:var(--accent)}
+.wk .on{color:var(--ink)}
+.wk .on i::after{content:"";display:block;width:100%;height:100%;background:no-repeat center/55% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+.moods{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.mood{flex:none;width:52px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted)}
+.mood span{font-size:26px;line-height:1.2}
+
+/* เหรียญ */
+.medals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.medal{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;font-size:12px;line-height:1.3;min-width:0}
+.medal svg{width:46px;height:46px}
+.medal b{font-weight:600;font-size:13px}
+.medal small{color:var(--muted);font-size:11px}
+.medal.next{color:var(--muted)}
+.medal.next svg{opacity:.45}
+.msg{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px}
+.quote{border-left:3px solid var(--accent);padding:2px 0 2px 12px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><b>Fit กับณัฒ</b> · ภาพรวมของฉัน</div>
+
+  <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
+
+  <section id="vMsg" hidden class="center">
+    <h1 id="msgH"></h1>
+    <p class="sub" id="msgP"></p>
+    <button class="btn ghost" id="msgBtn" hidden></button>
+  </section>
+
+  <div id="vMain" hidden style="display:none;flex-direction:column;gap:16px">
+    <div>
+      <h1 id="hello">สวัสดีครับ</h1>
+      <p class="sub" id="since"></p>
+    </div>
+
+    <nav class="nav" aria-label="ข้ามไปส่วนต่างๆ">
+      <a href="#sBody">ค่าร่างกาย</a><a href="#sPhoto">ก่อน-ตอนนี้</a><a href="#sProg">โปรแกรม</a><a href="#sKeep">ความสม่ำเสมอ</a><a href="#sMedal">เหรียญ</a>
+    </nav>
+
+    <section class="blk" id="sBody" aria-labelledby="tBody">
+      <div class="hd"><h2 id="tBody">ค่าร่างกาย</h2></div>
+      <div id="bodyEmpty" class="card" hidden>
+        <p style="margin:0 0 10px">ยังไม่มีค่าร่างกายในระบบเลยครับ ส่งครั้งแรกตอนไหนก็ได้ ไม่ต้องรีบ แค่เริ่มเก็บไว้ก่อน</p>
+        <a class="btn" href="./">ส่งค่าร่างกายครั้งแรก</a>
+      </div>
+      <div id="bodyBox" style="display:flex;flex-direction:column;gap:12px">
+        <div class="sel-wrap"><label for="selBody">เลือกครั้งที่เช็ก</label><select class="sel" id="selBody"></select></div>
+        <div class="mets" id="mets"></div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div class="chips" id="metricChips" role="group" aria-label="เลือกค่าที่อยากดูกราฟ"></div>
+          <svg class="chart" id="chart" viewBox="0 0 320 156" role="img" aria-labelledby="chartCap"></svg>
+          <div class="sub" id="chartCap" style="font-size:12px"></div>
+          <details><summary>ดูเป็นตาราง</summary><div class="tbw"><table class="tb" id="tbl"></table></div></details>
+        </div>
+        <div class="photo-one" id="onePhoto" hidden>
+          <div class="sub" id="onePhotoCap"></div>
+          <div id="onePhotoBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk" id="sPhoto" aria-labelledby="tPhoto">
+      <h2 id="tPhoto">ก่อน – ตอนนี้</h2>
+      <div id="baBox"></div>
+    </section>
+
+    <section class="blk" id="sProg" aria-labelledby="tProg">
+      <h2 id="tProg">โปรแกรมออกกำลังกาย</h2>
+      <div id="progEmpty" class="card" hidden><p style="margin:0">ณัฒยังไม่ได้ส่งโปรแกรมให้ในตอนนี้ครับ พอมีแล้วจะขึ้นที่นี่ให้เลย</p></div>
+      <div id="progBox" style="display:flex;flex-direction:column;gap:12px">
+        <div class="sel-wrap"><label for="selProg">เลือกวัน</label><select class="sel" id="selProg"></select></div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div><div style="font-weight:600;font-size:16px" id="pName"></div><div class="pmeta" id="pMeta" style="margin-top:6px"></div></div>
+          <ul class="ex" id="pList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="blk" id="sKeep" aria-labelledby="tKeep">
+      <h2 id="tKeep">ความสม่ำเสมอและอารมณ์</h2>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <div id="keepTxt" style="font-weight:600"></div>
+        <div class="wk" id="wk" role="img" aria-label="สัปดาห์ที่มีความเคลื่อนไหว"></div>
+        <div class="sub" style="font-size:13px" id="keepNote"></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600">อารมณ์ที่เล่าให้ณัฒฟัง</div>
+        <div id="moodEmpty" class="sub" hidden>ยังไม่มีบันทึกอารมณ์ พอตอบในแชทแล้วจะมาอยู่ตรงนี้</div>
+        <div class="moods" id="moods"></div>
+        <div class="sub" style="font-size:13px" id="moodNote"></div>
+      </div>
+    </section>
+
+    <section class="blk" id="sMedal" aria-labelledby="tMedal">
+      <h2 id="tMedal">เหรียญของฉัน</h2>
+      <div class="card"><div class="medals" id="medals"></div></div>
+    </section>
+
+    <div class="quote">ค่อยๆ ไปทีละนิด ไม่ต้องรีบนะครับ แวะกลับมาดูได้ทุกเมื่อ — Trainer ณัฒ</div>
+    <a class="btn" href="./">ส่งค่าร่างกายสัปดาห์นี้</a>
+    <button class="btn ghost" id="closeBtn" type="button">กลับไปที่แชท</button>
+  </div>
+</main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+<script>
+/* ===== ตั้งค่า (ใช้ค่าเดียวกับหน้าส่งค่าร่างกาย) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ================================================== */
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var idToken = "";
+  var R = null;                       /* ข้อมูลที่ได้จากหลังบ้าน */
+  var S = { body:0, metric:"weight", prog:0 };
+  var photoCache = {};                /* pid -> dataURL หรือ "" (โหลดไม่ได้) */
+  var METRICS = [
+    {k:"weight",  name:"น้ำหนัก",        unit:"กก."},
+    {k:"fat",     name:"ไขมัน",          unit:"%"},
+    {k:"muscle",  name:"กล้ามเนื้อ",      unit:"กก."},
+    {k:"visceral",name:"ไขมันช่องท้อง",   unit:""}
+  ];
+  var MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+
+  function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function fmt(n){ return (Math.round(n*10)/10).toFixed(1).replace(/\.0$/,""); }
+  function tdate(ts){
+    var d=new Date(ts), y=new Date().getFullYear();
+    return d.getDate()+" "+MONTHS[d.getMonth()]+(d.getFullYear()!==y?(" "+String((d.getFullYear()+543)%100)):"");
+  }
+  function sameDay(a,b){ var x=new Date(a),y=new Date(b); return x.getFullYear()===y.getFullYear()&&x.getMonth()===y.getMonth()&&x.getDate()===y.getDate(); }
+
+  function show(id){
+    ["vLoad","vMsg","vMain"].forEach(function(v){
+      var el=$(v); el.hidden=(v!==id);
+      if(v==="vMain") el.style.display=(v===id)?"flex":"none";
+    });
+    window.scrollTo(0,0);
+  }
+  function msg(h,p,btn){
+    $("msgH").textContent=h; $("msgP").textContent=p||"";
+    var b=$("msgBtn");
+    if(btn){ b.hidden=false; b.textContent=btn.text; b.onclick=btn.fn; } else { b.hidden=true; }
+    show("vMsg");
+  }
+
+  /* ---------- API ---------- */
+  function api(payload){
+    if(DEMO) return demoApi(payload);
+    payload.idToken=idToken;
+    return fetch(CONFIG.API_URL+(CONFIG.API_URL.indexOf("?")>-1?"&":"?")+"liff=1",{
+      method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"
+    }).then(function(r){ return r.json(); });
+  }
+  function demoApi(p){
+    return new Promise(function(res){
+      setTimeout(function(){
+        if(p.action==="photo"){
+          var c=document.createElement("canvas"); c.width=300; c.height=400; var x=c.getContext("2d");
+          x.fillStyle=p.id==="demoA"?"#8FB9A8":"#4F9B84"; x.fillRect(0,0,300,400);
+          x.fillStyle="rgba(255,255,255,.55)"; x.beginPath(); x.arc(150,130,48,0,7); x.fill(); x.fillRect(100,185,100,170);
+          return res({ok:true,mime:"image/jpeg",data:c.toDataURL("image/jpeg",0.8).split(",")[1]});
+        }
+        var DAY=86400000, now=Date.now();
+        var sc=/[?&]scene=(\w+)/.exec(location.search); sc=sc?sc[1]:"full";
+        var body=[
+          {ts:now-35*DAY,d:"",weight:65.4,fat:31.2,muscle:24.0,visceral:7,pid:"demoA"},
+          {ts:now-28*DAY,d:"",weight:64.8,fat:30.6,muscle:24.1,visceral:7,pid:""},
+          {ts:now-21*DAY,d:"",weight:64.9,fat:30.4,muscle:24.3,visceral:7,pid:""},
+          {ts:now-14*DAY,d:"",weight:63.4,fat:29.9,muscle:24.4,visceral:6,pid:"demoB"},
+          {ts:now-7*DAY,d:"",weight:63.6,fat:29.5,muscle:24.8,visceral:6,pid:""},
+          {ts:now-1*DAY,d:"",weight:62.9,fat:29.0,muscle:25.1,visceral:6,pid:"demoC"}
+        ];
+        var progs=[
+          {ts:now,name:"Full Body Foundation (มาตรฐาน)",level:"Beginner",mins:"40-50 นาที",ex:[
+            {n:"Dynamic Cardio Stretching",sets:"1",kg:"",reps:"ท่าละ 30 วินาที",rest:"ไม่มีพัก"},
+            {n:"Goblet Squat",sets:"4",kg:"12",reps:"12",rest:"60"},
+            {n:"Glute Bridge",sets:"3",kg:"",reps:"15",rest:"45"},
+            {n:"Dumbbell Bent Over Row",sets:"3",kg:"8",reps:"12",rest:"60"}]},
+          {ts:now-3*DAY,name:"Full Body Foundation (มาตรฐาน)",level:"Beginner",mins:"40-50 นาที",ex:[
+            {n:"Goblet Squat",sets:"3",kg:"12",reps:"12",rest:""},{n:"Crunch",sets:"3",kg:"",reps:"15",rest:""}]}
+        ];
+        var d={ok:true,name:"คุณเมย์",startTs:now-35*DAY,nowTs:now,body:body,programs:progs,
+          moods:[{ts:now-21*DAY,e:"😓",t:"เหนื่อยๆ ครับ"},{ts:now-14*DAY,e:"🙂",t:"ปกติดี"},{ts:now-7*DAY,e:"🔥",t:"ฟิตมากครับ"},{ts:now-1*DAY,e:"🔥",t:"ฟิตมากครับ"}],
+          weeks:[{d:"17/8",on:true},{d:"24/8",on:true},{d:"31/8",on:false},{d:"7/9",on:true},{d:"14/9",on:true},{d:"21/9",on:false},{d:"28/9",on:true},{d:"5/10",on:true}],
+          goCount:9,miles:[{ts:now-28*DAY,m:"ครบ 1 สัปดาห์",d:""},{ts:now-14*DAY,m:"ครบ 2 สัปดาห์",d:""}]};
+        if(sc==="new"){ d.body=[]; d.programs=[]; d.moods=[]; d.miles=[]; d.goCount=0; d.weeks.forEach(function(w){w.on=false;}); }
+        if(sc==="one"){ d.body=[body[5]]; d.programs=[]; d.moods=[]; d.miles=[]; d.weeks.forEach(function(w,i){w.on=(i===7);}); }
+        if(sc==="err"){ return res({ok:false,error:"server"}); }
+        res(d);
+      },400);
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    show("vLoad");
+    if(DEMO) return load();
+    if(!window.liff){ return setTimeout(boot,150); }
+    liff.init({liffId:CONFIG.LIFF_ID}).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({redirectUri:location.href}); return; }
+      idToken=liff.getIDToken();
+      load();
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+  var retried=false;
+  function load(){
+    $("loadTxt").textContent="กำลังรวบรวมความก้าวหน้าของคุณ…";
+    api({action:"overviewInit"}).then(function(r){
+      if(!r.ok){
+        if(r.error==="token" && !retried && window.liff){ retried=true; liff.logout(); liff.login({redirectUri:location.href}); return; }
+        if(r.error==="nomatch") return msg("ยังไม่พบข้อมูลของคุณในระบบ","ทักแชทบอกณัฒได้เลยครับ เดี๋ยวณัฒจับคู่ให้");
+        return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+      }
+      R=r; render(); show("vMain");
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้","เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    $("hello").textContent="สวัสดีครับ "+(R.name||"");
+    var days = R.startTs ? Math.floor((R.nowTs-R.startTs)/86400000) : -1;
+    $("since").textContent = days>=1 ? ("เดินทางกับณัฒมา "+days+" วันแล้ว ย้อนดูได้ทุกก้าวที่นี่") : "ย้อนดูทุกก้าวที่ผ่านมาได้ที่นี่ ไม่ต้องรีบนะครับ";
+    renderBody(); renderBeforeAfter(); renderProgram(); renderKeep(); renderMedals();
+  }
+
+  /* ----- ค่าร่างกาย ----- */
+  function renderBody(){
+    var B=R.body;
+    $("bodyEmpty").hidden = B.length>0;
+    $("bodyBox").style.display = B.length>0 ? "flex" : "none";
+    if(!B.length) return;
+    S.body = B.length-1;
+    var sel=$("selBody"), h="";
+    for(var i=B.length-1;i>=0;i--){
+      h+='<option value="'+i+'">'+esc(tdate(B[i].ts))+' · ครั้งที่ '+(i+1)+(i===B.length-1?' (ล่าสุด)':'')+'</option>';
+    }
+    sel.innerHTML=h; sel.value=String(S.body);
+    $("metricChips").innerHTML=METRICS.map(function(m){
+      return '<button type="button" class="chip" data-m="'+m.k+'" aria-pressed="'+(m.k===S.metric)+'">'+m.name+'</button>';
+    }).join("");
+    var rows='<tr><th>วันที่</th>'+METRICS.map(function(m){return '<th>'+m.name+'</th>';}).join("")+'</tr>';
+    for(var j=B.length-1;j>=0;j--){
+      rows+='<tr><td>'+esc(tdate(B[j].ts))+'</td>'+METRICS.map(function(m){ var v=B[j][m.k]; return '<td>'+(v==null?'-':fmt(v))+'</td>'; }).join("")+'</tr>';
+    }
+    $("tbl").innerHTML=rows;
+    drawBody();
+  }
+  function drawBody(){
+    var B=R.body, i=S.body, cur=B[i], prev=i>0?B[i-1]:null;
+    $("mets").innerHTML=METRICS.map(function(m){
+      var v=cur[m.k], d="";
+      if(v==null){ return '<div class="met"><small>'+m.name+'</small><strong>-</strong><div class="d"></div></div>'; }
+      if(prev && prev[m.k]!=null){
+        var df=Math.round((v-prev[m.k])*10)/10;
+        d = df===0 ? "เท่าครั้งก่อน" : ((df<0?"ลดลง ":"เพิ่มขึ้น ")+fmt(Math.abs(df))+" จากครั้งก่อน");
+      } else { d="ครั้งแรกที่บันทึก"; }
+      return '<div class="met"><small>'+m.name+'</small><strong>'+fmt(v)+' <i>'+m.unit+'</i></strong><div class="d">'+d+'</div></div>';
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("#metricChips .chip"),function(c){
+      c.setAttribute("aria-pressed",String(c.getAttribute("data-m")===S.metric));
+    });
+    drawChart();
+    /* รูปของครั้งที่เลือก */
+    var box=$("onePhoto");
+    if(cur.pid){
+      box.hidden=false; $("onePhotoCap").textContent="รูปของครั้งที่เลือก ("+tdate(cur.ts)+")";
+      $("onePhotoBox").innerHTML='<div class="ph-empty">กำลังโหลดรูป…</div>';
+      var mine=cur.pid;
+      getPhoto(mine).then(function(u){
+        if(R.body[S.body].pid!==mine) return;
+        $("onePhotoBox").innerHTML = u ? '<img alt="รูป Check หุ่นวันที่ '+esc(tdate(cur.ts))+'" src="'+u+'">' : '<div class="ph-empty">เปิดรูปนี้ไม่ได้ในตอนนี้</div>';
+      });
+    } else { box.hidden=true; }
+  }
+
+  function drawChart(){
+    var B=R.body, k=S.metric, M=METRICS.filter(function(m){return m.k===k;})[0];
+    var end=Math.min(B.length,Math.max(12,S.body+1)), start=Math.max(0,end-12);
+    var pts=[];
+    for(var i=start;i<end;i++){ if(B[i][k]!=null) pts.push({i:i,v:B[i][k],ts:B[i].ts}); }
+    var svg=$("chart");
+    if(!pts.length){ svg.innerHTML=""; $("chartCap").textContent="ยังไม่มีค่านี้ให้ดูกราฟ"; return; }
+    var W=320,H=156,pl=34,pr=16,pt=26,pb=28;
+    var vs=pts.map(function(p){return p.v;}), mn=Math.min.apply(null,vs), mx=Math.max.apply(null,vs);
+    if(mx===mn){ mn-=1; mx+=1; } else { var pad=(mx-mn)*0.15; mn-=pad; mx+=pad; }
+    function X(j){ return pts.length===1 ? (pl+(W-pl-pr)/2) : pl+(j/(pts.length-1))*(W-pl-pr); }
+    function Y(v){ return pt+(1-(v-mn)/(mx-mn))*(H-pt-pb); }
+    var s="";
+    [mn,(mn+mx)/2,mx].forEach(function(t){
+      var y=Y(t); s+='<line class="gl" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text x="'+(pl-6)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end">'+fmt(t)+'</text>';
+    });
+    var xy=pts.map(function(p,j){return X(j).toFixed(1)+","+Y(p.v).toFixed(1);});
+    if(pts.length>1){
+      s+='<polygon class="ar" points="'+X(0).toFixed(1)+','+(H-pb)+' '+xy.join(" ")+' '+X(pts.length-1).toFixed(1)+','+(H-pb)+'"/>';
+      s+='<polyline class="ln" points="'+xy.join(" ")+'"/>';
+    }
+    var selJ=-1;
+    pts.forEach(function(p,j){
+      var x=X(j),y=Y(p.v), isSel=(p.i===S.body);
+      if(isSel) selJ=j;
+      s+='<circle class="pt" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(isSel?6:4)+'"/>';
+    });
+    /* ป้ายวันที่: ต้น / ท้าย / ที่เลือก (กันตัวหนังสือชนกัน) */
+    var labs=[0,pts.length-1], shown=[];
+    if(selJ>=0 && labs.indexOf(selJ)<0) labs.push(selJ);
+    labs.sort(function(a,b){return a-b;}).forEach(function(j){
+      var x=X(j); if(shown.some(function(q){return Math.abs(q-x)<44;})) return;
+      shown.push(x);
+      var anchor = x<pl+14?"start":(x>W-pr-14?"end":"middle");
+      s+='<text x="'+x.toFixed(1)+'" y="'+(H-8)+'" text-anchor="'+anchor+'">'+esc(tdate(pts[j].ts))+'</text>';
+    });
+    if(selJ>=0){
+      var sx=X(selJ), sy=Y(pts[selJ].v);
+      var anc = sx<pl+16?"start":(sx>W-pr-16?"end":"middle");
+      s+='<text class="vl" x="'+sx.toFixed(1)+'" y="'+(sy-11).toFixed(1)+'" text-anchor="'+anc+'">'+fmt(pts[selJ].v)+(M.unit?(" "+M.unit):"")+'</text>';
+    }
+    pts.forEach(function(p,j){
+      s+='<circle class="hit" role="button" tabindex="0" data-i="'+p.i+'" aria-label="เลือกครั้งวันที่ '+esc(tdate(p.ts))+'" cx="'+X(j).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="15"/>';
+    });
+    svg.innerHTML=s;
+    $("chartCap").textContent="กราฟ"+M.name+(M.unit?(" ("+M.unit+")"):"")+" · แตะที่จุดเพื่อดูแต่ละครั้ง";
+  }
+  function pickBody(i){ S.body=i; $("selBody").value=String(i); drawBody(); }
+  $("selBody").addEventListener("change",function(){ pickBody(Number(this.value)); });
+  $("metricChips").addEventListener("click",function(e){
+    var b=e.target.closest("[data-m]"); if(!b) return; S.metric=b.getAttribute("data-m"); drawBody();
+  });
+  $("chart").addEventListener("click",function(e){ var h=e.target.closest(".hit"); if(h) pickBody(Number(h.getAttribute("data-i"))); });
+  $("chart").addEventListener("keydown",function(e){
+    if(e.key!=="Enter" && e.key!==" ") return;
+    var h=e.target.closest&&e.target.closest(".hit"); if(h){ e.preventDefault(); pickBody(Number(h.getAttribute("data-i"))); }
+  });
+
+  /* ----- รูป ----- */
+  function getPhoto(pid){
+    if(photoCache.hasOwnProperty(pid)) return Promise.resolve(photoCache[pid]);
+    return api({action:"photo",id:pid}).then(function(r){
+      var u = (r&&r.ok&&r.data) ? ("data:"+(r.mime||"image/jpeg")+";base64,"+r.data) : "";
+      photoCache[pid]=u; return u;
+    }).catch(function(){ return ""; });
+  }
+  function renderBeforeAfter(){
+    var B=R.body, withPhoto=[];
+    B.forEach(function(b){ if(b.pid) withPhoto.push(b); });
+    var box=$("baBox");
+    if(!withPhoto.length){
+      box.innerHTML='<div class="soft">ยังไม่มีรูปเช็กหุ่น ตอนส่งค่าร่างกายรอบหน้า กด “ถ่ายรูป / เลือกรูป” ไว้ด้วยนะครับ เดี๋ยวนี้จะกลายเป็นภาพ “ก่อน – ตอนนี้” ให้ดูเอง ไม่ต้องเป๊ะ ทำตามสบาย</div>';
+      return;
+    }
+    var first=withPhoto[0], last=withPhoto[withPhoto.length-1];
+    if(withPhoto.length===1){
+      box.innerHTML='<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="sub">รูปแรกของคุณ ('+esc(tdate(first.ts))+')</div><div id="baOne"><div class="ph-empty">กำลังโหลดรูป…</div></div><div class="soft">เก็บรูปนี้ไว้เป็นจุดเริ่มต้น พอมีรูปครั้งต่อไป จะวางเทียบกันให้เห็นทันทีครับ</div></div>';
+      getPhoto(first.pid).then(function(u){ var o=$("baOne"); if(o) o.innerHTML=u?'<img alt="รูปแรก" style="width:100%;display:block;border-radius:14px;border:1px solid var(--line);aspect-ratio:3/4;object-fit:cover" src="'+u+'">':'<div class="ph-empty">เปิดรูปนี้ไม่ได้ในตอนนี้</div>'; });
+      return;
+    }
+    var diffs=[];
+    [["fat","ไขมัน","%"],["muscle","กล้ามเนื้อ","กก."],["weight","น้ำหนัก","กก."]].forEach(function(m){
+      if(first[m[0]]!=null && last[m[0]]!=null){
+        var df=Math.round((last[m[0]]-first[m[0]])*10)/10;
+        diffs.push(m[1]+" "+(df===0?"เท่าเดิม":((df<0?"ลดลง ":"เพิ่มขึ้น ")+fmt(Math.abs(df))+" "+m[2])));
+      }
+    });
+    var span=Math.max(1,Math.round((last.ts-first.ts)/86400000));
+    box.innerHTML='<div class="card" style="display:flex;flex-direction:column;gap:12px">'
+      +'<div class="ba"><figure><div id="baA"><div class="ph-empty">กำลังโหลดรูป…</div></div><figcaption><b>ก่อน</b> · '+esc(tdate(first.ts))+'</figcaption></figure>'
+      +'<figure><div id="baB"><div class="ph-empty">กำลังโหลดรูป…</div></div><figcaption><b>ตอนนี้</b> · '+esc(tdate(last.ts))+'</figcaption></figure></div>'
+      +'<div class="soft">ผ่านมา '+span+' วัน · '+esc(diffs.join(" · "))+'</div></div>';
+    function put(id,pid,alt){ getPhoto(pid).then(function(u){ var o=$(id); if(o) o.innerHTML=u?'<img alt="'+alt+'" src="'+u+'">':'<div class="ph-empty">เปิดรูปนี้ไม่ได้ในตอนนี้</div>'; }); }
+    put("baA",first.pid,"รูปก่อน"); put("baB",last.pid,"รูปตอนนี้");
+  }
+
+  /* ----- โปรแกรม ----- */
+  function exMeta(e){
+    var p=[];
+    if(e.sets) p.push(esc(e.sets)+" เซ็ต");
+    if(e.kg) p.push(esc(e.kg)+(/^[\d.,]+$/.test(e.kg)?" กก.":""));
+    if(e.reps) p.push(esc(e.reps)+(/^[\d.,]+$/.test(e.reps)?" ครั้ง":""));
+    if(e.rest) p.push((/^[\d.,]+$/.test(e.rest)?("พัก "+esc(e.rest)+" วิ"):esc(e.rest)));
+    return p.join(" · ");
+  }
+  function renderProgram(){
+    var P=R.programs;
+    $("progEmpty").hidden=P.length>0;
+    $("progBox").style.display=P.length>0?"flex":"none";
+    if(!P.length) return;
+    var h="";
+    P.forEach(function(p,i){
+      h+='<option value="'+i+'">'+(sameDay(p.ts,R.nowTs)?"วันนี้":esc(tdate(p.ts)))+' · '+esc(p.name||"โปรแกรม")+'</option>';
+    });
+    $("selProg").innerHTML=h; $("selProg").value="0"; drawProgram(0);
+  }
+  function drawProgram(i){
+    var p=R.programs[i]; S.prog=i;
+    $("pName").textContent=(sameDay(p.ts,R.nowTs)?"วันนี้ · ":(tdate(p.ts)+" · "))+(p.name||"โปรแกรม");
+    var tags=[]; if(p.level) tags.push(p.level); if(p.mins) tags.push(p.mins); tags.push(p.ex.length+" ท่า");
+    $("pMeta").innerHTML=tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("");
+    $("pList").innerHTML=p.ex.map(function(e,j){
+      return '<li><span class="no">'+(j+1)+'</span><div><div class="en">'+esc(e.n)+'</div><div class="em">'+(exMeta(e)||"ตามที่ณัฒแนะนำ")+'</div></div></li>';
+    }).join("");
+  }
+  $("selProg").addEventListener("change",function(){ drawProgram(Number(this.value)); });
+
+  /* ----- ความสม่ำเสมอ + อารมณ์ ----- */
+  function renderKeep(){
+    var W=R.weeks, on=W.filter(function(w){return w.on;}).length;
+    $("wk").innerHTML=W.map(function(w){ return '<div class="'+(w.on?"on":"")+'"><i></i><span>'+esc(w.d)+'</span></div>'; }).join("");
+    $("keepTxt").textContent = "ขยับไปแล้ว "+on+" จาก "+W.length+" สัปดาห์ล่าสุด";
+    $("keepNote").textContent = on===0 ? "สัปดาห์นี้เริ่มนับใหม่ได้เสมอ ไม่ต้องย้อนไปคิดเรื่องที่ผ่านมา"
+      : "ไม่ต้องครบทุกสัปดาห์ก็ได้ครับ วงกลมที่ว่างคือสัปดาห์ที่พัก ชีวิตมีขึ้นมีลง กลับมาเมื่อไหร่ก็นับต่อ";
+    var M=R.moods;
+    $("moodEmpty").hidden=M.length>0;
+    $("moods").innerHTML=M.map(function(m){ return '<div class="mood" title="'+esc(m.t)+'"><span aria-hidden="true">'+esc(m.e)+'</span>'+esc(tdate(m.ts))+'</div>'; }).join("");
+    $("moodNote").textContent = M.length ? ("ล่าสุด: "+M[M.length-1].e+" "+(M[M.length-1].t||"")+" ("+tdate(M[M.length-1].ts)+") อารมณ์ขึ้นลงเป็นเรื่องปกติ ณัฒไม่ตัดสินครับ") : "";
+  }
+
+  /* ----- เหรียญ ----- */
+  function medalSvg(on){
+    return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M16 4h6l3 12h-6zM32 4h-6l-3 12h6z" fill="'+(on?"var(--accent)":"var(--line)")+'" opacity=".55"/>'
+      +'<circle cx="24" cy="30" r="13" fill="'+(on?"var(--accent)":"none")+'" stroke="'+(on?"var(--accent)":"var(--muted)")+'" stroke-width="2.5" '+(on?"":'stroke-dasharray="4 4"')+'/>'
+      +(on?'<path d="m18 30 4.5 4.5L31 26" fill="none" stroke="var(--on-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>':'')+'</svg>';
+  }
+  function renderMedals(){
+    var seen={}, earned=[];
+    R.miles.forEach(function(m){ if(!seen[m.m]){ seen[m.m]=1; earned.push({t:m.m,ts:m.ts}); } });
+    var n=R.body.length, steps=[1,4,8,12,24], next=null;
+    steps.forEach(function(s){
+      if(n>=s){ var at=R.body[s-1]; earned.push({t:s===1?"ส่งค่าร่างกายครั้งแรก":("ส่งค่าร่างกายครบ "+s+" ครั้ง"),ts:at?at.ts:0}); }
+      else if(next===null){ next=s; }
+    });
+    var h=earned.map(function(e){ return '<div class="medal">'+medalSvg(true)+'<b>'+esc(e.t)+'</b>'+(e.ts?'<small>'+esc(tdate(e.ts))+'</small>':'')+'</div>'; }).join("");
+    if(next!==null){ h+='<div class="medal next">'+medalSvg(false)+'<b>ส่งค่าร่างกายครบ '+next+' ครั้ง</b><small>อีก '+(next-n)+' ครั้ง ค่อยๆ ไปก็ได้</small></div>'; }
+    $("medals").innerHTML=h;
+  }
+
+  $("closeBtn").addEventListener("click",function(){
+    if(!DEMO && window.liff && liff.isInClient()) liff.closeWindow(); else $("closeBtn").textContent="ปิดหน้านี้ได้เลยครับ";
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>
