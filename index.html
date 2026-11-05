@@ -62,6 +62,37 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .cmp .d{font-size:12px;color:var(--accent);font-weight:500;min-height:18px}
 .cmp svg{width:100%;height:34px;margin-top:4px;display:block}
 .quote{border-left:3px solid var(--accent);padding:2px 0 2px 12px;font-size:14px}
+
+.lbrow{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:24px;margin-bottom:4px}
+.lbrow label{margin:0}
+.tip{position:relative;flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);background:var(--soft);color:var(--accent);padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tip::before{content:"";position:absolute;inset:-10px}
+.tip svg{width:14px;height:14px}
+.tip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.scrim{position:fixed;inset:0;background:rgba(6,14,10,.55);z-index:20;opacity:0;transition:opacity .2s}
+.scrim.on{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:500px;margin:0 auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;
+  max-height:84vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.on{transform:none}
+@media(prefers-reduced-motion:reduce){.sheet,.scrim{transition:none}}
+.sh-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:16px 16px 6px 18px}
+.sh-head h2{margin:0;font-size:19px;line-height:1.3;font-weight:700}
+.sh-x{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:var(--soft);color:var(--ink);font:inherit;font-size:18px;line-height:1;cursor:pointer}
+.sh-x:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sh-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 18px 18px;font-size:14px}
+.sh-body .lead{margin:0 0 4px;color:var(--ink)}
+.sh-body h3{font-size:14px;font-weight:600;margin:16px 0 4px;color:var(--accent)}
+.sh-body p{margin:0 0 6px}
+.sh-body ul{margin:4px 0 6px;padding-left:20px}
+.sh-body li{margin:2px 0}
+.sh-body .soft{background:var(--soft);border-radius:12px;padding:9px 12px;margin:8px 0}
+.sh-body table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}
+.sh-body th,.sh-body td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.sh-body th{color:var(--muted);font-weight:500;font-size:12px}
+.sh-body td:not(:first-child),.sh-body th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bx{border:1px dashed var(--line);border-radius:14px;padding:11px 12px;margin:8px 0}.bx b{font-weight:600;display:block;margin-bottom:8px}.links{display:flex;gap:8px;flex-wrap:wrap}.lk{border:0;border-radius:12px;background:var(--soft);color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer}a.lk{text-decoration:none;display:inline-block}.lk.main{background:var(--accent);color:var(--on-accent)}.lk:disabled{opacity:.7;cursor:default}.lk:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.more{margin-top:14px}
+.src{margin-top:14px;font-size:12px;color:var(--muted)}
+.src a{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -84,15 +115,16 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
     <div class="note" id="sentBefore" hidden></div>
     <form id="f" novalidate class="card" style="display:flex;flex-direction:column;gap:14px">
       <div class="grid">
-        <div><label for="weight">น้ำหนัก</label><div class="in" id="w-weight"><input id="weight" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-weight"></div></div>
-        <div><label for="fat">เปอร์เซ็นต์ไขมัน</label><div class="in" id="w-fat"><input id="fat" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>%</span></div><div class="hint" id="h-fat"></div></div>
-        <div><label for="muscle">มวลกล้ามเนื้อ</label><div class="in" id="w-muscle"><input id="muscle" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-muscle"></div></div>
-        <div><label for="visceral">ไขมันช่องท้อง</label><div class="in" id="w-visceral"><input id="visceral" inputmode="decimal" autocomplete="off" placeholder="0"><span>ระดับ</span></div><div class="hint" id="h-visceral"></div></div>
+        <div><div class="lbrow"><label for="weight">น้ำหนัก</label><button type="button" class="tip" data-tip="weight" aria-label="ประโยชน์ของค่าน้ำหนัก"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-weight"><input id="weight" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-weight"></div></div>
+        <div><div class="lbrow"><label for="fat">เปอร์เซ็นต์ไขมัน</label><button type="button" class="tip" data-tip="fat" aria-label="วิธีดูค่าเปอร์เซ็นต์ไขมัน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-fat"><input id="fat" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>%</span></div><div class="hint" id="h-fat"></div></div>
+        <div><div class="lbrow"><label for="muscle">มวลกล้ามเนื้อ</label><button type="button" class="tip" data-tip="muscle" aria-label="วิธีดูค่ามวลกล้ามเนื้อ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-muscle"><input id="muscle" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-muscle"></div></div>
+        <div><div class="lbrow"><label for="visceral">ไขมันช่องท้อง</label><button type="button" class="tip" data-tip="visceral" aria-label="วิธีดูค่าไขมันช่องท้อง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-visceral"><input id="visceral" inputmode="decimal" autocomplete="off" placeholder="0"><span>ระดับ</span></div><div class="hint" id="h-visceral"></div></div>
       </div>
       <div class="err" id="formErr" hidden role="alert"></div>
       <button class="btn" id="submit" type="submit">ส่งค่าร่างกาย</button>
     </form>
     <p class="sub" style="font-size:13px">รูปเช็คหุ่น ส่งมาในแชทตามเดิมได้เลยครับ ไม่ต้องรีบ ไม่ต้องเป๊ะ ทำตามสบายนะ</p>
+    <section id="scaleSec" class="card" hidden style="display:none;flex-direction:column;gap:6px"></section>
   </section>
 
   <section id="vDone" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -107,12 +139,25 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
   </section>
 </main>
 
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT" hidden>
+  <div class="sh-head"><h2 id="shT"></h2><button type="button" class="sh-x" id="shX" aria-label="ปิด">✕</button></div>
+  <div class="sh-body" id="shB"></div>
+</div>
+
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
 <script>
 /* ===== ตั้งค่า (ณัฒ/ผู้ดูแลแก้เฉพาะ 2 บรรทัดนี้) ===== */
 var CONFIG = {
   LIFF_ID: "2012288678-D28CcUj0",
-  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec",
+  /* เครื่องชั่งที่ณัฒใช้ — ใส่ชื่อรุ่น (ไม่ใส่ก็ได้) และลิงก์ ช่องไหนเว้นว่างไว้ ปุ่มนั้นจะไม่ขึ้น ถ้าเว้นว่างทั้งหมด ปุ่ม "ดูเครื่องชั่ง" จะไม่ขึ้นเลย */
+  SCALE: {
+    name: "",
+    shopee: "https://s.shopee.co.th/3VlZyz6mzY?share_channel_code=6",
+    tiktok: "https://vt.tiktok.com/ZS9ywV2M8xypp-3VmAb/",
+    lazada: ""
+  }
 };
 /* ================================================== */
 
@@ -267,6 +312,121 @@ var CONFIG = {
   $("closeBtn").addEventListener("click",function(){
     if(!DEMO && window.liff && liff.isInClient()) liff.closeWindow(); else $("closeBtn").textContent="ปิดหน้านี้ได้เลยครับ";
   });
+
+  /* ---------- tips ---------- */
+  var SRC_BIA='<a href="https://kiwix.lema.org/mdwiki_en_all_2024-03/A/Bioimpedance" target="_blank" rel="noopener">Wikipedia: Bioelectrical impedance analysis</a>';
+  var SRC_SW='<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2588640/" target="_blank" rel="noopener">Self-weighing and weight management (systematic review)</a>';
+  var SRC_TAN='<a href="https://tanita.eu/visceral-fat-2" target="_blank" rel="noopener">Tanita: Visceral Fat</a>';
+  function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  var SC=CONFIG.SCALE||{};
+  var HAS_SCALE=!!(SC.shopee||SC.tiktok||SC.lazada);
+  var MORE=HAS_SCALE?'<div class="more"><button type="button" class="lk main" data-scroll="scaleSec">ดูเครื่องชั่งที่ณัฒใช้ (ด้านล่างหน้านี้)</button></div>':'';
+  function scaleLinks(){
+    var out='';
+    [["shopee","ดูที่ Shopee",true],["tiktok","TikTok Shop",false],["lazada","Lazada",false]].forEach(function(r){
+      if(SC[r[0]]) out+='<a class="lk'+(r[2]?' main':'')+'" href="'+esc(SC[r[0]])+'" target="_blank" rel="noopener noreferrer sponsored" data-ext="1">'+r[1]+'</a>';
+    });
+    return out;
+  }
+  var FREE='<div class="soft">ยังไม่มีเครื่องก็ไม่เป็นไรครับ ไม่ต้องรู้สึกผิดอะไร ทักแชทบอกณัฒได้เลย แค่ถ้ามีข้อมูล ภาพความก้าวหน้าจะชัดขึ้นเยอะ</div>';
+  var TIPS={
+    weight:{
+      t:"น้ำหนัก",
+      h:'<p class="lead">ค่าที่ง่ายและเร็วที่สุด ดูได้จากเครื่องชั่งทุกแบบ</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>เห็นทิศทางรายสัปดาห์ได้ทันที ว่าสิ่งที่ทำอยู่พาไปทางไหน</li>'
+       +'<li>งานรีวิวงานวิจัยพบว่า คนที่ชั่งน้ำหนักสม่ำเสมอ (รายสัปดาห์หรือรายวัน) มักลดได้มากกว่าหรือกลับมาน้อยกว่าคนที่ไม่ค่อยชั่ง (เป็นข้อมูลเชิงสังเกต ไม่ใช่การันตี)</li></ul>'
+       +'<h3>ถ้าไม่ได้ชั่ง จะพลาดอะไร</h3>'
+       +'<ul><li>ปรับแผนยากขึ้น เพราะไม่รู้ว่าที่ทำอยู่ได้ผลแค่ไหน</li>'
+       +'<li>แต่น้ำหนักตัวเลขเดียวบอกไม่ได้ว่าเปลี่ยนที่ไขมัน กล้ามเนื้อ หรือน้ำ จึงมีอีก 3 ค่าให้ดูควบคู่กัน</li></ul>'
+       +'<div class="soft">เลขขึ้นลงรายวันเป็นเรื่องปกติ ดูแนวโน้มหลายสัปดาห์ ไม่ต้องเครียดกับเลขวันเดียวครับ</div>'
+       +FREE+MORE
+       +'<p class="src">ที่มา: '+SRC_SW+'</p>'
+    },
+    fat:{
+      t:"เปอร์เซ็นต์ไขมัน",
+      h:'<p class="lead">ดูได้จากช่อง “Body Fat %” หรือ “เปอร์เซ็นต์ไขมัน” ของเครื่องชั่งวัดองค์ประกอบร่างกาย</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>บอกได้ว่าสิ่งที่ลดลงคือ “ไขมัน” จริงไหม ไม่ใช่แค่น้ำหนักรวม</li>'
+       +'<li>เห็นความก้าวหน้าได้แม้น้ำหนักนิ่ง เช่น ไขมันลดแต่กล้ามเนื้อเพิ่ม น้ำหนักเลยเท่าเดิม</li>'
+       +'<li>ณัฒใช้ปรับโปรแกรมให้ตรงจุดมากขึ้น</li></ul>'
+       +'<h3>ถ้าไม่ได้วัด จะพลาดอะไร</h3>'
+       +'<ul><li>ดูแค่น้ำหนัก อาจรู้สึกว่า “ไม่ไปไหนเลย” ทั้งที่ไขมันกำลังลง แล้วท้อไปก่อนเห็นผล</li>'
+       +'<li>หรือดีใจที่น้ำหนักลด ทั้งที่ไม่รู้ว่าลดอะไรไป</li></ul>'
+       +'<div class="soft">เครื่องบ้านให้ค่าประมาณ ใช้ดูแนวโน้มดีกว่าเลขวันเดียว ชั่งเครื่องเดิม เวลาใกล้เคียงเดิม</div>'
+       +FREE+MORE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    muscle:{
+      t:"มวลกล้ามเนื้อ",
+      h:'<p class="lead">ดูได้จากช่อง “Muscle Mass” หรือ “Skeletal Muscle Mass / มวลกล้ามเนื้อโครงร่าง” หน่วยเป็นกิโลกรัม</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>บอกว่าการออกกำลังกายกำลังช่วยรักษาหรือสร้างกล้ามเนื้อไหม ระหว่างที่ลดไขมัน</li>'
+       +'<li>กล้ามเนื้อเพิ่มช้า น้ำหนักอาจไม่ขยับ แต่กราฟกล้ามเนื้อจะให้เห็นพัฒนาการที่ตาชั่งบอกไม่ได้</li>'
+       +'<li>ถ้าค่าลดผิดปกติ ณัฒจะเห็นเร็วและปรับโปรแกรมให้ทัน</li></ul>'
+       +'<h3>ถ้าไม่ได้วัด จะพลาดอะไร</h3>'
+       +'<ul><li>ไม่รู้ว่าน้ำหนักที่ลดลงมีกล้ามเนื้อติดไปด้วยหรือเปล่า ปรับแผนได้ช้ากว่า</li>'
+       +'<li>พัฒนาการด้านกล้ามเนื้อ ซึ่งเป็นผลจากการเทรน ไม่ถูกบันทึกให้เห็น</li></ul>'
+       +'<div class="soft">เครื่องบ้านประมาณค่านี้จากปริมาณน้ำในร่างกาย จึงขยับตามน้ำ อาหาร และการซ้อมก่อนชั่งได้ ดูหลายสัปดาห์ประกอบกัน</div>'
+       +FREE+MORE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    visceral:{
+      t:"ไขมันช่องท้อง",
+      h:'<p class="lead">ไขมันที่อยู่ลึกรอบอวัยวะในช่องท้อง ดูได้จากช่อง “Visceral Fat” หรือ “ไขมันช่องท้อง” ทุกคนมีบ้างเป็นเรื่องปกติ</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>เห็นการเปลี่ยนแปลงของไขมันส่วนลึก ซึ่งมองกระจกหรือดูตาชั่งไม่เห็น</li>'
+       +'<li>ใช้ดูว่าทิศทางไปทางเดียวกับไขมันรวมหรือไม่ เป็นอีกสัญญาณของความก้าวหน้า</li></ul>'
+       +'<h3>ถ้าไม่ได้วัด จะพลาดอะไร</h3>'
+       +'<ul><li>เหลือแค่ภาพจากกระจกกับตาชั่ง ซึ่งไม่เห็นไขมันส่วนลึก จึงพลาดสัญญาณความก้าวหน้าไปอีกชุดหนึ่ง</li></ul>'
+       +'<div class="soft">เป็นค่าประมาณ แต่ละยี่ห้อสเกลไม่เหมือนกัน (เช่น Tanita 1–12 ช่วงปกติ) เทียบกับเครื่องเดิมของตัวเองเท่านั้น ณัฒใช้ดูแนวโน้ม ไม่ได้ใช้ตัดสินสุขภาพ ถ้ากังวลปรึกษาแพทย์ได้ครับ</div>'
+       +FREE+MORE
+       +'<p class="src">ที่มา: '+SRC_TAN+' · '+SRC_BIA+'</p>'
+    }
+  };
+  var lastTip=null;
+  function openTip(k,btn){
+    var t=TIPS[k]; if(!t) return;
+    if(btn) lastTip=btn;
+    $("shT").textContent=t.t; $("shB").innerHTML=t.h; $("shB").scrollTop=0;
+    var sc=$("scrim"), sh=$("sheet");
+    sc.hidden=false; sh.hidden=false;
+    document.body.style.overflow="hidden";
+    requestAnimationFrame(function(){ sc.classList.add("on"); sh.classList.add("on"); $("shX").focus(); });
+  }
+  function closeTip(){
+    var sc=$("scrim"), sh=$("sheet");
+    sc.classList.remove("on"); sh.classList.remove("on");
+    document.body.style.overflow="";
+    setTimeout(function(){ sc.hidden=true; sh.hidden=true; },260);
+    if(lastTip){ try{lastTip.focus();}catch(e){} }
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tip"),function(b){
+    b.addEventListener("click",function(){ openTip(b.getAttribute("data-tip"),b); });
+  });
+  $("shB").addEventListener("click",function(e){
+    var o=e.target.closest("[data-scroll]"); if(!o) return;
+    var id=o.getAttribute("data-scroll"); closeTip();
+    setTimeout(function(){ var t=$(id); if(t && !t.hidden) t.scrollIntoView({behavior:"smooth",block:"start"}); },320);
+  });
+  document.addEventListener("click",function(e){
+    var a=e.target.closest&&e.target.closest("a[data-ext]");
+    if(a && window.liff && liff.isInClient && liff.isInClient()){ e.preventDefault(); try{ liff.openWindow({url:a.href,external:true}); }catch(x){ location.href=a.href; } }
+  });
+  $("shX").addEventListener("click",closeTip);
+  $("scrim").addEventListener("click",closeTip);
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape" && !$("sheet").hidden) closeTip(); });
+
+  /* ---------- ส่วนเครื่องชั่ง (เลื่อนลงดูท้ายหน้า) ---------- */
+  (function(){
+    var sec=$("scaleSec"); if(!sec||!HAS_SCALE) return;
+    sec.innerHTML='<h2 style="margin:0;font-size:17px;line-height:1.35">ยังไม่มีเครื่องชั่ง? ดูเครื่องที่ณัฒใช้</h2>'
+      +'<p style="margin:0;font-size:14px">'+(SC.name?('เครื่องที่ Fit กับณัฒใช้เป็นประจำวัดองค์ประกอบร่างกายคือ <b>'+esc(SC.name)+'</b>'):'เครื่องชั่งที่ Fit กับณัฒใช้เป็นประจำในการวัดองค์ประกอบร่างกาย ซื้อได้จากลิงก์ด้านล่าง')+'</p>'
+      +'<p style="margin:0;font-size:14px;color:var(--muted)">ถ้าอยากเห็นกราฟของตัวเองทุกสัปดาห์ เลือกเครื่องที่แสดงครบ 4 ค่า คือ น้ำหนัก เปอร์เซ็นต์ไขมัน มวลกล้ามเนื้อ และไขมันช่องท้อง เครื่องที่มีมือจับหรือขั้วมากกว่าแค่แผ่นเหยียบ มักแม่นกว่า ไม่ต้องแพงที่สุดก็พอ</p>'
+      +'<div class="links" style="margin-top:6px">'+scaleLinks()+'</div>'
+      +'<p style="margin:6px 0 0;font-size:12px;color:var(--muted)">ยังไม่มีก็ไม่เป็นไรครับ ทักแชทบอกณัฒได้เลย</p>';
+    sec.hidden=false; sec.style.display="flex";
+  })();
 
   boot();
 })();
