@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>ส่งมื้ออาหาร | Fit กับณัฒ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F4; --ink:#16241F; --muted:#5B6D63; --card:#FFFFFF; --line:#D8E3DB; --soft:#E3EEE7;
+  --accent:#17806A; --on-accent:#FFFFFF; --warn-bg:#FFF1CC; --warn-ink:#6F5300; --err:#B3382C; --err-bg:#FBE4DF;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1914; --ink:#E7F1EB; --muted:#9BB0A4; --card:#16231D; --line:#273A31; --soft:#1D2E26;
+    --accent:#3FB899; --on-accent:#07261D; --warn-bg:#3A2F10; --warn-ink:#EDD38A; --err:#FF9D90; --err-bg:#3A1F1B;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Prompt','Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.brand{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.brand b{color:var(--accent);font-weight:600}
+h1{font-size:23px;line-height:1.3;margin:2px 0 0;font-weight:700;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid>div{min-width:0}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.in{display:flex;align-items:baseline;gap:6px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px 12px}
+.in:focus-within{border-color:var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.in.bad{border-color:var(--err)}
+.in input{flex:1;min-width:0;width:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:20px;font-weight:600;padding:2px 0;outline:none}
+.in input::placeholder{color:var(--muted);font-weight:400;opacity:.7}
+.in span{font-size:12px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:3px;min-height:18px}
+.hint.e{color:var(--err)}
+.prev{font-size:13px;color:var(--muted)}
+.prev b{color:var(--ink);font-weight:600}
+.btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:9px 13px;font-size:13px}
+.err{background:var(--err-bg);color:var(--err);border-radius:14px;padding:9px 13px;font-size:13px}
+.center{text-align:center;padding:36px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.ok{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center}
+.ok svg{width:32px;height:32px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .card{padding:11px 13px}
+.cmp small{display:block;color:var(--muted);font-size:12px}
+.cmp strong{font-size:22px;font-weight:600}
+.cmp strong i{font-style:normal;font-size:12px;color:var(--muted);font-weight:400}
+.cmp .d{font-size:12px;color:var(--accent);font-weight:500;min-height:18px}
+.cmp svg{width:100%;height:34px;margin-top:4px;display:block}
+.quote{border-left:3px solid var(--accent);padding:2px 0 2px 12px;font-size:14px}
+.lbrow{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:24px;margin-bottom:4px}
+.lbrow label{margin:0}
+.chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media(max-width:349px){.chips{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.center .sub{text-wrap:balance}
+.chip{position:relative;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:500;border-radius:14px;padding:10px 2px;cursor:pointer;text-align:center;white-space:nowrap}
+.chip[aria-checked="true"]{border-color:var(--accent);background:var(--soft);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--accent)}
+.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip i{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.chip i[hidden]{display:none}
+.ta{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:16px;line-height:1.5;border-radius:14px;padding:10px 12px;resize:vertical;min-height:84px;outline:none}
+.ta:focus{border-color:var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.ta.bad{border-color:var(--err)}
+.ta::placeholder{color:var(--muted);opacity:.75}
+.opt{font-weight:400;color:var(--muted)}
+.pick{width:100%;border:1.5px dashed var(--line);background:var(--card);color:var(--accent);font:inherit;font-weight:600;font-size:14px;border-radius:14px;padding:13px;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center}
+.pick svg{width:20px;height:20px}
+.pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pick[hidden],.pv[hidden]{display:none}
+.pv{display:flex;gap:12px;align-items:center}
+.pv img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block;background:var(--soft)}
+.lk{border:0;border-radius:12px;background:var(--soft);color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer}
+.lk:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sum{display:flex;flex-direction:column;gap:6px}
+.sum .mh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.sum .mh b{font-weight:600;color:var(--ink);background:var(--soft);border-radius:999px;padding:2px 10px}
+.sum .mx{font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.sum .cnt{font-size:13px;color:var(--accent);font-weight:500}
+a.btn{display:block;text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><span><b>Fit กับณัฒ</b> · ส่งมื้ออาหาร</span><span id="who"></span></div>
+
+  <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
+
+  <section id="vMsg" hidden class="center">
+    <h1 id="msgH"></h1>
+    <p class="sub" id="msgP"></p>
+    <button class="btn ghost" id="msgBtn" hidden></button>
+  </section>
+
+  <section id="vForm" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div>
+      <h1 id="hello">สวัสดีครับ</h1>
+      <p class="sub" id="round">มื้อไหนก็ส่งได้ ไม่ต้องครบทุกมื้อ เล่าสั้นๆ หรือถ่ายรูปมาก็พอครับ</p>
+    </div>
+    <form id="f" novalidate class="card" style="display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div class="lbrow"><label id="mealLbl">มื้อไหน</label></div>
+        <div class="chips" id="chips" role="radiogroup" aria-labelledby="mealLbl"></div>
+        <div class="hint" id="h-today"></div>
+      </div>
+      <div>
+        <div class="lbrow"><label for="detail">กินอะไรไป <span class="opt">(ไม่บังคับถ้ามีรูป)</span></label></div>
+        <textarea class="ta" id="detail" rows="3" maxlength="500" placeholder="เช่น ข้าวมันไก่ ตุ๋นเนื้อ ชานมไข่มุกแก้วเล็ก"></textarea>
+        <div class="hint" id="h-detail"></div>
+      </div>
+      <div id="photoBox">
+        <div class="lbrow"><label for="photo">รูปอาหาร <span class="opt">(ไม่บังคับ ถ้ามีรูป ณัฒจะช่วยดูให้ละเอียดขึ้น)</span></label></div>
+        <input id="photo" type="file" accept="image/*" hidden>
+        <button type="button" class="pick" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>ถ่ายรูป / เลือกรูป</button>
+        <div class="pv" id="pv" hidden><img id="photoImg" alt="รูปอาหารที่เลือกไว้"><button type="button" class="lk" id="photoDel">เอารูปออก</button></div>
+        <div class="hint" id="h-photo"></div>
+      </div>
+      <div class="err" id="formErr" hidden role="alert"></div>
+      <button class="btn" id="submit" type="submit">ส่งมื้ออาหาร</button>
+    </form>
+    <p class="sub" style="font-size:13px">กินอะไรมาก็เล่าได้ตามจริงเลยครับ ไม่ต้องปรับให้ดูดี ณัฒไม่ตัดสิน แค่เก็บไว้ดูภาพรวมไปด้วยกัน</p>
+  </section>
+
+  <section id="vDone" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="center" style="padding:14px 8px 0">
+      <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+      <h1 id="doneH">ได้รับมื้ออาหารเรียบร้อยแล้ว</h1>
+      <p class="sub" id="doneP"></p>
+      <p class="sub" id="doneP2" style="font-size:13px"></p>
+    </div>
+    <div class="card sum" id="sum"></div>
+    <button class="btn ghost" id="againBtn" type="button">ส่งอีกมื้อ</button>
+    <a class="btn ghost" href="overview.html" id="ovLink">ดูภาพรวมของฉัน</a>
+    <button class="btn" id="closeBtn" type="button">กลับไปที่แชท</button>
+  </section>
+</main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+<script>
+/* ===== ตั้งค่า (ใช้ค่าเดียวกับหน้าส่งค่าร่างกาย) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ================================================== */
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var idToken = "";
+  var MEALS = ["มื้อเช้า","มื้อเที่ยง","มื้อเย็น","ของว่าง"];
+  var sel = "";            /* มื้อที่เลือก */
+  var todayList = [];      /* มื้อที่ส่งไปแล้ววันนี้ */
+  var cid = newCid();      /* รหัสคำขอ: ส่งซ้ำด้วยรหัสเดิมจะไม่เกิดมื้อซ้ำ */
+
+  function newCid(){
+    try{ var a=new Uint8Array(12); crypto.getRandomValues(a); return Array.prototype.map.call(a,function(b){return ("0"+b.toString(16)).slice(-2);}).join(""); }
+    catch(e){ return String(Date.now())+Math.random().toString(16).slice(2,10); }
+  }
+  function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function show(id){
+    ["vLoad","vMsg","vForm","vDone"].forEach(function(v){
+      var el=$(v); el.hidden = (v!==id);
+      if(v==="vForm"||v==="vDone") el.style.display = (v===id)?"flex":"none";
+    });
+    window.scrollTo(0,0);
+  }
+  function msg(h,p,btn){
+    $("msgH").textContent=h; $("msgP").textContent=p||"";
+    var b=$("msgBtn");
+    if(btn){ b.hidden=false; b.textContent=btn.text; b.onclick=btn.fn; } else { b.hidden=true; }
+    show("vMsg");
+  }
+
+  /* ---------- API ---------- */
+  function api(payload){
+    if(DEMO) return demoApi(payload);
+    payload.idToken = idToken;
+    return fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf("?")>-1?"&":"?") + "liff=1", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow"
+    }).then(function(r){ return r.json(); });
+  }
+  var demoToday=["มื้อเช้า"];
+  function demoApi(p){
+    return new Promise(function(res){
+      setTimeout(function(){
+        if(p.action==="mealInit") return res({ok:true,name:"คุณเมย์",today:demoToday.slice()});
+        demoToday.push(p.values.meal);
+        res({ok:true,name:"คุณเมย์",meal:p.values.meal,photo:p.photo?"ok":"none",today:demoToday.length,after:p.photo?"ok":"none"});
+      },p.photo?1200:600);
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    show("vLoad");
+    if(DEMO){ return init(); }
+    if(!window.liff){ return setTimeout(boot,150); }
+    liff.init({liffId:CONFIG.LIFF_ID}).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({redirectUri:location.href}); return; }
+      idToken = liff.getIDToken();
+      init();
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+  var retried=false;
+  function guess(){
+    var h=new Date().getHours();
+    return h<10 ? "มื้อเช้า" : h<14 ? "มื้อเที่ยง" : h<17 ? "ของว่าง" : h<21 ? "มื้อเย็น" : "ของว่าง";
+  }
+  function init(){
+    $("loadTxt").textContent="กำลังเปิดหน้า…";
+    api({action:"mealInit"}).then(function(r){
+      if(!r.ok){
+        if(r.error==="token" && !retried && window.liff){ retried=true; liff.logout(); liff.login({redirectUri:location.href}); return; }
+        if(r.error==="nomatch") return msg("ยังไม่พบข้อมูลของคุณในระบบ","ทักแชทบอกณัฒได้เลยครับ เดี๋ยวณัฒจับคู่ให้");
+        return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+      }
+      $("hello").textContent="สวัสดีครับ "+(r.name||"");
+      todayList=r.today||[];
+      resetForm();
+      show("vForm");
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้","เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ",{text:"ลองอีกครั้ง",fn:function(){location.reload();}});
+    });
+  }
+
+  /* ---------- มื้อ ---------- */
+  function drawChips(){
+    $("chips").innerHTML = MEALS.map(function(m){
+      var sent = todayList.indexOf(m)>-1;
+      return '<button type="button" class="chip" role="radio" aria-checked="'+(m===sel)+'" data-m="'+esc(m)+'">'+esc(m)+'<i'+(sent?'':' hidden')+' title="วันนี้ส่งแล้ว"></i></button>';
+    }).join("");
+    var uniq=[]; todayList.forEach(function(m){ if(uniq.indexOf(m)<0) uniq.push(m); });
+    $("h-today").textContent = uniq.length ? ("จุดสีเขียว = วันนี้ส่งแล้ว ("+uniq.join(" · ")+") ส่งเพิ่มหรือส่งซ้ำได้ตามสบายครับ") : "";
+  }
+  $("chips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    sel=b.getAttribute("data-m"); drawChips();
+    var nb=$("chips").querySelector('[aria-checked="true"]'); if(nb) nb.focus();
+  });
+  $("chips").addEventListener("keydown",function(e){
+    var i=MEALS.indexOf(sel), d=0;
+    if(e.key==="ArrowRight"||e.key==="ArrowDown") d=1; else if(e.key==="ArrowLeft"||e.key==="ArrowUp") d=-1; else return;
+    e.preventDefault(); sel=MEALS[(i+d+MEALS.length)%MEALS.length]; drawChips();
+    var nb=$("chips").querySelector('[aria-checked="true"]'); if(nb) nb.focus();
+  });
+
+  /* ---------- photo ---------- */
+  var photo=null;               /* {mime, data(base64)} */
+  var MAXPX=1440;               /* ย่อรูปด้านยาวสุดไม่เกิน 1440px */
+  function photoHint(t,bad){ var h=$("h-photo"); h.textContent=t||""; h.className="hint"+(bad?" e":""); }
+  function clearPhoto(){ photo=null; $("photo").value=""; $("pv").hidden=true; $("pickBtn").hidden=false; $("photoImg").removeAttribute("src"); }
+  function loadPhoto(file){
+    if(!file) return;
+    photoHint("กำลังย่อรูป…");
+    var url=URL.createObjectURL(file), img=new Image();
+    img.onload=function(){
+      try{
+        var w=img.naturalWidth,h=img.naturalHeight,sc=Math.min(1,MAXPX/Math.max(w,h));
+        var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w*sc)); c.height=Math.max(1,Math.round(h*sc));
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+        var d=c.toDataURL("image/jpeg",0.8);
+        URL.revokeObjectURL(url);
+        if(!d||d.length<1000) throw new Error("empty");
+        photo={mime:"image/jpeg",data:d.split(",")[1]};
+        $("photoImg").src=d; $("pv").hidden=false; $("pickBtn").hidden=true; photoHint("");
+      }catch(e){ URL.revokeObjectURL(url); clearPhoto(); photoHint("ย่อรูปนี้ไม่ได้ ลองเลือกรูปอื่น หรือถ่ายใหม่นะครับ",true); }
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); clearPhoto(); photoHint("เปิดรูปนี้ไม่ได้ ลองเลือกรูปอื่น หรือถ่ายใหม่นะครับ",true); };
+    img.src=url;
+  }
+  $("detail").addEventListener("input",function(){ $("detail").classList.remove("bad"); $("h-detail").textContent=""; $("h-detail").className="hint"; });
+  $("pickBtn").addEventListener("click",function(){ $("photo").click(); });
+  $("photo").addEventListener("change",function(){ loadPhoto(this.files&&this.files[0]); });
+  $("photoDel").addEventListener("click",function(){ clearPhoto(); photoHint(""); });
+
+  function resetForm(){
+    sel=guess(); $("detail").value=""; $("detail").classList.remove("bad"); $("h-detail").textContent="";
+    clearPhoto(); photoHint(""); $("formErr").hidden=true;
+    var b=$("submit"); b.disabled=false; b.textContent="ส่งมื้ออาหาร";
+    cid=newCid(); drawChips();
+  }
+
+  /* ---------- submit ---------- */
+  $("f").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var err=$("formErr"); err.hidden=true;
+    var detail=$("detail").value.trim(), dh=$("h-detail");
+    $("detail").classList.remove("bad"); dh.textContent=""; dh.className="hint";
+    if(!sel){ err.hidden=false; err.textContent="เลือกก่อนนะครับว่ามื้อไหน"; return; }
+    if(!detail && !photo){
+      $("detail").classList.add("bad"); dh.className="hint e"; dh.textContent="เล่าสั้นๆ หรือแนบรูปอย่างใดอย่างหนึ่งก่อนนะครับ"; $("detail").focus(); return;
+    }
+    var b=$("submit"); b.disabled=true; b.textContent=photo?"กำลังส่งรูป ใช้เวลาสักครู่นะครับ…":"กำลังส่ง…";
+    var sentPhoto=!!photo, sentMeal=sel, sentDetail=detail;
+    var payload={action:"mealSubmit",cid:cid,values:{meal:sel,detail:detail}}; if(photo) payload.photo=photo;
+    api(payload).then(function(r){
+      if(!r.ok){
+        b.disabled=false; b.textContent="ส่งมื้ออาหาร";
+        err.hidden=false;
+        err.textContent = r.error==="photo" ? "ส่งรูปไม่สำเร็จ ลองอีกครั้ง หรือกด “เอารูปออก” แล้วส่งเฉพาะข้อความก่อนก็ได้ครับ"
+          : r.error==="busy" ? "ระบบกำลังยุ่งอยู่ รอสักครู่แล้วกดส่งอีกครั้งนะครับ"
+          : r.error==="token" ? "หน้านี้เปิดค้างนานไป ปิดแล้วเปิดใหม่จากเมนูในแชทนะครับ"
+          : r.error==="long" ? "ข้อความยาวเกินไปหน่อย ย่อให้สั้นลงอีกนิดนะครับ"
+          : r.error==="empty" ? "เล่าสั้นๆ หรือแนบรูปอย่างใดอย่างหนึ่งก่อนนะครับ"
+          : "ส่งไม่สำเร็จ ลองอีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")";
+        return;
+      }
+      todayList.push(sentMeal);
+      renderDone(r,sentMeal,sentDetail,sentPhoto);
+    }).catch(function(){
+      b.disabled=false; b.textContent="ส่งมื้ออาหาร";
+      err.hidden=false; err.textContent="เชื่อมต่อไม่ได้ กดส่งอีกครั้งได้เลยครับ ระบบกันส่งซ้ำให้ ถ้ายังไม่ได้ทักแชทบอกณัฒนะครับ";
+    });
+  });
+
+  /* ---------- result ---------- */
+  function renderDone(r,meal,detail,sentPhoto){
+    $("doneH").textContent="ได้รับมื้ออาหารเรียบร้อยแล้ว";
+    $("doneP").textContent="เช็กย้อนหลังได้ที่ปุ่ม “ภาพรวม” ในเมนูครับ ไม่ต้องส่งซ้ำนะ";
+    $("doneP2").textContent= sentPhoto ? "ได้รับรูปด้วยแล้ว ณัฒจะดูแล้วส่งคำแนะนำให้ในแชทนะครับ" : "ครั้งหน้าแนบรูปมาด้วยก็ได้ ณัฒจะช่วยดูให้ละเอียดขึ้น แต่ไม่บังคับนะครับ";
+    $("sum").innerHTML='<div class="mh"><b>'+esc(meal)+'</b><span>เมื่อสักครู่</span></div>'
+      +(detail?'<div class="mx">'+esc(detail)+'</div>':'')
+      +(sentPhoto?'<div class="mh">แนบรูป 1 รูป</div>':'')
+      +'<div class="cnt">วันนี้ส่งแล้ว '+(r.today||todayList.length)+' มื้อ</div>';
+    show("vDone");
+  }
+  $("againBtn").addEventListener("click",function(){ resetForm(); show("vForm"); });
+  $("closeBtn").addEventListener("click",function(){
+    if(!DEMO && window.liff && liff.isInClient()) liff.closeWindow(); else $("closeBtn").textContent="ปิดหน้านี้ได้เลยครับ";
+  });
+  if(DEMO) $("ovLink").href="overview.html?demo=1";
+
+  boot();
+})();
+</script>
+</body>
+</html>

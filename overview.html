@@ -194,7 +194,8 @@ ul.ex li:last-child{border-bottom:0}
 
     <section class="blk" id="sMeal" aria-labelledby="tMeal">
       <h2 id="tMeal">บันทึกอาหาร</h2>
-      <a class="btn" id="mealForm" href="#" target="_blank" rel="noopener">ส่งมื้ออาหาร</a>
+      <a class="btn" id="mealGo" href="meal.html">ส่งมื้ออาหาร</a>
+      <a id="mealForm" class="sub" href="#" target="_blank" rel="noopener" hidden style="display:block;font-size:12px;text-align:center;text-decoration:underline">ถ้าปุ่มด้านบนใช้ไม่ได้ ส่งทางฟอร์มสำรองนี้ก็ได้ครับ</a>
       <div id="mealEmpty" class="card" hidden><p style="margin:0">ยังไม่มีมื้ออาหารที่ส่งไว้เลยครับ ส่งมื้อแรกตอนไหนก็ได้ ไม่ต้องครบทุกมื้อ เอาแค่มื้อที่อยากเล่าให้ณัฒดูก็พอ</p></div>
       <div id="mealBox" style="display:flex;flex-direction:column;gap:14px">
         <div class="sub" id="mealSum"></div>
@@ -545,6 +546,7 @@ var CONFIG = {
   function renderMeals(){
     var M=R.meals||[];
     var f=$("mealForm"); if(R.mealFormUrl){ f.href=R.mealFormUrl; f.hidden=false; } else { f.hidden=true; }
+    if(DEMO) $("mealGo").href="meal.html?demo=1";
     $("mealEmpty").hidden=M.length>0;
     $("mealBox").style.display=M.length>0?"flex":"none";
     if(M.length) drawMeals();
