@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>ส่งค่าร่างกาย | Fit กับณัฒ</title>
+<title>ส่งค่าร่างกาย | Fit Kub Nut</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -104,7 +104,7 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 </head>
 <body>
 <main>
-  <div class="brand"><span><b>Fit กับณัฒ</b> · ส่งค่าร่างกาย</span><span id="who"></span></div>
+  <div class="brand"><span><b>Fit Kub Nut</b> · ส่งค่าร่างกาย</span><span id="who"></span></div>
 
   <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
 
@@ -146,9 +146,11 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
       <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
       <h1 id="doneH">ส่งเรียบร้อยครับ</h1>
       <p class="sub" id="doneP"></p>
+      <p class="sub" id="doneP2" style="font-size:13px"></p>
     </div>
     <div class="cmp" id="cmp"></div>
     <div class="quote">ค่อยๆ ไปทีละนิด ไม่ต้องรีบนะครับ — Trainer ณัฒ</div>
+    <a class="btn ghost" href="overview.html" style="display:block;text-align:center;text-decoration:none">ดูภาพรวมของฉัน</a>
     <button class="btn" id="closeBtn">กลับไปที่แชท</button>
   </section>
 </main>
@@ -178,6 +180,10 @@ var CONFIG = {
 /* ================================================== */
 
 (function(){
+  /* ปุ่ม "ภาพรวม" ในเมนูใช้ลิงก์เดียวกัน ต่อท้าย ?page=overview แล้วพามาที่หน้าภาพรวม */
+  if(/[?&]page=overview(&|$)/.test(location.search)){ location.replace("overview.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
+  if(/[?&]page=meal(&|$)/.test(location.search)){ location.replace("meal.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
+  if(/[?&]page=course(&|$)/.test(location.search)){ location.replace("course.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   var $ = function(id){ return document.getElementById(id); };
   var DEMO = /[?&]demo=1/.test(location.search);
   var idToken = "";
@@ -344,8 +350,9 @@ var CONFIG = {
     return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><polygon points="4,'+h+' '+line+' '+(w-4)+','+h+'" fill="var(--soft)"/><polyline points="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><circle cx="'+l[0].toFixed(1)+'" cy="'+l[1].toFixed(1)+'" r="3" fill="var(--accent)"/></svg>';
   }
   function renderDone(r,sentPhoto){
-    $("doneH").textContent="ส่งเรียบร้อยครับ";
-    $("doneP").textContent= sentPhoto ? "ณัฒได้รับค่าและรูปแล้ว จะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ" : "ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
+    $("doneH").textContent="ได้รับค่าร่างกายเรียบร้อยแล้ว";
+    $("doneP").textContent="เช็กผลย้อนหลังได้ที่ปุ่ม “เชคความคืบหน้า” ในเมนูครับ ไม่ต้องส่งซ้ำนะ";
+    $("doneP2").textContent= (sentPhoto ? "ได้รับรูปด้วยแล้ว " : "") + "ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
     var html=FIELDS.map(function(f){
       var cur=r.now[f.k], pv=r.prev?r.prev[f.k]:null, d="";
       if(pv!=null&&pv!==""){
@@ -470,7 +477,7 @@ var CONFIG = {
   (function(){
     var sec=$("scaleSec"); if(!sec||!HAS_SCALE) return;
     sec.innerHTML='<h2 style="margin:0;font-size:17px;line-height:1.35">ยังไม่มีเครื่องชั่ง? ดูเครื่องที่ณัฒใช้</h2>'
-      +'<p style="margin:0;font-size:14px">'+(SC.name?('เครื่องที่ Fit กับณัฒใช้เป็นประจำวัดองค์ประกอบร่างกายคือ <b>'+esc(SC.name)+'</b>'):'เครื่องชั่งที่ Fit กับณัฒใช้เป็นประจำในการวัดองค์ประกอบร่างกาย ซื้อได้จากลิงก์ด้านล่าง')+'</p>'
+      +'<p style="margin:0;font-size:14px">'+(SC.name?('เครื่องที่ Fit Kub Nut ใช้เป็นประจำวัดองค์ประกอบร่างกายคือ <b>'+esc(SC.name)+'</b>'):'เครื่องชั่งที่ Fit Kub Nut ใช้เป็นประจำในการวัดองค์ประกอบร่างกาย ซื้อได้จากลิงก์ด้านล่าง')+'</p>'
       +'<p style="margin:0;font-size:14px;color:var(--muted)">ถ้าอยากเห็นกราฟของตัวเองทุกสัปดาห์ เลือกเครื่องที่แสดงครบ 4 ค่า คือ น้ำหนัก เปอร์เซ็นต์ไขมัน มวลกล้ามเนื้อ และไขมันช่องท้อง เครื่องที่มีมือจับหรือขั้วมากกว่าแค่แผ่นเหยียบ มักแม่นกว่า ไม่ต้องแพงที่สุดก็พอ</p>'
       +'<div class="links" style="margin-top:6px">'+scaleLinks()+'</div>'
       +'<p style="margin:6px 0 0;font-size:12px;color:var(--muted)">ยังไม่มีก็ไม่เป็นไรครับ ทักแชทบอกณัฒได้เลย</p>';

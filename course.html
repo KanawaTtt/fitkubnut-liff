@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>คอร์สของฉัน | Fit Kub Nut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F4; --ink:#16241F; --muted:#5B6D63; --card:#FFFFFF; --line:#D8E3DB; --soft:#E3EEE7;
+  --accent:#17806A; --on-accent:#FFFFFF; --warn-bg:#FFF1CC; --warn-ink:#6F5300; --err:#B3382C; --err-bg:#FBE4DF;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1914; --ink:#E7F1EB; --muted:#9BB0A4; --card:#16231D; --line:#273A31; --soft:#1D2E26;
+    --accent:#3FB899; --on-accent:#07261D; --warn-bg:#3A2F10; --warn-ink:#EDD38A; --err:#FF9D90; --err-bg:#3A1F1B;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Prompt','Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.brand{font-size:13px;color:var(--muted)}
+.brand b{color:var(--accent);font-weight:600}
+h1{font-size:23px;line-height:1.3;margin:2px 0 0;font-weight:700;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.small{font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.stack{display:flex;flex-direction:column;gap:12px}
+label,.lbl{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.hint{font-size:12px;color:var(--muted);margin-top:3px;min-height:18px}
+.hint.e{color:var(--err)}
+.btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.out{background:var(--card);color:var(--ink);border:1.5px solid var(--line);font-size:15px}
+.btn:focus-visible,.chip:focus-visible,.ta:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.err{background:var(--err-bg);color:var(--err);border-radius:14px;padding:9px 13px;font-size:13px}
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:9px 13px;font-size:13px}
+.center{text-align:center;padding:36px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.center .sub{text-wrap:balance}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.ok{width:62px;height:62px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center}
+.ok svg{width:32px;height:32px}
+
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{font-size:12px;background:var(--soft);color:var(--ink);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.wait{background:var(--warn-bg);color:var(--warn-ink)}
+.big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.big small{font-size:14px;font-weight:400;color:var(--muted)}
+.bar{display:flex;gap:4px}
+.bar i{flex:1;height:12px;border-radius:6px;background:var(--soft)}
+.bar i.on{background:var(--accent)}
+.bar.solid{display:block;height:12px;border-radius:6px;background:var(--soft);overflow:hidden}
+.bar.solid i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+.next{display:flex;gap:12px;align-items:center}
+.date{flex:none;width:58px;border-radius:14px;background:var(--soft);text-align:center;padding:6px 0}
+.date b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.date small{font-size:12px;color:var(--muted)}
+.next .t{font-size:16px;font-weight:600;line-height:1.35}
+.appt{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.appt:first-of-type{border-top:0;padding-top:2px}
+.appt .next .t{font-size:15px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:6px 0}
+.sec{font-size:13px;color:var(--muted);margin:0 0 4px}
+
+.cs{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:500;border-radius:999px;padding:7px 15px;cursor:pointer}
+.chip[aria-checked="true"],.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.ta{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:16px;line-height:1.5;border-radius:14px;padding:10px 12px;resize:vertical;min-height:76px;outline:none}
+.ta:focus{border-color:var(--accent)}
+.opt{font-weight:400;color:var(--muted)}
+.sum{display:flex;flex-direction:column;gap:6px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><b>Fit Kub Nut</b> · <span id="brandTx">คอร์สของฉัน</span></div>
+
+  <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
+
+  <section id="vMsg" hidden class="center">
+    <h1 id="msgH"></h1>
+    <p class="sub" id="msgP"></p>
+    <button class="btn ghost" id="msgBtn" hidden></button>
+  </section>
+
+  <!-- หน้าหลัก -->
+  <section id="vHome" hidden class="stack">
+    <div>
+      <h1 id="hello">สวัสดีครับ</h1>
+      <p class="sub">แพ็กเกจของคุณ และนัดครั้งถัดไป</p>
+    </div>
+    <div class="card stack" id="pkgCard"></div>
+    <div class="card" id="apptCard"></div>
+    <div class="card" id="pastCard" hidden></div>
+    <p class="sub small" id="policy" style="text-align:center"></p>
+  </section>
+
+  <!-- ฟอร์มแจ้งเลื่อน -->
+  <section id="vForm" hidden class="stack">
+    <div>
+      <h1 id="fH">ขอเลื่อนนัด</h1>
+      <p class="sub">บอกคร่าวๆ ก็พอ ณัฒจะทักกลับไปคุยเวลาใหม่ให้</p>
+    </div>
+    <form id="f" novalidate class="card stack" style="gap:16px">
+      <div>
+        <div class="lbl" id="rLbl">เกิดอะไรขึ้นครับ</div>
+        <div class="cs" id="reasons" role="radiogroup" aria-labelledby="rLbl"></div>
+        <div class="hint" id="h-reason"></div>
+      </div>
+      <div>
+        <div class="lbl" id="pLbl">ช่วงที่สะดวกแทน <span class="opt">(เลือกได้หลายอัน ไม่บังคับ)</span></div>
+        <div class="cs" id="prefs" role="group" aria-labelledby="pLbl"></div>
+      </div>
+      <div>
+        <label for="note">ฝากบอกเพิ่ม <span class="opt">(ไม่บังคับ)</span></label>
+        <textarea class="ta" id="note" rows="3" maxlength="300" placeholder="เช่น ประชุมยาวถึง 2 ทุ่ม"></textarea>
+      </div>
+      <div class="err" id="formErr" hidden role="alert"></div>
+      <button class="btn" id="submit" type="submit">ส่งคำขอเลื่อน</button>
+      <button class="btn ghost" id="backBtn" type="button">ไม่เลื่อนแล้ว กลับไป</button>
+    </form>
+    <p class="sub small">ยังไม่ใช่การยืนยันเวลาใหม่ ณัฒจะทักกลับในแชทเพื่อตกลงเวลากันอีกที</p>
+  </section>
+
+  <!-- ส่งแล้ว -->
+  <section id="vDone" hidden class="stack">
+    <div class="center" style="padding:14px 8px 0">
+      <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+      <h1>ได้รับคำขอแล้ว</h1>
+      <p class="sub">ไม่เป็นไรเลยครับ ณัฒจะทักกลับไปคุยเวลาใหม่ในแชท</p>
+    </div>
+    <div class="card sum" id="sum"></div>
+    <div class="card" id="keepCard" style="background:var(--soft);border:0;font-size:14px" hidden></div>
+    <button class="btn ghost" id="homeBtn" type="button">กลับไปหน้าคอร์ส</button>
+    <button class="btn" id="closeBtn" type="button">กลับไปที่แชท</button>
+  </section>
+</main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+<script>
+/* ===== ตั้งค่า (ใช้ค่าเดียวกับหน้าอื่น) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ========================================== */
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var idToken = "";
+  var S = null;            /* ข้อมูลคอร์สล่าสุดจากเซิร์ฟเวอร์ */
+  var target = null;       /* นัดที่กำลังขอเลื่อน */
+  var reason = "";
+  var prefs = [];
+  var cid = newCid();
+  var retried = false;
+  var HOUR = 3600*1000;
+
+  function newCid(){
+    try{ var a=new Uint8Array(12); crypto.getRandomValues(a); return Array.prototype.map.call(a,function(b){return ("0"+b.toString(16)).slice(-2);}).join(""); }
+    catch(e){ return String(Date.now())+Math.random().toString(16).slice(2,10); }
+  }
+  function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function show(id){
+    ["vLoad","vMsg","vHome","vForm","vDone"].forEach(function(v){ $(v).hidden = (v!==id); });
+    window.scrollTo(0,0);
+  }
+  function msg(h,p,btn){
+    $("msgH").textContent=h; $("msgP").textContent=p||"";
+    var b=$("msgBtn");
+    if(btn){ b.hidden=false; b.textContent=btn.text; b.onclick=btn.fn; } else { b.hidden=true; }
+    show("vMsg");
+  }
+  function retryBtn(){ return {text:"ลองอีกครั้ง",fn:function(){location.reload();}}; }
+
+  /* ---------- API ---------- */
+  function api(payload){
+    if(DEMO) return demoApi(payload);
+    payload.idToken = idToken;
+    return fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf("?")>-1?"&":"?") + "liff=1", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow"
+    }).then(function(r){ return r.json(); });
+  }
+  /* โหมดตัวอย่าง (?demo=1) ข้อมูลสมมติ ไม่ติดต่อเซิร์ฟเวอร์ */
+  function demoState(){
+    var now=Date.now();
+    function ap(h,no,extra){ var d=new Date(now+h*HOUR); var o={ts:d.getTime(),dow:["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"][d.getDay()],day:d.getDate(),mon:["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][d.getMonth()],time:("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2),no:no,place:"ที่บ้านคุณเมย์",status:"นัดไว้",pending:false,request:null,canReschedule:h>=24}; for(var k in extra) o[k]=extra[k]; return o; }
+    return {ok:true,name:"คุณเมย์",package:"3 วัน/สัปดาห์ 12 ครั้ง",perWeek:3,total:12,used:demo.used,remaining:12-demo.used,start:{day:29,mon:"ก.ย."},
+      upcoming:demo.sent?[ap(-0.5*0+30,demo.used+1,{status:"ลูกค้าขอเลื่อน",pending:true,canReschedule:false,request:{reason:demo.reason,pref:demo.pref}}),ap(80,demo.used+2)]:[ap(30,demo.used+1),ap(80,demo.used+2),ap(8,demo.used+3)].sort(function(a,b){return a.ts-b.ts;}),
+      past:[ap(-48,demo.used,{status:"เทรนแล้ว"}),ap(-96,demo.used-1,{status:"เทรนแล้ว"})],policyHours:24,
+      reasons:["ติดงาน","ไม่สบาย","ติดธุระ","เดินทาง","อื่นๆ"],prefs:["พรุ่งนี้ เวลาเดิม","ภายใน 2-3 วัน","สัปดาห์หน้า","ให้ณัฒเสนอเวลา"],now:now};
+  }
+  var demo={used:4,sent:false,reason:"",pref:""};
+  function demoApi(p){
+    return new Promise(function(res){
+      setTimeout(function(){
+        if(p.action==="courseInit") return res(demoState());
+        demo.sent=true; demo.reason=p.values.reason; demo.pref=(p.values.prefs||[]).join(" · ");
+        res({ok:true,name:"คุณเมย์",dup:false,notify:"ok",ref:"demo0001",init:demoState()});
+      },600);
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    show("vLoad");
+    if(DEMO){ return init(); }
+    if(!window.liff){ return setTimeout(boot,150); }
+    liff.init({liffId:CONFIG.LIFF_ID}).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({redirectUri:location.href}); return; }
+      idToken = liff.getIDToken();
+      init();
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",retryBtn());
+    });
+  }
+  function init(){
+    $("loadTxt").textContent="กำลังเปิดหน้า…";
+    api({action:"courseInit"}).then(function(r){
+      if(!r.ok){
+        if(r.error==="token" && !retried && window.liff){ retried=true; liff.logout(); liff.login({redirectUri:location.href}); return; }
+        if(r.error==="nomatch") return msg("ยังไม่พบข้อมูลของคุณในระบบ","ทักแชทบอกณัฒได้เลยครับ เดี๋ยวณัฒจับคู่ให้");
+        return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",retryBtn());
+      }
+      S=r; renderHome(); show("vHome");
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้","เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ",retryBtn());
+    });
+  }
+
+  /* ---------- หน้าหลัก ---------- */
+  var SHORT={"อาทิตย์":"อา.","จันทร์":"จ.","อังคาร":"อ.","พุธ":"พ.","พฤหัสบดี":"พฤ.","ศุกร์":"ศ.","เสาร์":"ส."};
+  function shortDow(d){ return SHORT[d]||d; }
+  function when(a){ return a.dow+" "+a.day+" "+a.mon+" · "+a.time+" น."; }
+  function apptHtml(a, idx){
+    var h='<div class="appt"><div class="next"><div class="date"><b>'+esc(a.day)+'</b><small>'+esc(a.mon)+'</small></div><div>'
+      +'<div class="t">'+esc(a.dow)+' '+esc(a.time)+' น.</div>'
+      +'<div class="sub small">'+(a.place?esc(a.place)+' · ':'')+(a.no?'ครั้งที่ '+esc(a.no):'')+'</div></div></div>';
+    if(a.pending){
+      h+='<div class="note">ส่งคำขอเลื่อนแล้ว รอณัฒทักกลับไปตกลงเวลาใหม่ในแชทนะครับ'
+        +(a.request&&a.request.reason?'<br>เหตุผล: '+esc(a.request.reason)+(a.request.pref?' · สะดวก: '+esc(a.request.pref):''):'')+'</div>';
+    } else if(a.canReschedule){
+      h+='<button type="button" class="btn out" data-i="'+idx+'">แจ้งเลื่อนนัด / ติดธุระ</button>';
+    } else {
+      h+='<p class="sub small">กรุณาแจ้งล่วงหน้าอย่างน้อย '+esc(S.policyHours>=24?Math.round(S.policyHours/24)+' วัน':S.policyHours+' ชั่วโมง')+' ถ้าติดธุระจริงๆ ทักแชทบอกณัฒได้เลยครับ</p>';
+    }
+    return h+'</div>';
+  }
+  function renderHome(){
+    $("hello").textContent="สวัสดีครับ "+(S.name||"");
+    /* แพ็กเกจ */
+    var title = S.package ? esc(S.package) : "คอร์สของคุณ";
+    var head='<div class="row2"><b style="font-size:15px">'+title+'</b>'+(S.start?'<span class="pill">เริ่ม '+esc(S.start.day)+' '+esc(S.start.mon)+'</span>':'')+'</div>';
+    var body="";
+    if(S.total){
+      body='<div class="big">เหลืออีก '+esc(S.remaining)+' ครั้ง <small>จาก '+esc(S.total)+'</small></div>';
+      if(S.total<=24){
+        var seg=""; for(var i=0;i<S.total;i++) seg+='<i'+(i<S.used?' class="on"':'')+'></i>';
+        body+='<div class="bar" role="img" aria-label="เทรนแล้ว '+esc(S.used)+' จาก '+esc(S.total)+' ครั้ง">'+seg+'</div>';
+      } else {
+        body+='<div class="bar solid" role="img" aria-label="เทรนแล้ว '+esc(S.used)+' จาก '+esc(S.total)+' ครั้ง"><i style="width:'+Math.min(100,Math.round(S.used/S.total*100))+'%"></i></div>';
+      }
+      body+='<p class="sub small">เทรนไปแล้ว '+esc(S.used)+' ครั้ง'+(S.perWeek?' · ตารางปกติ '+esc(S.perWeek)+' วัน/สัปดาห์':'')+'</p>';
+    } else {
+      body='<div class="big">เทรนไปแล้ว '+esc(S.used)+' <small>ครั้ง</small></div>'+(S.perWeek?'<p class="sub small">ตารางปกติ '+esc(S.perWeek)+' วัน/สัปดาห์</p>':'');
+    }
+    $("pkgCard").innerHTML=head+body;
+    /* นัด */
+    var up=S.upcoming||[], ah='';
+    if(!up.length){
+      ah='<div class="sec">นัดครั้งถัดไป</div><p class="sub" style="color:var(--ink)">ยังไม่มีนัดครั้งถัดไปในระบบ ณัฒจะนัดเวลาให้ในแชทนะครับ</p>';
+    } else {
+      ah='<div class="sec">นัดครั้งถัดไป</div>'+up.map(apptHtml).join("");
+    }
+    $("apptCard").innerHTML=ah;
+    /* นัดที่ผ่านมา */
+    var pc=$("pastCard");
+    if((S.past||[]).length){
+      pc.hidden=false;
+      pc.innerHTML='<div class="sec">นัดที่ผ่านมา</div><div class="list">'+S.past.map(function(a){
+        return '<div class="li"><span>'+esc(shortDow(a.dow))+' '+esc(a.day)+' '+esc(a.mon)+(a.no?' · ครั้งที่ '+esc(a.no):'')+'</span><span class="pill">เทรนแล้ว</span></div>';
+      }).join("")+'</div>';
+    } else { pc.hidden=true; }
+    $("policy").textContent="ชีวิตมีขึ้นมีลง แจ้งเลื่อนล่วงหน้าอย่างน้อย "+(S.policyHours>=24?Math.round(S.policyHours/24)+" วัน":S.policyHours+" ชั่วโมง")+" ได้เลยครับ ครั้งที่เหลือไม่หายไปไหน";
+  }
+  $("apptCard").addEventListener("click",function(e){
+    var b=e.target.closest("button[data-i]"); if(!b) return;
+    openForm(S.upcoming[Number(b.getAttribute("data-i"))]);
+  });
+
+  /* ---------- ฟอร์ม ---------- */
+  function drawReasons(){
+    $("reasons").innerHTML=(S.reasons||[]).map(function(r){
+      return '<button type="button" class="chip" role="radio" aria-checked="'+(r===reason)+'" data-v="'+esc(r)+'">'+esc(r)+'</button>';
+    }).join("");
+  }
+  function drawPrefs(){
+    $("prefs").innerHTML=(S.prefs||[]).map(function(p){
+      return '<button type="button" class="chip" aria-pressed="'+(prefs.indexOf(p)>-1)+'" data-v="'+esc(p)+'">'+esc(p)+'</button>';
+    }).join("");
+  }
+  $("reasons").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    reason=b.getAttribute("data-v"); $("h-reason").textContent=""; drawReasons();
+    var nb=$("reasons").querySelector('[aria-checked="true"]'); if(nb) nb.focus();
+  });
+  $("prefs").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    var v=b.getAttribute("data-v"), i=prefs.indexOf(v);
+    if(i>-1) prefs.splice(i,1); else prefs.push(v);
+    drawPrefs();
+    var nb=$("prefs").querySelector('[data-v="'+v.replace(/"/g,'\\"')+'"]'); if(nb) nb.focus();
+  });
+  function openForm(a){
+    target=a; reason=""; prefs=[]; cid=newCid();
+    $("fH").textContent="ขอเลื่อนนัด "+shortDow(a.dow)+" "+a.day+" "+a.mon;
+    $("note").value=""; $("h-reason").textContent=""; $("formErr").hidden=true;
+    var b=$("submit"); b.disabled=false; b.textContent="ส่งคำขอเลื่อน";
+    drawReasons(); drawPrefs(); $("brandTx").textContent="แจ้งเลื่อนนัด"; show("vForm");
+  }
+  $("backBtn").addEventListener("click",function(){ $("brandTx").textContent="คอร์สของฉัน"; show("vHome"); });
+  $("f").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var err=$("formErr"); err.hidden=true;
+    if(!reason){ var h=$("h-reason"); h.className="hint e"; h.textContent="เลือกสักอย่างก่อนนะครับ"; return; }
+    var b=$("submit"); b.disabled=true; b.textContent="กำลังส่ง…";
+    var sent={appt:target,reason:reason,prefs:prefs.slice()};
+    api({action:"rescheduleSubmit",cid:cid,values:{apptTs:target.ts,reason:reason,prefs:prefs,note:$("note").value.trim()}}).then(function(r){
+      if(!r.ok){
+        b.disabled=false; b.textContent="ส่งคำขอเลื่อน";
+        if(r.error==="late"||r.error==="pending"){
+          /* สถานะเปลี่ยนไประหว่างเปิดหน้า: โหลดข้อมูลใหม่แล้วอธิบาย */
+          api({action:"courseInit"}).then(function(n){ if(n.ok){ S=n; renderHome(); } });
+        }
+        err.hidden=false;
+        err.textContent = r.error==="late" ? "กรุณาแจ้งล่วงหน้าอย่างน้อย 1 วัน นัดนี้ใกล้ถึงแล้วจึงแจ้งเลื่อนในหน้านี้ไม่ได้ ทักแชทบอกณัฒได้เลยครับ"
+          : r.error==="pending" ? "นัดนี้ส่งคำขอเลื่อนไปแล้ว รอณัฒทักกลับนะครับ"
+          : r.error==="appt" ? "ไม่พบนัดนี้แล้ว (อาจมีการเปลี่ยนเวลา) กลับไปหน้าคอร์สเพื่อดูข้อมูลล่าสุดนะครับ"
+          : r.error==="busy" ? "ระบบกำลังยุ่งอยู่ รอสักครู่แล้วกดส่งอีกครั้งนะครับ"
+          : r.error==="token" ? "หน้านี้เปิดค้างนานไป ปิดแล้วเปิดใหม่จากเมนูในแชทนะครับ"
+          : r.error==="long" ? "ข้อความยาวเกินไปหน่อย ย่อให้สั้นลงอีกนิดนะครับ"
+          : "ส่งไม่สำเร็จ ลองอีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")";
+        return;
+      }
+      if(r.init&&r.init.ok){ S=r.init; renderHome(); }
+      renderDone(sent);
+    }).catch(function(){
+      b.disabled=false; b.textContent="ส่งคำขอเลื่อน";
+      err.hidden=false; err.textContent="เชื่อมต่อไม่ได้ กดส่งอีกครั้งได้เลยครับ ระบบกันส่งซ้ำให้ ถ้ายังไม่ได้ทักแชทบอกณัฒนะครับ";
+    });
+  });
+
+  /* ---------- ส่งแล้ว ---------- */
+  function renderDone(s){
+    $("brandTx").textContent="แจ้งเลื่อนนัด";
+    $("sum").innerHTML='<div class="row2"><b>นัดเดิม</b><span class="pill wait">รอเวลาใหม่</span></div>'
+      +'<div>'+esc(when(s.appt))+'</div>'
+      +'<div class="sub small">เหตุผล: '+esc(s.reason)+(s.prefs.length?'<br>ช่วงที่สะดวก: '+esc(s.prefs.join(" · ")):'')+'</div>';
+    var k=$("keepCard");
+    if(S&&S.remaining!==null&&S.remaining!==undefined){ k.hidden=false; k.innerHTML='จำนวนครั้งที่เหลือยังเป็น <b>'+esc(S.remaining)+' ครั้ง</b> เหมือนเดิม ไม่หายไปไหนครับ'; }
+    else k.hidden=true;
+    show("vDone");
+  }
+  $("homeBtn").addEventListener("click",function(){ $("brandTx").textContent="คอร์สของฉัน"; show("vHome"); });
+  $("closeBtn").addEventListener("click",function(){
+    if(!DEMO && window.liff && liff.isInClient()) liff.closeWindow(); else $("closeBtn").textContent="ปิดหน้านี้ได้เลยครับ";
+  });
+
+  boot();
+})();
+</script>
+</body>
+</html>

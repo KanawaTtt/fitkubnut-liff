@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>ส่งมื้ออาหาร | Fit กับณัฒ</title>
+<title>ส่งมื้ออาหาร | Fit Kub Nut</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -95,7 +95,7 @@ a.btn{display:block;text-align:center;text-decoration:none}
 </head>
 <body>
 <main>
-  <div class="brand"><span><b>Fit กับณัฒ</b> · ส่งมื้ออาหาร</span><span id="who"></span></div>
+  <div class="brand"><span><b>Fit Kub Nut</b> · ส่งมื้ออาหาร</span><span id="who"></span></div>
 
   <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
 
@@ -332,7 +332,7 @@ var CONFIG = {
   /* ---------- result ---------- */
   function renderDone(r,meal,detail,sentPhoto){
     $("doneH").textContent="ได้รับมื้ออาหารเรียบร้อยแล้ว";
-    $("doneP").textContent="เช็กย้อนหลังได้ที่ปุ่ม “ภาพรวม” ในเมนูครับ ไม่ต้องส่งซ้ำนะ";
+    $("doneP").textContent="เช็กย้อนหลังได้ที่ปุ่ม “เชคความคืบหน้า” ในเมนูครับ ไม่ต้องส่งซ้ำนะ";
     $("doneP2").textContent= sentPhoto ? "ได้รับรูปด้วยแล้ว ณัฒจะดูแล้วส่งคำแนะนำให้ในแชทนะครับ" : "ครั้งหน้าแนบรูปมาด้วยก็ได้ ณัฒจะช่วยดูให้ละเอียดขึ้น แต่ไม่บังคับนะครับ";
     $("sum").innerHTML='<div class="mh"><b>'+esc(meal)+'</b><span>เมื่อสักครู่</span></div>'
       +(detail?'<div class="mx">'+esc(detail)+'</div>':'')
