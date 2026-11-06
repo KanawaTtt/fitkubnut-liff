@@ -228,6 +228,8 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
         <div style="font-size:20px;font-weight:700;line-height:1.3">การบ้านวันพัก</div>
       </div>
       <div class="hw" id="hwList"></div>
+      <button class="btn" id="hwSave" type="button">บันทึกการบ้าน</button>
+      <div class="sub small" id="hwMsg" style="text-align:center;margin:0" role="status"></div>
     </div>
     <div class="card stack" id="bonusCard" hidden>
       <h2>ถ้าวันนี้ยังมีแรง</h2>
@@ -316,7 +318,7 @@ var CONFIG = {
   var S = null;          /* ข้อมูลล่าสุดจากเซิร์ฟเวอร์ */
   var T = null;          /* โปรแกรมที่กำลังแสดง (วันนี้ หรือชุดขี้เกียจของวันพัก) */
   var lazy = false, bonus = false;
-  var done = {}, eqOn = [], openId = -1, fin = false, feeling = "";
+  var done = {}, eqOn = [], hwOn = [], openId = -1, fin = false, feeling = "";
   var saveTimer = 0, dirty = false, retried = false, saving = false;
 
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -404,7 +406,8 @@ var CONFIG = {
       S = r;
       var pg = r.progress || {};
       done = {}; Object.keys(pg.done || {}).forEach(function(k){ done[k] = pg.done[k]; });
-      eqOn = (pg.eq || []).slice();
+      eqOn = []; hwOn = [];
+      (pg.eq || []).forEach(function(x){ if(String(x).indexOf("hw:") === 0) hwOn.push(x); else eqOn.push(x); });
       feeling = pg.feeling || "";
       fin = !!pg.finished;
       if(r.mode === "train"){
@@ -552,21 +555,55 @@ var CONFIG = {
   function renderRest(){
     $("rH1").textContent = "วันนี้วันพักครับ" + greet();
     $("rDate").textContent = S.today.dow + " " + S.today.day + " " + S.today.mon;
-    var key = "fkn_hw_" + S.today.iso, ticks = [];
-    try{ ticks = JSON.parse(lsGet(key) || "[]"); }catch(e){ ticks = []; }
     var list = (S.rest && S.rest.homework) || [];
+    var serverHad = hwOn.length > 0;
+    var key = "fkn_hw_" + S.today.iso, lsT = [];
+    try{ lsT = JSON.parse(lsGet(key) || "[]"); }catch(e){ lsT = []; }
+    if(!hwOn.length && lsT.length){ lsT.forEach(function(i){ if(list[i] != null){ var h = "hw:" + list[i].slice(0,56); if(hwOn.indexOf(h) < 0) hwOn.push(h); } }); }
+    function isOn(i){ return hwOn.indexOf("hw:" + list[i].slice(0,56)) > -1; }
+    var saved = !!(S.progress && S.progress.hwSaved) || serverHad;
+    function setBtn(){
+      var b = $("hwSave");
+      b.disabled = false;
+      b.textContent = saved ? ((!DEMO && window.liff && liff.isInClient()) ? "บันทึกแล้ว · กลับไปที่แชท" : "บันทึกแล้ว · ปิดหน้านี้ได้เลย") : "บันทึกการบ้าน";
+    }
     $("hwList").innerHTML = list.map(function(t, i){
-      var on = ticks.indexOf(i) > -1;
-      return '<button type="button" class="hwb" data-hw="'+i+'" aria-pressed="'+on+'"><span class="bx">'+(on?CHECK:"")+'</span><span>'+esc(t)+'</span></button>';
+      var o = isOn(i);
+      return '<button type="button" class="hwb" data-hw="'+i+'" aria-pressed="'+o+'"><span class="bx">'+(o?CHECK:"")+'</span><span>'+esc(t)+'</span></button>';
     }).join("");
     $("hwList").onclick = function(ev){
       var b = ev.target.closest("[data-hw]"); if(!b) return;
-      var i = Number(b.getAttribute("data-hw")), at = ticks.indexOf(i);
-      if(at > -1) ticks.splice(at,1); else ticks.push(i);
-      lsSet(key, JSON.stringify(ticks));
-      var on = at < 0;
-      b.setAttribute("aria-pressed", String(on)); b.firstChild.innerHTML = on ? CHECK : "";
+      var i = Number(b.getAttribute("data-hw")), h = "hw:" + list[i].slice(0,56), at = hwOn.indexOf(h);
+      if(at > -1) hwOn.splice(at,1); else hwOn.push(h);
+      var idx = []; list.forEach(function(_, k){ if(isOn(k)) idx.push(k); });
+      lsSet(key, JSON.stringify(idx));
+      var o = at < 0;
+      b.setAttribute("aria-pressed", String(o)); b.firstChild.innerHTML = o ? CHECK : "";
+      saved = false; if(S.progress) S.progress.hwSaved = false; setBtn();
+      $("hwMsg").textContent = "ติ๊กแล้ว อย่าลืมกดบันทึกการบ้านด้านล่างนะครับ";
+      queueSave();
     };
+    $("hwSave").onclick = function(){
+      if(saved){ closePage(); return; }
+      var b = $("hwSave"); b.disabled = true; b.textContent = "กำลังบันทึก…"; $("hwMsg").textContent = "";
+      clearTimeout(saveTimer); dirty = false;
+      api({action:"programSave", values:values()}).then(function(r){
+        if(!r || !r.ok){
+          dirty = true; b.disabled = false; b.textContent = "ลองบันทึกอีกครั้ง";
+          $("hwMsg").textContent = r && r.error === "busy" ? "ระบบกำลังยุ่ง ลองกดอีกครั้งนะครับ" : "บันทึกไม่สำเร็จ ลองอีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ";
+          return;
+        }
+        saved = true; S.progress = S.progress || {}; S.progress.hwSaved = true;
+        try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}
+        setBtn();
+        $("hwMsg").textContent = hwOn.length ? "บันทึกการบ้านแล้ว เก่งมากครับ ทำได้ " + hwOn.length + " จาก " + list.length + " ข้อ" : "บันทึกแล้วครับ ไม่ติ๊กก็ไม่เป็นไร พักให้เต็มที่";
+      }).catch(function(){
+        dirty = true; b.disabled = false; b.textContent = "ลองบันทึกอีกครั้ง";
+        $("hwMsg").textContent = "เชื่อมต่อไม่ได้ เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ";
+      });
+    };
+    $("hwMsg").textContent = saved ? "บันทึกการบ้านของวันนี้ไว้แล้ว" : "";
+    setBtn();
     $("bonusCard").hidden = !(S.rest && S.rest.bonus);
     renderTmr($("tmrR"));
   }
@@ -576,7 +613,7 @@ var CONFIG = {
   }
 
   /* ---------- บันทึกอัตโนมัติ ---------- */
-  function values(){ return {done:done, mode:lazy?"lazy":"normal", eq:eqOn}; }
+  function values(){ return {done:done, mode:lazy?"lazy":"normal", eq:eqOn.concat(hwOn)}; }
   function queueSave(){
     dirty = true;
     clearTimeout(saveTimer);
