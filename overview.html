@@ -116,6 +116,19 @@ ul.ex li:last-child{border-bottom:0}
 .medal.next svg{opacity:.45}
 .msg{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px}
 .quote{border-left:3px solid var(--accent);padding:2px 0 2px 12px;font-size:14px}
+/* อาหาร */
+.mday{display:flex;flex-direction:column;gap:8px}
+.mday h3{margin:0;font-size:14px;font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.mday h3 small{font-weight:400;color:var(--muted);font-size:12px}
+.meal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px 13px;display:flex;flex-direction:column;gap:6px}
+.meal .mh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.meal .mh b{font-weight:600;color:var(--ink);background:var(--soft);border-radius:999px;padding:2px 10px}
+.meal .mx{font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.meal .mx.none{color:var(--muted)}
+.mph{align-self:flex-start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:500;border-radius:999px;padding:4px 13px;cursor:pointer}
+.mph:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mimg{max-width:260px}
+.mimg img{width:100%;display:block;border-radius:14px;border:1px solid var(--line);background:var(--soft);max-height:360px;object-fit:cover}
 </style>
 </head>
 <body>
@@ -137,7 +150,7 @@ ul.ex li:last-child{border-bottom:0}
     </div>
 
     <nav class="nav" aria-label="ข้ามไปส่วนต่างๆ">
-      <a href="#sBody">ค่าร่างกาย</a><a href="#sPhoto">ก่อน-ตอนนี้</a><a href="#sProg">โปรแกรม</a><a href="#sKeep">ความสม่ำเสมอ</a><a href="#sMedal">เหรียญ</a>
+      <a href="#sBody">ค่าร่างกาย</a><a href="#sPhoto">ก่อน-ตอนนี้</a><a href="#sProg">โปรแกรม</a><a href="#sMeal">อาหาร</a><a href="#sKeep">ความสม่ำเสมอ</a><a href="#sMedal">เหรียญ</a>
     </nav>
 
     <section class="blk" id="sBody" aria-labelledby="tBody">
@@ -176,6 +189,17 @@ ul.ex li:last-child{border-bottom:0}
           <div><div style="font-weight:600;font-size:16px" id="pName"></div><div class="pmeta" id="pMeta" style="margin-top:6px"></div></div>
           <ul class="ex" id="pList"></ul>
         </div>
+      </div>
+    </section>
+
+    <section class="blk" id="sMeal" aria-labelledby="tMeal">
+      <h2 id="tMeal">บันทึกอาหาร</h2>
+      <a class="btn" id="mealForm" href="#" target="_blank" rel="noopener">ส่งมื้ออาหาร</a>
+      <div id="mealEmpty" class="card" hidden><p style="margin:0">ยังไม่มีมื้ออาหารที่ส่งไว้เลยครับ ส่งมื้อแรกตอนไหนก็ได้ ไม่ต้องครบทุกมื้อ เอาแค่มื้อที่อยากเล่าให้ณัฒดูก็พอ</p></div>
+      <div id="mealBox" style="display:flex;flex-direction:column;gap:14px">
+        <div class="sub" id="mealSum"></div>
+        <div id="mealList" style="display:flex;flex-direction:column;gap:14px"></div>
+        <button class="btn ghost" id="mealMore" type="button" hidden>ดูย้อนหลังเพิ่ม</button>
       </div>
     </section>
 
@@ -219,7 +243,7 @@ var CONFIG = {
   var DEMO = /[?&]demo=1/.test(location.search);
   var idToken = "";
   var R = null;                       /* ข้อมูลที่ได้จากหลังบ้าน */
-  var S = { body:0, metric:"weight", prog:0 };
+  var S = { body:0, metric:"weight", prog:0, mealDays:7 };
   var photoCache = {};                /* pid -> dataURL หรือ "" (โหลดไม่ได้) */
   var METRICS = [
     {k:"weight",  name:"น้ำหนัก",        unit:"กก."},
@@ -287,11 +311,14 @@ var CONFIG = {
           {ts:now-3*DAY,name:"Full Body Foundation (มาตรฐาน)",level:"Beginner",mins:"40-50 นาที",ex:[
             {n:"Goblet Squat",sets:"3",kg:"12",reps:"12",rest:""},{n:"Crunch",sets:"3",kg:"",reps:"15",rest:""}]}
         ];
-        var d={ok:true,name:"คุณเมย์",startTs:now-35*DAY,nowTs:now,body:body,programs:progs,
+        var mealsD=[], MN=[["มื้อเช้า",8,"โอ๊ตมีลใส่กล้วย + กาแฟดำ"],["มื้อเที่ยง",12,"ข้าวกล้อง ไก่ย่าง สลัดผัก"],["มื้อเย็น",19,"ต้มจืดเต้าหู้หมูสับ + ไข่ตุ๋น\nแบ่งข้าวมาครึ่งถ้วย"]];
+        for(var di=0;di<10;di++){ MN.forEach(function(m,mi){ if(di%3===2&&mi===0) return; mealsD.push({ts:now-di*DAY-(19-m[1])*3600000,m:m[0],x:(di===4&&mi===1)?"":m[2],pid:(mi===1&&di%2===0)?"demoA":""}); }); }
+        mealsD.sort(function(a,b){return b.ts-a.ts;});
+        var d={ok:true,mealFormUrl:"https://docs.google.com/forms/d/17pHp8E36i5EGfG-Eyky63Pi4r6H8oo2wNGhq8tT-4rQ/viewform",meals:mealsD,name:"คุณเมย์",startTs:now-35*DAY,nowTs:now,body:body,programs:progs,
           moods:[{ts:now-21*DAY,e:"😓",t:"เหนื่อยๆ ครับ"},{ts:now-14*DAY,e:"🙂",t:"ปกติดี"},{ts:now-7*DAY,e:"🔥",t:"ฟิตมากครับ"},{ts:now-1*DAY,e:"🔥",t:"ฟิตมากครับ"}],
           weeks:[{d:"17/8",on:true},{d:"24/8",on:true},{d:"31/8",on:false},{d:"7/9",on:true},{d:"14/9",on:true},{d:"21/9",on:false},{d:"28/9",on:true},{d:"5/10",on:true}],
           goCount:9,miles:[{ts:now-28*DAY,m:"ครบ 1 สัปดาห์",d:""},{ts:now-14*DAY,m:"ครบ 2 สัปดาห์",d:""}]};
-        if(sc==="new"){ d.body=[]; d.programs=[]; d.moods=[]; d.miles=[]; d.goCount=0; d.weeks.forEach(function(w){w.on=false;}); }
+        if(sc==="new"){ d.meals=[]; d.body=[]; d.programs=[]; d.moods=[]; d.miles=[]; d.goCount=0; d.weeks.forEach(function(w){w.on=false;}); }
         if(sc==="one"){ d.body=[body[5]]; d.programs=[]; d.moods=[]; d.miles=[]; d.weeks.forEach(function(w,i){w.on=(i===7);}); }
         if(sc==="err"){ return res({ok:false,error:"server"}); }
         res(d);
@@ -331,8 +358,8 @@ var CONFIG = {
   function render(){
     $("hello").textContent="สวัสดีครับ "+(R.name||"");
     var days = R.startTs ? Math.floor((R.nowTs-R.startTs)/86400000) : -1;
-    $("since").textContent = days>=1 ? ("เดินทางกับณัฒมา "+days+" วันแล้ว ย้อนดูได้ทุกก้าวที่นี่") : "ย้อนดูทุกก้าวที่ผ่านมาได้ที่นี่ ไม่ต้องรีบนะครับ";
-    renderBody(); renderBeforeAfter(); renderProgram(); renderKeep(); renderMedals();
+    $("since").textContent = (days>=1 && days<3650) ? ("เดินทางกับณัฒมา "+days+" วันแล้ว ย้อนดูได้ทุกก้าวที่นี่") : "ย้อนดูทุกก้าวที่ผ่านมาได้ที่นี่ ไม่ต้องรีบนะครับ";
+    renderBody(); renderBeforeAfter(); renderProgram(); renderMeals(); renderKeep(); renderMedals();
   }
 
   /* ----- ค่าร่างกาย ----- */
@@ -511,6 +538,47 @@ var CONFIG = {
     }).join("");
   }
   $("selProg").addEventListener("change",function(){ drawProgram(Number(this.value)); });
+
+  /* ----- อาหาร ----- */
+  function dayKey(ts){ var d=new Date(ts); return d.getFullYear()*10000+d.getMonth()*100+d.getDate(); }
+  function hhmm(ts){ var d=new Date(ts); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
+  function renderMeals(){
+    var M=R.meals||[];
+    var f=$("mealForm"); if(R.mealFormUrl){ f.href=R.mealFormUrl; f.hidden=false; } else { f.hidden=true; }
+    $("mealEmpty").hidden=M.length>0;
+    $("mealBox").style.display=M.length>0?"flex":"none";
+    if(M.length) drawMeals();
+  }
+  function drawMeals(){
+    var days=[], map={};
+    R.meals.forEach(function(m){ var k=dayKey(m.ts); if(!map[k]){ map[k]={ts:m.ts,items:[]}; days.push(map[k]); } map[k].items.push(m); });
+    var shown=days.slice(0,S.mealDays), cnt=0, h="";
+    shown.forEach(function(g){
+      var its=g.items.slice().reverse();
+      cnt+=its.length;
+      h+='<div class="mday"><h3><span>'+(sameDay(g.ts,R.nowTs)?"วันนี้":esc(tdate(g.ts)))+'</span><small>'+its.length+' มื้อ</small></h3>'
+        +its.map(function(m){
+          return '<div class="meal"><div class="mh"><b>'+esc(m.m||"มื้ออาหาร")+'</b><span>'+hhmm(m.ts)+' น.</span></div>'
+            +'<div class="mx'+(m.x?'':' none')+'">'+(m.x?esc(m.x):'ไม่ได้ใส่รายละเอียด')+'</div>'
+            +(m.pid?'<button type="button" class="mph" data-pid="'+esc(m.pid)+'">ดูรูป</button><div class="mimg" hidden></div>':'')+'</div>';
+        }).join("")+'</div>';
+    });
+    $("mealList").innerHTML=h;
+    $("mealSum").textContent="แสดง "+cnt+" มื้อจาก "+shown.length+" วันล่าสุดที่บันทึก ส่งไม่ครบทุกมื้อก็ไม่เป็นไรครับ";
+    $("mealMore").hidden=days.length<=S.mealDays;
+  }
+  $("mealMore").addEventListener("click",function(){ S.mealDays+=7; drawMeals(); });
+  $("mealList").addEventListener("click",function(e){
+    var b=e.target.closest(".mph"); if(!b) return;
+    var box=b.nextElementSibling;
+    if(!box.hidden){ box.hidden=true; b.textContent="ดูรูป"; return; }
+    box.hidden=false; b.textContent="ซ่อนรูป";
+    if(box.firstChild) return;
+    box.innerHTML='<div class="ph-empty" style="aspect-ratio:4/3">กำลังโหลดรูป…</div>';
+    getPhoto(b.getAttribute("data-pid")).then(function(u){
+      box.innerHTML=u?'<img alt="รูปอาหาร" src="'+u+'">':'<div class="ph-empty" style="aspect-ratio:4/3">เปิดรูปนี้ไม่ได้ในตอนนี้</div>';
+    });
+  });
 
   /* ----- ความสม่ำเสมอ + อารมณ์ ----- */
   function renderKeep(){
