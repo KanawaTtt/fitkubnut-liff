@@ -34,7 +34,7 @@ h2{font-size:17px;line-height:1.35;margin:0;font-weight:700}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
 .btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer;text-align:center;text-decoration:none;display:block}
 .btn.ghost{background:var(--soft);color:var(--ink)}
-.btn:focus-visible,.chip:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn:focus-visible,.chip:focus-visible,.nb:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .center{text-align:center;padding:48px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
 .spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -49,6 +49,13 @@ section.blk{display:flex;flex-direction:column;gap:12px;scroll-margin-top:64px}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sel{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:15px;font-weight:500;border-radius:14px;padding:10px 12px;appearance:auto}
 .sel-wrap label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nrow{display:flex;align-items:center;gap:8px}
+.nb{flex:0 0 auto;min-height:44px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;border-radius:14px;padding:0 12px;cursor:pointer}
+.nb:disabled{opacity:.35;cursor:default}
+.nl{flex:1 1 auto;min-width:0;text-align:center;font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.nm .nl{font-size:13px;font-weight:500;color:var(--muted)}
+.nm .nb{min-height:36px;font-size:13px;font-weight:500}
 
 /* ค่าร่างกาย */
 .mets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -160,7 +167,7 @@ ul.ex li:last-child{border-bottom:0}
         <a class="btn" href="./">ส่งค่าร่างกายครั้งแรก</a>
       </div>
       <div id="bodyBox" style="display:flex;flex-direction:column;gap:12px">
-        <div class="sel-wrap"><label for="selBody">เลือกครั้งที่เช็ก</label><select class="sel" id="selBody"></select></div>
+        <div class="nav" id="navBody"></div>
         <div class="mets" id="mets"></div>
         <div class="card" style="display:flex;flex-direction:column;gap:10px">
           <div class="chips" id="metricChips" role="group" aria-label="เลือกค่าที่อยากดูกราฟ"></div>
@@ -184,7 +191,7 @@ ul.ex li:last-child{border-bottom:0}
       <h2 id="tProg">โปรแกรมออกกำลังกาย</h2>
       <div id="progEmpty" class="card" hidden><p style="margin:0">ณัฒยังไม่ได้ส่งโปรแกรมให้ในตอนนี้ครับ พอมีแล้วจะขึ้นที่นี่ให้เลย</p></div>
       <div id="progBox" style="display:flex;flex-direction:column;gap:12px">
-        <div class="sel-wrap"><label for="selProg">เลือกวัน</label><select class="sel" id="selProg"></select></div>
+        <div class="nav" id="navProg"></div>
         <div class="card" style="display:flex;flex-direction:column;gap:10px">
           <div><div style="font-weight:600;font-size:16px" id="pName"></div><div class="pmeta" id="pMeta" style="margin-top:6px"></div></div>
           <ul class="ex" id="pList"></ul>
@@ -198,6 +205,7 @@ ul.ex li:last-child{border-bottom:0}
       <a id="mealForm" class="sub" href="#" target="_blank" rel="noopener" hidden style="display:block;font-size:12px;text-align:center;text-decoration:underline">ถ้าปุ่มด้านบนใช้ไม่ได้ ส่งทางฟอร์มสำรองนี้ก็ได้ครับ</a>
       <div id="mealEmpty" class="card" hidden><p style="margin:0">ยังไม่มีมื้ออาหารที่ส่งไว้เลยครับ ส่งมื้อแรกตอนไหนก็ได้ ไม่ต้องครบทุกมื้อ เอาแค่มื้อที่อยากเล่าให้ณัฒดูก็พอ</p></div>
       <div id="mealBox" style="display:flex;flex-direction:column;gap:14px">
+        <div class="nav" id="navMeal"></div>
         <div class="sub" id="mealSum"></div>
         <div id="mealList" style="display:flex;flex-direction:column;gap:14px"></div>
         <button class="btn ghost" id="mealMore" type="button" hidden>ดูย้อนหลังเพิ่ม</button>
@@ -259,6 +267,34 @@ var CONFIG = {
   function tdate(ts){
     var d=new Date(ts), y=new Date().getFullYear();
     return d.getDate()+" "+MONTHS[d.getMonth()]+(d.getFullYear()!==y?(" "+String((d.getFullYear()+543)%100)):"");
+  }
+  var MFULL = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  function mkey(ts){ var d=new Date(ts); return d.getFullYear()*12+d.getMonth(); }
+  /* ตัวเลื่อนย้อนดู (อ่านอย่างเดียว): items เรียงเก่า -> ใหม่ [{ts,label}] */
+  function makeNav(id, items, start, onSel, prevTxt, nextTxt){
+    var root=$(id), pos=start;
+    root.innerHTML='<div class="nrow nm"><button type="button" class="nb" data-a="mp">‹ เดือนก่อน</button><div class="nl" aria-live="polite"></div><button type="button" class="nb" data-a="mn">เดือนถัดไป ›</button></div>'
+      +'<div class="nrow"><button type="button" class="nb" data-a="dp">‹ '+prevTxt+'</button><div class="nl" aria-live="polite"></div><button type="button" class="nb" data-a="dn">'+nextTxt+' ›</button></div>';
+    var rows=root.querySelectorAll(".nrow"), mb=rows[0].querySelectorAll(".nb"), db=rows[1].querySelectorAll(".nb");
+    function lastOfMonth(k){ var r=-1; for(var j=0;j<items.length;j++){ if(mkey(items[j].ts)===k) r=j; } return r; }
+    function findPrevMonth(){ var k=mkey(items[pos].ts); for(var j=pos-1;j>=0;j--){ var q=mkey(items[j].ts); if(q<k) return lastOfMonth(q); } return -1; }
+    function findNextMonth(){ var k=mkey(items[pos].ts); for(var j=pos+1;j<items.length;j++){ var q=mkey(items[j].ts); if(q>k) return lastOfMonth(q); } return -1; }
+    function draw(){
+      var d=new Date(items[pos].ts);
+      rows[0].querySelector(".nl").textContent=MFULL[d.getMonth()]+" "+(d.getFullYear()+543);
+      rows[1].querySelector(".nl").textContent=items[pos].label;
+      mb[0].disabled=findPrevMonth()<0; mb[1].disabled=findNextMonth()<0;
+      db[0].disabled=pos<=0; db[1].disabled=pos>=items.length-1;
+    }
+    root.addEventListener("click",function(e){
+      var b=e.target.closest("[data-a]"); if(!b||b.disabled) return;
+      var a=b.getAttribute("data-a"), np=pos;
+      if(a==="dp") np=pos-1; else if(a==="dn") np=pos+1; else if(a==="mp") np=findPrevMonth(); else np=findNextMonth();
+      if(np<0||np>=items.length||np===pos) return;
+      pos=np; draw(); onSel(pos);
+    });
+    draw();
+    return { set:function(p){ if(p<0||p>=items.length) return; pos=p; draw(); } };
   }
   function sameDay(a,b){ var x=new Date(a),y=new Date(b); return x.getFullYear()===y.getFullYear()&&x.getMonth()===y.getMonth()&&x.getDate()===y.getDate(); }
 
@@ -370,11 +406,7 @@ var CONFIG = {
     $("bodyBox").style.display = B.length>0 ? "flex" : "none";
     if(!B.length) return;
     S.body = B.length-1;
-    var sel=$("selBody"), h="";
-    for(var i=B.length-1;i>=0;i--){
-      h+='<option value="'+i+'">'+esc(tdate(B[i].ts))+' · ครั้งที่ '+(i+1)+(i===B.length-1?' (ล่าสุด)':'')+'</option>';
-    }
-    sel.innerHTML=h; sel.value=String(S.body);
+    navBody=makeNav("navBody",B.map(function(b,i){ return {ts:b.ts,label:tdate(b.ts)+" · ครั้งที่ "+(i+1)+(i===B.length-1?" (ล่าสุด)":"")}; }),S.body,function(p){ S.body=p; drawBody(); },"ครั้งก่อน","ครั้งถัดไป");
     $("metricChips").innerHTML=METRICS.map(function(m){
       return '<button type="button" class="chip" data-m="'+m.k+'" aria-pressed="'+(m.k===S.metric)+'">'+m.name+'</button>';
     }).join("");
@@ -460,8 +492,8 @@ var CONFIG = {
     svg.innerHTML=s;
     $("chartCap").textContent="กราฟ"+M.name+(M.unit?(" ("+M.unit+")"):"")+" · แตะที่จุดเพื่อดูแต่ละครั้ง";
   }
-  function pickBody(i){ S.body=i; $("selBody").value=String(i); drawBody(); }
-  $("selBody").addEventListener("change",function(){ pickBody(Number(this.value)); });
+  var navBody=null, navProg=null, navMeal=null;
+  function pickBody(i){ S.body=i; if(navBody) navBody.set(i); drawBody(); }
   $("metricChips").addEventListener("click",function(e){
     var b=e.target.closest("[data-m]"); if(!b) return; S.metric=b.getAttribute("data-m"); drawBody();
   });
@@ -523,11 +555,10 @@ var CONFIG = {
     $("progEmpty").hidden=P.length>0;
     $("progBox").style.display=P.length>0?"flex":"none";
     if(!P.length) return;
-    var h="";
-    P.forEach(function(p,i){
-      h+='<option value="'+i+'">'+(sameDay(p.ts,R.nowTs)?"วันนี้":esc(tdate(p.ts)))+' · '+esc(p.name||"โปรแกรม")+'</option>';
-    });
-    $("selProg").innerHTML=h; $("selProg").value="0"; drawProgram(0);
+    var n=P.length, items=[];
+    for(var k=n-1;k>=0;k--){ items.push({ts:P[k].ts,label:(sameDay(P[k].ts,R.nowTs)?"วันนี้":tdate(P[k].ts))+" · "+(P[k].name||"โปรแกรม")}); }
+    navProg=makeNav("navProg",items,n-1,function(p){ drawProgram(n-1-p); },"วันก่อน","วันถัดไป");
+    drawProgram(0);
   }
   function drawProgram(i){
     var p=R.programs[i]; S.prog=i;
@@ -538,7 +569,6 @@ var CONFIG = {
       return '<li><span class="no">'+(j+1)+'</span><div><div class="en">'+esc(e.n)+'</div><div class="em">'+(exMeta(e)||"ตามที่ณัฒแนะนำ")+'</div></div></li>';
     }).join("");
   }
-  $("selProg").addEventListener("change",function(){ drawProgram(Number(this.value)); });
 
   /* ----- อาหาร ----- */
   function dayKey(ts){ var d=new Date(ts); return d.getFullYear()*10000+d.getMonth()*100+d.getDate(); }
@@ -554,22 +584,23 @@ var CONFIG = {
   function drawMeals(){
     var days=[], map={};
     R.meals.forEach(function(m){ var k=dayKey(m.ts); if(!map[k]){ map[k]={ts:m.ts,items:[]}; days.push(map[k]); } map[k].items.push(m); });
-    var shown=days.slice(0,S.mealDays), cnt=0, h="";
-    shown.forEach(function(g){
-      var its=g.items.slice().reverse();
-      cnt+=its.length;
-      h+='<div class="mday"><h3><span>'+(sameDay(g.ts,R.nowTs)?"วันนี้":esc(tdate(g.ts)))+'</span><small>'+its.length+' มื้อ</small></h3>'
-        +its.map(function(m){
-          return '<div class="meal"><div class="mh"><b>'+esc(m.m||"มื้ออาหาร")+'</b><span>'+hhmm(m.ts)+' น.</span></div>'
-            +'<div class="mx'+(m.x?'':' none')+'">'+(m.x?esc(m.x):'ไม่ได้ใส่รายละเอียด')+'</div>'
-            +(m.pid?'<button type="button" class="mph" data-pid="'+esc(m.pid)+'">ดูรูป</button><div class="mimg" hidden></div>':'')+'</div>';
-        }).join("")+'</div>';
-    });
-    $("mealList").innerHTML=h;
-    $("mealSum").textContent="แสดง "+cnt+" มื้อจาก "+shown.length+" วันล่าสุดที่บันทึก ส่งไม่ครบทุกมื้อก็ไม่เป็นไรครับ";
-    $("mealMore").hidden=days.length<=S.mealDays;
+    S.mealDayList=days;
+    var n=days.length, items=[];
+    for(var k=n-1;k>=0;k--){ items.push({ts:days[k].ts,label:(sameDay(days[k].ts,R.nowTs)?"วันนี้":tdate(days[k].ts))+" · "+days[k].items.length+" มื้อ"}); }
+    navMeal=makeNav("navMeal",items,n-1,function(p){ showMealDay(n-1-p); },"วันก่อน","วันถัดไป");
+    showMealDay(0);
+    $("mealMore").hidden=true;
   }
-  $("mealMore").addEventListener("click",function(){ S.mealDays+=7; drawMeals(); });
+  function showMealDay(i){
+    var g=S.mealDayList[i], its=g.items.slice().reverse();
+    $("mealList").innerHTML='<div class="mday">'
+      +its.map(function(m){
+        return '<div class="meal"><div class="mh"><b>'+esc(m.m||"มื้ออาหาร")+'</b><span>'+hhmm(m.ts)+' น.</span></div>'
+          +'<div class="mx'+(m.x?'':' none')+'">'+(m.x?esc(m.x):'ไม่ได้ใส่รายละเอียด')+'</div>'
+          +(m.pid?'<button type="button" class="mph" data-pid="'+esc(m.pid)+'">ดูรูป</button><div class="mimg" hidden></div>':'')+'</div>';
+      }).join("")+'</div>';
+    $("mealSum").textContent="เลื่อนดูย้อนหลังได้ทีละวันหรือทีละเดือน ส่งไม่ครบทุกมื้อก็ไม่เป็นไรครับ";
+  }
   $("mealList").addEventListener("click",function(e){
     var b=e.target.closest(".mph"); if(!b) return;
     var box=b.nextElementSibling;
