@@ -184,6 +184,7 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
   </section>
 
   <!-- วันเทรน -->
+  <div class="note" id="autoBanner" hidden role="status" style="margin:0 0 12px"></div>
   <section id="vTrain" hidden class="stack">
     <div>
       <h1 id="tH1"></h1>
@@ -202,6 +203,7 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
         <button type="button" id="segL" aria-pressed="false">ขี้เกียจ · 10 นาที</button>
       </div>
       <div class="note" id="lazyNote" hidden>วันที่แรงหมดก็ทำชุดสั้นนี้พอ ยังนับเป็นเทรนของวันนี้ครับ</div>
+      <div class="note" id="countNote" hidden></div>
       <div class="prog">
         <div class="t"><span id="pTxt"></span><span id="pMin"></span></div>
         <div class="bar"><i id="pBar" style="width:0%"></i></div>
@@ -240,7 +242,7 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
     </div>
     <div class="card stack" id="bonusCard" hidden>
       <h2>ถ้าวันนี้ยังมีแรง</h2>
-      <p class="sub small" style="margin:0">ไม่บังคับนะครับ แต่ถ้าอยากขยับเพิ่ม เลือกแบบขี้เกียจ 10 นาทีได้</p>
+      <p class="sub small" style="margin:0">ไม่บังคับนะครับ แต่ถ้าอยากขยับเพิ่ม เลือกแบบขี้เกียจ 10 นาทีได้ (วันพักแบบนี้ยังไม่นับเป็นครั้งในคอร์ส)</p>
       <button class="btn out" id="bonusBtn" type="button">ลองโปรแกรมขี้เกียจ 10 นาที</button>
     </div>
     <div class="tmr" id="tmrR"></div>
@@ -403,6 +405,14 @@ var CONFIG = {
       msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",retryBtn());
     });
   }
+  function showAutoNote(l){
+    var a = l && l.autoNote; if(!a || !a.iso) return;
+    var key = "autoNote_" + a.iso;
+    if(lsGet(key)) return;
+    var el = $("autoBanner");
+    el.textContent = "วัน" + a.dow + "ที่ " + a.day + " " + a.mon + " ไม่ได้กด เทรนเสร็จ ระบบนับเป็น 1 ครั้งให้แล้วนะครับ ไม่ต้องกังวล";
+    el.hidden = false; lsSet(key, "1");
+  }
   function init(){
     api({action:"programInit"}).then(function(r){
       if(!r.ok){
@@ -411,6 +421,7 @@ var CONFIG = {
         return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",retryBtn());
       }
       S = r;
+      showAutoNote(r.ledger);
       var pg = r.progress || {};
       done = {}; Object.keys(pg.done || {}).forEach(function(k){ done[k] = pg.done[k]; });
       eqOn = []; hwOn = []; hwKeep = [];
@@ -468,7 +479,9 @@ var CONFIG = {
     $("segN").setAttribute("aria-pressed", String(!lazy));
     $("segL").setAttribute("aria-pressed", String(lazy));
     $("segL").parentNode.hidden = !!bonus;
-    $("lazyNote").hidden = !lazy;
+    $("lazyNote").textContent = bonus ? "วันนี้เป็นวันพัก ขยับเพิ่มได้ตามสบาย ยังไม่นับเป็นครั้งในคอร์สนะครับ" : "วันที่แรงหมดก็ทำชุดสั้นนี้พอ ยังนับเป็นเทรนของวันนี้ครับ";
+    $("lazyNote").hidden = !(lazy || bonus);
+    var cn = $("countNote"); cn.hidden = !!bonus; cn.textContent = 'ซ้อมเสร็จแล้วอย่าลืมกด "เทรนเสร็จ" ท้ายหน้านะครับ ลืมก็ไม่เป็นไร ผ่านวันนี้ไประบบนับให้เอง';
     $("eqH").textContent = "วันนี้เล่น " + (T.dayName || T.title) + " ต้องเตรียมอะไร";
     renderEq();
     var box = $("exList"); box.innerHTML = "";
@@ -652,13 +665,14 @@ var CONFIG = {
   /* ---------- เทรนเสร็จ ---------- */
   function renderDone(){
     var t = totals();
-    $("dP").textContent = (t.exAll && t.ex >= t.exAll)
+    if(bonus){ $("dP").textContent = "วันนี้เป็นวันพัก ขยับเพิ่มแบบนี้ดีมากครับ ยังไม่นับเป็นครั้งในคอร์ส แต่ร่างกายขอบคุณแน่นอน"; }
+    else $("dP").textContent = (t.exAll && t.ex >= t.exAll)
       ? "วันนี้ได้ครบ " + t.exAll + " ท่า ไปกินข้าวให้อร่อยได้เลย ไม่ต้องรู้สึกผิดนะครับ"
       : (t.done > 0 ? "วันนี้ทำไป " + t.done + " จาก " + t.total + " เซ็ต กำลังดีแล้วครับ ยังนับเป็นเทรนของวันนี้" : "วันนี้ขยับแค่นี้ก็ดีแล้วครับ ไม่ต้องรู้สึกผิดนะครับ");
     var days = S.week.days.map(function(d){ return {k:d.k,d:d.d,st:d.st,today:d.today}; });
     var doneN = S.week.done, planN = S.week.plan, wasDone = false;
     days.forEach(function(d){ if(d.today){ wasDone = (d.st === "done"); if(!wasDone){ d.st = "done"; } } });
-    if(!wasDone){ doneN += 1; if(doneN > planN) planN = doneN; if(!S.week.days.some(function(d){ return d.today && d.st === "plan"; })) planN = Math.max(planN, doneN); }
+    if(!wasDone && !bonus){ doneN += 1; if(doneN > planN) planN = doneN; if(!S.week.days.some(function(d){ return d.today && d.st === "plan"; })) planN = Math.max(planN, doneN); }
     $("wCount").textContent = doneN + " จาก " + planN + " ครั้ง";
     $("wDots").innerHTML = days.map(function(d){
       return '<div class="wd'+(d.today?" now":"")+'"><span>'+esc(d.k)+'</span><span class="dot '+d.st+(d.today?" now":"")+'">'+(d.st==="done"?CHECK:"")+'</span></div>';
