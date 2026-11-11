@@ -185,6 +185,7 @@ var CONFIG = {
   if(/[?&]page=meal(&|$)/.test(location.search)){ location.replace("meal.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=course(&|$)/.test(location.search)){ location.replace("course.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=program(&|$)/.test(location.search)){ location.replace("program.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
+  if(/[?&]page=trainer(&|$)/.test(location.search)){ location.replace("trainer.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   var $ = function(id){ return document.getElementById(id); };
   var DEMO = /[?&]demo=1/.test(location.search);
   var idToken = "";
