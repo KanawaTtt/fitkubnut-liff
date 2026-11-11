@@ -241,10 +241,10 @@ var CONFIG = {
   /* ---------- หน้าหลัก ---------- */
   var SHORT={"อาทิตย์":"อา.","จันทร์":"จ.","อังคาร":"อ.","พุธ":"พ.","พฤหัสบดี":"พฤ.","ศุกร์":"ศ.","เสาร์":"ส."};
   function shortDow(d){ return SHORT[d]||d; }
-  function when(a){ return a.dow+" "+a.day+" "+a.mon+" · "+a.time+" น."; }
+  function when(a){ return a.dow+" "+a.day+" "+a.mon+(a.time?" · "+a.time+" น.":""); }
   function apptHtml(a, idx){
     var h='<div class="appt"><div class="next"><div class="date"><b>'+esc(a.day)+'</b><small>'+esc(a.mon)+'</small></div><div>'
-      +'<div class="t">'+esc(a.dow)+' '+esc(a.time)+' น.</div>'
+      +'<div class="t">'+esc(a.dow)+(a.time?' '+esc(a.time)+' น.':' · วันเทรน')+'</div>'
       +'<div class="sub small">'+(a.place?esc(a.place)+' · ':'')+(a.no?'ครั้งที่ '+esc(a.no):'')+'</div></div></div>';
     if(a.pending){
       h+='<div class="note">ส่งคำขอเลื่อนแล้ว รอณัฒทักกลับไปตกลงเวลาใหม่ในแชทนะครับ'
@@ -291,6 +291,8 @@ var CONFIG = {
         return '<div class="li"><span>'+esc(shortDow(a.dow))+' '+esc(a.day)+' '+esc(a.mon)+(a.no?' · ครั้งที่ '+esc(a.no):'')+'</span><span class="pill">เทรนแล้ว</span></div>';
       }).join("")+'</div>';
     } else { pc.hidden=true; }
+    var auto=$("autoNote"); if(!auto){ auto=document.createElement("p"); auto.id="autoNote"; auto.className="sub small"; auto.style.marginTop="8px"; $("policy").parentNode.insertBefore(auto,$("policy").nextSibling); }
+    auto.textContent="ลืมกด เทรนเสร็จ ก็ไม่เป็นไรนะครับ ผ่านวันเทรนไปแล้วระบบนับเป็น 1 ครั้งให้เอง (ถ้าไม่ได้เลื่อนนัด)";
     $("policy").textContent="ชีวิตมีขึ้นมีลง แจ้งเลื่อนล่วงหน้าอย่างน้อย "+(S.policyHours>=24?Math.round(S.policyHours/24)+" วัน":S.policyHours+" ชั่วโมง")+" ได้เลยครับ ครั้งที่เหลือไม่หายไปไหน";
   }
   $("apptCard").addEventListener("click",function(e){
