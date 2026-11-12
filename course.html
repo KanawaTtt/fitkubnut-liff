@@ -263,14 +263,14 @@ var CONFIG = {
     var head='<div class="row2"><b style="font-size:15px">'+title+'</b>'+(S.start?'<span class="pill">เริ่ม '+esc(S.start.day)+' '+esc(S.start.mon)+'</span>':'')+'</div>';
     var body="";
     if(S.total){
-      body='<div class="big">เหลืออีก '+esc(S.remaining)+' ครั้ง <small>จาก '+esc(S.total)+'</small></div>';
+      body='<div class="big">เทรนไปแล้ว '+esc(S.used)+' / '+esc(S.total)+' <small>ครั้ง</small></div>';
       if(S.total<=24){
         var seg=""; for(var i=0;i<S.total;i++) seg+='<i'+(i<S.used?' class="on"':'')+'></i>';
         body+='<div class="bar" role="img" aria-label="เทรนแล้ว '+esc(S.used)+' จาก '+esc(S.total)+' ครั้ง">'+seg+'</div>';
       } else {
         body+='<div class="bar solid" role="img" aria-label="เทรนแล้ว '+esc(S.used)+' จาก '+esc(S.total)+' ครั้ง"><i style="width:'+Math.min(100,Math.round(S.used/S.total*100))+'%"></i></div>';
       }
-      body+='<p class="sub small">เทรนไปแล้ว '+esc(S.used)+' ครั้ง'+(S.perWeek?' · ตารางปกติ '+esc(S.perWeek)+' วัน/สัปดาห์':'')+'</p>';
+      body+='<p class="sub small">เหลืออีก '+esc(S.remaining)+' ครั้ง'+(S.perWeek?' · ตารางปกติ '+esc(S.perWeek)+' วัน/สัปดาห์':'')+'</p>';
     } else {
       body='<div class="big">เทรนไปแล้ว '+esc(S.used)+' <small>ครั้ง</small></div>'+(S.perWeek?'<p class="sub small">ตารางปกติ '+esc(S.perWeek)+' วัน/สัปดาห์</p>':'');
     }
