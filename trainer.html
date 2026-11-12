@@ -140,6 +140,12 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .rows>div:last-child{border-bottom:0}
 .rows .a{font-size:15px;font-weight:600}
 .rows .b{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.nfy{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.nfy .row{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4}
+.nfy input[type=checkbox]{width:22px;height:22px;margin:0;flex:none}
+.nfy textarea{width:100%;min-height:64px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--ink);padding:10px 12px;font:inherit;font-size:15px;resize:vertical}
+.nfy .hint{font-size:13px;color:var(--muted);line-height:1.45}
+.nfy [hidden]{display:none}
 .notes{background:var(--warn-bg);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;color:var(--warn-ink)}
 .notes b{font-size:14px}
 .notes div{font-size:14px;line-height:1.45}
@@ -199,9 +205,9 @@ var TAGS = ["เจ็บเข่า","เจ็บหลังล่าง","�
 var SKIP = "ข้ามท่านี้";
 var idToken = "", retried = false;
 var S = { iso:"", customers:[], library:[] };
-var E = null;
+var E = null;                     /* เซสชันที่เปิดอยู่ */
 var view = "list";
-var rest = null;
+var rest = null;                  /* { i, j, total, t0 } */
 var saving = false, dirty = false, saveTimer = 0, saveState = "", saveAt = "";
 function esc(x){ return String(x == null ? "" : x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function num(v){ if(v === "" || v == null) return 0; var n = Number(String(v).replace(",",".")); return isFinite(n) ? n : 0; }
@@ -257,9 +263,10 @@ D.c = [
 { name:"คุณพี่ Q", plan:false, title:"", nEx:0, state:"none", done:4, total:12 }
 ];
 D.sess = {};
+D.nf = { on:true, left:109, limit:300 };
 }
 if(action === "trainerInit"){
-return ok({ ok:true, iso:iso, today:{iso:iso}, customers:D.c, library:["Goblet Squat","Dumbbell Romanian Deadlift","Glute Bridge","Dumbbell Row","Incline Push-up","Seated Row","Dumbbell Shoulder Press","Leg Press","Walking Lunge","Cable Pallof Press","Plank","Lat Pulldown","Bench Press","Deadlift","Hip Thrust","Bicep Curl","Tricep Pushdown","Lateral Raise"] });
+return ok({ ok:true, iso:iso, today:{iso:iso}, notify:D.nf, customers:D.c, library:["Goblet Squat","Dumbbell Romanian Deadlift","Glute Bridge","Dumbbell Row","Incline Push-up","Seated Row","Dumbbell Shoulder Press","Leg Press","Walking Lunge","Cable Pallof Press","Plank","Lat Pulldown","Bench Press","Deadlift","Hip Thrust","Bicep Curl","Tricep Pushdown","Lateral Raise"] });
 }
 if(action === "trainerSession"){
 var c = D.c.filter(function(x){ return x.name === v.name; })[0];
@@ -285,8 +292,9 @@ D.sess[v.name + "|" + iso] = { struct:{ ex:st.ex.map(function(e){ return {n:e.n,
 day:{ note:st.dayNote, tags:st.dayTags, start:st.start, status:fin ? "จบแล้ว" : "กำลังเทรน" } };
 var cu = D.c.filter(function(x){ return x.name === v.name; })[0];
 if(cu){ cu.state = fin ? "done" : "doing"; if(action === "trainerFinish" && !v.wasDone){ cu.done++; } }
-return ok({ ok:true, sid:v.sid, savedAt:nowHM(), nSets:n, finished:fin, ledger:action === "trainerFinish" ? (cu && cu.plan ? "marked" : "created") : "", course:cu ? { done:cu.done, total:cu.total } : null });
+return ok({ ok:true, sid:v.sid, savedAt:nowHM(), nSets:n, finished:fin, ledger:action === "trainerFinish" ? (cu && cu.plan ? "marked" : "created") : "", course:cu ? { done:cu.done, total:cu.total } : null, notify:(action === "trainerFinish" && v.notify && !v.wasDone) ? { sent:true, text:"แจ้งลูกค้าแล้ว" } : { sent:false, text:"" } });
 }
+if(action === "trainerNotifySet"){ D.nf = { on:!!v.on, left:109, limit:300 }; return ok({ ok:true, notify:D.nf }); }
 return ok({ ok:false, error:"action" });
 }
 function boot(){
@@ -301,6 +309,7 @@ init();
 msg("เปิดหน้านี้ไม่สำเร็จ", "ลองปิดแล้วเปิดลิงก์ใหม่อีกครั้งนะครับ (" + (e && e.code ? e.code : "liff") + ")", reloadBtn());
 });
 }
+var NOTIFY = { on:false, left:null, limit:null };
 function init(){ loadList(isoOf(new Date()), true); }
 function loadList(iso, first){
 loading();
@@ -313,6 +322,7 @@ return msg("บัญชีไลน์นี้ยังไม่ได้ร�
 return msg("มีบางอย่างติดขัด", errMsg(r), reloadBtn());
 }
 S.iso = r.iso; S.customers = r.customers || []; S.library = r.library || [];
+if(r.notify) NOTIFY = r.notify;
 E = null; rest = null;
 $("mEmpty").style.display = "flex"; $("mSession").style.display = "none"; $("mSummary").style.display = "none";
 setView("list"); renderList(); hideMsg();
@@ -412,7 +422,7 @@ else if(r.plan && r.plan.ex) base = r.plan.ex;
 var s = { name:r.name, iso:r.iso, cust:c, title:(r.plan && r.plan.title) || "", hasPlan:!!r.plan, lastAll:r.lastAll || {}, ex:[],
 dayNote:(r.day && r.day.note) || "", dayTags:(r.day && r.day.tags) || [], start:(r.day && r.day.start) || "", status:(r.day && r.day.status) || "",
 sid:r.sid || Math.random().toString(36).slice(2, 8), result:null };
-E = s;
+E = s;                         /* defW/defR ใช้ E.lastAll */
 (base || []).forEach(function(b, i){
 var e = newEx(b);
 fillSets(e, i, r.sets);
@@ -420,7 +430,7 @@ var nt = r.exNotes && r.exNotes[i];
 if(nt){ e.note = nt.note || ""; e.tags = nt.tags || []; }
 s.ex.push(e);
 });
-if(!base && r.sets){
+if(!base && r.sets){ /* กู้ท่าจากแถวที่จดไว้ (กรณีไม่มีโครงสร้าง) */
 var names = {};
 Object.keys(r.sets).forEach(function(k){ var i = Number(k.split("-")[0]); names[i] = r.sets[k].n; });
 Object.keys(names).sort(function(a,b){ return a - b; }).forEach(function(i){ var e = newEx({ n:names[i], src:"added" }); fillSets(e, Number(i), r.sets); s.ex[Number(i)] = e; });
@@ -704,12 +714,37 @@ var h = '<div class="scroll"><div class="padm sm"><div><button type="button" cla
 '<div class="stats"><div class="stat"><b>' + exDone + '/' + E.ex.length + '</b><span>ท่าที่ทำ</span></div><div class="stat"><b>' + sets + '</b><span>เซ็ตที่จบ</span></div><div class="stat"><b>' + Math.round(vol).toLocaleString("en-US") + '</b><span>ปริมาณรวม กก.</span></div></div>' +
 '<div class="rows">' + (rows || '<div><div class="b">ยังไม่มีท่าในวันนี้</div></div>') + '</div>' +
 (notes ? '<div class="notes"><b>หมายเหตุและอาการที่จดไว้</b>' + notes + '</div>' : '') +
+notifyBlock(!!notes) +
 '<div id="sResult"></div></div></div>' +
 '<div class="foot"><button type="button" class="big blue" id="sSave">' + (E.status === "จบแล้ว" ? 'บันทึกการแก้ไข' : 'บันทึกลงชีตและจบเทรน') + '</button></div>';
 $("mSummary").innerHTML = h;
 $("sBack").onclick = function(){ $("mSummary").style.display = "none"; $("mSession").style.display = "flex"; setView("session"); };
 $("sSave").onclick = function(){ doFinish(sets === 0, false); };
+if($("nfOn")) $("nfOn").onchange = function(){ E.nfOn = this.checked; $("nfBody").hidden = !this.checked; };
+if($("nfMsg")) $("nfMsg").oninput = function(){ E.nfMsg = this.value; };
+if($("nfNotes")) $("nfNotes").onchange = function(){ E.nfNotes = this.checked; };
+if($("nfEnable")) $("nfEnable").onclick = function(){ setNotify(true); };
+if($("nfOff")) $("nfOff").onclick = function(){ setNotify(false); };
 if(E.result) showResult(E.result);
+}
+function notifyBlock(hasNotes){
+if(E.status === "จบแล้ว") return "";
+if(NOTIFY.on){
+var q = (NOTIFY.left !== null && NOTIFY.left !== undefined) ? "โควตาไลน์เหลือ " + NOTIFY.left + (NOTIFY.limit ? " จาก " + NOTIFY.limit : "") + " ข้อความเดือนนี้" : "";
+var on = E.nfOn !== false;
+return '<div class="nfy" id="nfy"><label class="row"><input type="checkbox" id="nfOn"' + (on ? ' checked' : '') + '><span><b>แจ้งลูกค้าทางไลน์</b><br><span class="hint">ส่งการ์ดสรุปให้ ' + esc(E.name) + ' ทันทีที่บันทึก ลูกค้าไม่ต้องกดอะไร</span></span></label>' +
+'<div id="nfBody"' + (on ? '' : ' hidden') + ' style="display:flex;flex-direction:column;gap:10px">' +
+'<textarea id="nfMsg" maxlength="200" placeholder="ข้อความถึงลูกค้า (ไม่ใส่ก็ได้) เช่น วันนี้ทำได้ดีมากครับ">' + esc(E.nfMsg || "") + '</textarea>' +
+(hasNotes ? '<label class="row"><input type="checkbox" id="nfNotes"' + (E.nfNotes ? ' checked' : '') + '><span>แนบหมายเหตุและอาการที่จดไว้ด้วย<br><span class="hint">ปกติไม่ส่ง เก็บไว้ให้ณัฒดูเองเท่านั้น</span></span></label>' : '') +
+'</div><div class="hint">' + q + '</div><div><button type="button" class="btn-line" id="nfOff">ปิดระบบแจ้งลูกค้า</button></div></div>';
+}
+return '<div class="nfy" id="nfy"><div class="hint"><b>การแจ้งลูกค้าทางไลน์ปิดอยู่</b><br>ปิดไว้เพื่อประหยัดโควตาข้อความไลน์' + ((NOTIFY.left !== null && NOTIFY.left !== undefined) ? " (เหลือ " + NOTIFY.left + (NOTIFY.limit ? " จาก " + NOTIFY.limit : "") + " ข้อความเดือนนี้)" : "") + ' เปิดเมื่อพร้อมให้ระบบส่งการ์ดหาลูกค้าทุกครั้งที่จบเทรน</div><div><button type="button" class="btn-line" id="nfEnable">เปิดการแจ้งลูกค้า</button></div></div>';
+}
+function setNotify(on){
+api("trainerNotifySet", { on:on }).then(function(r){
+if(r && r.ok && r.notify){ NOTIFY = r.notify; renderSummary(); toast(on ? "เปิดการแจ้งลูกค้าแล้ว" : "ปิดการแจ้งลูกค้าแล้ว"); }
+else toast(errMsg(r || {}));
+}).catch(function(){ toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); });
 }
 function doFinish(empty, force){
 if(empty && !force){
@@ -719,7 +754,7 @@ var btn = $("sSave"); btn.disabled = true; btn.textContent = "กำลังบ
 var wait = function(n){ if(saving && n < 40) return new Promise(function(res){ setTimeout(res, 250); }).then(function(){ return wait(n+1); }); return Promise.resolve(); };
 wait(0).then(function(){
 dirty = false; clearTimeout(saveTimer);
-return api("trainerFinish", { name:E.name, iso:E.iso, sid:E.sid, state:statePayload(), force:!!force, wasDone:E.status === "จบแล้ว" });
+return api("trainerFinish", { name:E.name, iso:E.iso, sid:E.sid, state:statePayload(), force:!!force, wasDone:E.status === "จบแล้ว", notify:!!(NOTIFY.on && E.nfOn !== false && E.status !== "จบแล้ว"), notifyMsg:E.nfMsg || "", notifyNotes:!!E.nfNotes });
 }).then(function(r){
 if(!r.ok){
 btn.disabled = false; btn.textContent = "บันทึกลงชีตและจบเทรน"; dirty = true;
@@ -728,6 +763,8 @@ return toast(errMsg(r));
 E.status = "จบแล้ว"; E.sid = r.sid || E.sid; E.result = r; saveState = "ok"; saveAt = r.savedAt || nowHM();
 markState(E, r);
 btn.hidden = true;
+var nb = $("nfy"); if(nb) nb.style.display = "none";
+if(r.notify && r.notify.sent && NOTIFY.left !== null && NOTIFY.left !== undefined) NOTIFY.left--;
 showResult(r);
 }).catch(function(){
 btn.disabled = false; btn.textContent = "บันทึกลงชีตและจบเทรน"; dirty = true;
@@ -744,7 +781,8 @@ if(led === "created" && !E.hasPlan) txt += " · วันนี้ไม่ม�
 } else {
 txt = "บันทึกข้อมูลเซ็ตแล้ว แต่นับคอร์สไม่สำเร็จ (" + led + ") ลองตรวจในแท็บนัดหมาย";
 }
-$("sResult").innerHTML = '<div class="banner ' + (good ? 'b-ok' : 'b-warn') + '" role="status"><b>บันทึกลงชีตแล้ว</b><br>' + esc(txt) + '</div><div style="height:12px"></div><button type="button" class="big blue" id="sList">กลับไปรายชื่อลูกค้า</button>';
+var nt = (r.notify && r.notify.text) ? '<br>' + (r.notify.sent ? '✓ ' : '') + esc(r.notify.text) : '';
+$("sResult").innerHTML = '<div class="banner ' + (good ? 'b-ok' : 'b-warn') + '" role="status"><b>บันทึกลงชีตแล้ว</b><br>' + esc(txt) + nt + '</div><div style="height:12px"></div><button type="button" class="big blue" id="sList">กลับไปรายชื่อลูกค้า</button>';
 $("sList").onclick = function(){ E = null; $("mSummary").style.display = "none"; $("mEmpty").style.display = "flex"; setView("list"); renderList(); };
 var sv = $("sSave"); if(sv) sv.hidden = true;
 }
