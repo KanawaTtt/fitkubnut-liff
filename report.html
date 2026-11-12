@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>สรุปเทรน และยอดคอร์ส | Fit Kub Nut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5; --card:#FFFFFF; --ink:#0E1B2C; --muted:#52627A; --line:#D3DCE7; --line2:#E4EAF1; --field:#F3F6FA; --bar:#DCE4EE;
+  --accent:#2450E8; --on-accent:#FFFFFF; --soft:#E3EAFD; --soft-ink:#1D3FC0; --dark:#0E1B2C; --on-dark:#FFFFFF;
+  --ok:#0E7A56; --ok-bg:#DDF3EA; --ok-ink:#0A5C40;
+  --warn-bg:#FFF1D6; --warn-ink:#8A4B00; --warn-line:#E0A23A; --err:#B42318; --err-bg:#FDE7E4; --err-ink:#8E1B12;
+  --edge:#B9C5D4;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0C131E; --card:#152030; --ink:#E8EEF7; --muted:#97A7BE; --line:#26364D; --line2:#1F2D42; --field:#1B293C; --bar:#26364D;
+    --accent:#6C8CFF; --on-accent:#0A1330; --soft:#1F2E58; --soft-ink:#B3C4FF; --dark:#E8EEF7; --on-dark:#0C131E;
+    --ok:#3FBF93; --ok-bg:#123A2D; --ok-ink:#9BE3C6;
+    --warn-bg:#3A2D10; --warn-ink:#F2CF8B; --warn-line:#8A6A24; --err:#FF9D90; --err-bg:#3D1F1B; --err-ink:#FFC2BA;
+    --edge:#3A4D69;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;line-height:1.45;-webkit-text-size-adjust:100%}
+button,select{font-family:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabnum{font-variant-numeric:tabular-nums}
+.app{min-height:100%;display:flex;flex-direction:column}
+
+/* หัวหน้า + แท็บ */
+.hd{position:sticky;top:0;z-index:10;background:var(--bg);padding:max(14px,env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
+.hin{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.hrow{display:flex;align-items:center;gap:10px}
+h1{margin:0;font-size:26px;line-height:1.2;font-weight:700;flex:1;min-width:0;text-wrap:balance}
+.rf{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:20px;line-height:1}
+.rf.spin{animation:sp .8s linear infinite}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;color:var(--muted);min-height:44px;border-radius:10px;font-size:16px;font-weight:700}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(14,27,44,.14)}
+.wrap{max-width:760px;width:100%;margin:0 auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.sub{font-size:14px;color:var(--muted)}
+.small{font-size:13px}
+
+/* ตัวกรอง */
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{min-height:40px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:14px;font-weight:600;padding:0 14px;white-space:nowrap}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--soft-ink)}
+.sel{min-height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:600;padding:0 10px;max-width:100%}
+
+/* ตัวเลขสรุป */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats>div{padding:12px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.stats>div+div{border-left:1px solid var(--line)}
+.stats b{font-size:26px;line-height:1.1;font-weight:700}
+.stats span{font-size:12.5px;color:var(--muted)}
+
+/* รายการ */
+.grp{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin:6px 2px -4px}
+.cl{display:flex;flex-direction:column;gap:10px}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.r1{display:flex;gap:10px;align-items:flex-start}
+.r1 .nm{flex:1;min-width:0;font-size:18px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.pill{flex:none;font-size:13px;font-weight:700;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.p-ok{background:var(--ok-bg);color:var(--ok-ink)}
+.p-warn{background:var(--warn-bg);color:var(--warn-ink)}
+.p-soft{background:var(--soft);color:var(--soft-ink)}
+.p-off{background:var(--field);color:var(--muted)}
+.meta{font-size:14px;color:var(--muted)}
+.ttl{font-size:14px;color:var(--ink);font-weight:500}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:13px;font-weight:600;border-radius:8px;padding:3px 9px;background:var(--warn-bg);color:var(--warn-ink)}
+.note{font-size:14px;background:var(--field);border-radius:10px;padding:8px 10px;overflow-wrap:anywhere}
+.lg{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.more{align-self:flex-start;border:0;background:transparent;color:var(--accent);font-size:14px;font-weight:700;min-height:40px;padding:0 2px;display:flex;align-items:center;gap:4px}
+.dt{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:12px}
+.ex .en{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.ex .es{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.ex .es div{font-size:14px;color:var(--muted)}
+.ex .es b{color:var(--ink);font-weight:600}
+.ex.sk .en{opacity:.6;text-decoration:line-through}
+.ex .xn{font-size:13px;color:var(--warn-ink);background:var(--warn-bg);border-radius:8px;padding:4px 8px;margin-top:4px;overflow-wrap:anywhere}
+
+/* ยอดคอร์ส */
+.cu .pk{font-size:14px;color:var(--muted)}
+.cu .bigline{display:flex;align-items:baseline;gap:8px}
+.cu .bigline b{font-size:34px;line-height:1;font-weight:700}
+.cu .bigline span{font-size:16px;color:var(--muted);font-weight:600}
+.cu .bigline em{margin-left:auto;font-style:normal;font-size:15px;font-weight:700;color:var(--ink)}
+.bar{height:8px;border-radius:4px;background:var(--bar);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.bar i.warn{background:var(--warn-line)}
+.bar i.ok{background:var(--ok)}
+.cu .nx{font-size:14px}
+.cu .nx b{font-weight:700}
+.ap{display:flex;gap:10px;font-size:14px;align-items:baseline}
+.ap .d{font-weight:700;min-width:92px}
+.ap .p{color:var(--muted)}
+.empty{background:var(--card);border:1px dashed var(--edge);border-radius:16px;padding:22px 16px;text-align:center;color:var(--muted);font-size:15px}
+.lnks{display:flex;gap:10px;flex-wrap:wrap}
+.lnk{flex:1;min-width:140px;min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--soft-ink);font-size:15px;font-weight:700;text-decoration:none;text-align:center;padding:0 12px}
+.foot{font-size:12.5px;color:var(--muted)}
+
+/* ข้อความเต็มจอ */
+.msg{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.msg .box{max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.msg h2{margin:0;font-size:21px;line-height:1.3}
+.msg p{margin:0;color:var(--muted);font-size:15px}
+.msg code{display:block;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;word-break:break-all;user-select:all;color:var(--ink)}
+.msg .big{min-height:52px;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);font-size:17px;font-weight:700;width:100%}
+.spinner{width:36px;height:36px;border-radius:50%;border:4px solid var(--bar);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner,.rf.spin{animation-duration:2.4s}}
+</style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="hd"><div class="hin">
+    <div class="hrow"><h1 id="ttl">สรุปเทรน</h1><button type="button" class="rf" id="rf" aria-label="โหลดข้อมูลใหม่">↻</button></div>
+    <div class="seg" role="tablist" aria-label="เลือกหน้า">
+      <button type="button" role="tab" id="tabS" data-v="summary" aria-selected="true">สรุปเทรน</button>
+      <button type="button" role="tab" id="tabC" data-v="courses" aria-selected="false">ยอดคอร์ส</button>
+    </div>
+  </div></header>
+  <main><div class="wrap" id="box"></div></main>
+</div>
+<div class="msg" id="vMsg"><div class="box" id="msgBox"><div class="spinner" role="status" aria-label="กำลังโหลด"></div></div></div>
+
+<script>
+/* ===== ตั้งค่า (ใช้ค่าเดียวกับหน้าอื่น) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ========================================== */
+
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var DOWS = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+  var MON = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  var NEAR = 2;                       /* เหลือ ≤ 2 ครั้ง = ใกล้หมด */
+
+  var idToken = "", retried = false;
+  var V = { tab:"summary", period:"30", who:"", cf:"all", open:{}, detail:{} };
+  var D = { sum:null, cou:null };
+
+  function esc(x){ return String(x == null ? "" : x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function pad2(n){ return (n < 10 ? "0" : "") + n; }
+  function isoOf(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
+  function dateOf(iso){ var m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; }
+  function shortDate(iso){ var d = dateOf(iso); return d ? DOWS[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] : ""; }
+  function addDays(iso, n){ var d = dateOf(iso); d.setDate(d.getDate() + n); return isoOf(d); }
+  function fmtN(n){ var r = Math.round(n * 100) / 100; return r.toLocaleString("en-US"); }
+  function mmss(s){ s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ":" + pad2(s % 60); }
+  function todayIso(){ return (DATA_TODAY || isoOf(new Date())); }
+  var DATA_TODAY = "";
+
+  /* ---------- หน้าจอข้อความ ---------- */
+  function msg(h, p, btn, extra){
+    var b = '<h2>' + esc(h) + '</h2>' + (p ? '<p>' + esc(p) + '</p>' : '') + (extra || '');
+    if(btn) b += '<button type="button" class="big" id="msgBtn">' + esc(btn.text) + '</button>';
+    $("msgBox").innerHTML = b; $("vMsg").hidden = false;
+    if(btn) $("msgBtn").onclick = btn.fn;
+  }
+  function loading(){ $("msgBox").innerHTML = '<div class="spinner" role="status" aria-label="กำลังโหลด"></div>'; $("vMsg").hidden = false; }
+  function hideMsg(){ $("vMsg").hidden = true; }
+  function reloadBtn(){ return { text:"ลองอีกครั้ง", fn:function(){ location.reload(); } }; }
+
+  /* ---------- API ---------- */
+  function api(action, values){
+    if(DEMO) return demoApi(action, values);
+    var payload = { action: action, values: values || {}, idToken: idToken };
+    var opt = { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow" };
+    return fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf("?")>-1?"&":"?") + "liff=1", opt).then(function(r){ return r.json(); });
+  }
+  function errText(r){
+    var e = r && r.error;
+    if(e === "token") return "การล็อกอินหมดอายุ ปิดแล้วเปิดใหม่อีกครั้งนะครับ";
+    if(e === "nosheet") return "ไม่พบแท็บข้อมูลในชีตหลังบ้าน";
+    if(e === "busy") return "ระบบกำลังยุ่งอยู่ ลองอีกครั้งในอึดใจนะครับ";
+    return "โหลดข้อมูลไม่สำเร็จ (" + (e || "unknown") + ")";
+  }
+
+  /* ---------- โหมดตัวอย่าง (?demo=1) ข้อมูลสมมติ ไม่ติดต่อเซิร์ฟเวอร์ ---------- */
+  function demoApi(action, v){
+    function ok(x){ return new Promise(function(res){ setTimeout(function(){ res(x); }, 220); }); }
+    var t = isoOf(new Date());
+    if(action === "trainerSumList"){
+      return ok({ ok:true, today:t, total:7, sessions:[
+        { iso:t, name:"คุณพี่เหมียว", start:"06:30", end:"11:24", nEx:0, nSets:0, vol:0, tags:"", note:"เลื่อนไปเป็นวันศุกร์แทน", exNote:"", swaps:"", status:"จบแล้ว", ledger:"ตรวจในแท็บนัดหมาย (blocked:เลื่อนแล้ว) · แจ้งลูกค้าแล้ว", title:"" },
+        { iso:t, name:"คณวัฒน์ มือถือ 1", start:"06:32", end:"08:51", nEx:6, nSets:23, vol:1480, tags:"ตึง/ล้ามาก", note:"", exNote:"", swaps:"", status:"จบแล้ว", ledger:"นับ 1 ครั้งแล้ว · แจ้งลูกค้าแล้ว", title:"4-5 DAY WORKOUT FOR BUILDING MUSCLE & STRENGTH" },
+        { iso:addDays(t,-1), name:"คุณพี่ป้อม", start:"18:00", end:"", nEx:3, nSets:6, vol:520, tags:"", note:"", exNote:"", swaps:"", status:"กำลังเทรน", ledger:"", title:"Full Body Foundation" },
+        { iso:addDays(t,-2), name:"คุณพี่มีน", start:"07:15", end:"08:20", nEx:4, nSets:14, vol:2210, tags:"เจ็บไหล่, ข้ามท่านี้", note:"ไหล่ซ้ายตึง ลดน้ำหนักท่ากดลง", exNote:"Bench Press: ไหล่ตึง", swaps:"Bench Press → Push-up", status:"จบแล้ว", ledger:"นับ 1 ครั้งแล้ว", title:"Upper Body Basics" },
+        { iso:addDays(t,-5), name:"คุณฮาร์ท", start:"19:00", end:"20:05", nEx:5, nSets:15, vol:980, tags:"", note:"", exNote:"", swaps:"", status:"จบแล้ว", ledger:"นับ 1 ครั้งแล้ว", title:"Lower Body + Core" },
+        { iso:addDays(t,-12), name:"คุณพี่ Q", start:"06:00", end:"07:10", nEx:5, nSets:20, vol:3150, tags:"", note:"", exNote:"", swaps:"", status:"จบแล้ว", ledger:"นับ 1 ครั้งแล้ว", title:"Pull Day" },
+        { iso:addDays(t,-45), name:"คุณพี่มีน", start:"07:15", end:"08:20", nEx:4, nSets:12, vol:1800, tags:"", note:"", exNote:"", swaps:"", status:"จบแล้ว", ledger:"นับ 1 ครั้งแล้ว", title:"Upper Body Basics" }
+      ]});
+    }
+    if(action === "trainerCourses"){
+      var T = new Date(); T.setHours(9,0,0,0); var ms = T.getTime(), day = 864e5;
+      function up(n, no, hasT, pend){ return { ts:ms + n*day, iso:isoOf(new Date(ms + n*day)), dateOnly:!hasT, no:no, place:"บ้านลูกค้า", status:pend ? "ลูกค้าขอเลื่อน" : "นัดไว้" }; }
+      return ok({ ok:true, today:t, customers:[
+        { name:"คุณพี่เหมียว", pkg:"12 Session 1:1", perWeek:4, total:12, done:10, remaining:2, start:"2026-08-31", last:addDays(t,-6), pending:0, upcoming:[up(1,11,true),up(4,12,false)] },
+        { name:"คณวัฒน์ มือถือ 1", pkg:"16 Session Online", perWeek:4, total:16, done:3, remaining:13, start:"2026-11-03", last:t, pending:1, upcoming:[up(1,4,false),up(4,5,false,true),up(5,6,false),up(7,7,false)] },
+        { name:"คุณพี่มีน", pkg:"16 Session Online", perWeek:4, total:16, done:16, remaining:0, start:"2026-09-29", last:addDays(t,-9), pending:0, upcoming:[] },
+        { name:"คุณพี่ Q", pkg:"16 Session Online", perWeek:4, total:16, done:9, remaining:7, start:"2026-09-29", last:addDays(t,-3), pending:0, upcoming:[up(2,10,false),up(5,11,false)] },
+        { name:"คุณพี่ป้อม", pkg:"ทดลอง 14 วัน (Demo)", perWeek:4, total:null, done:3, remaining:null, start:"2026-09-29", last:addDays(t,-2), pending:0, upcoming:[up(3,4,false)] },
+        { name:"คุณมีนา", pkg:"ทดลอง 14 วัน (Demo)", perWeek:null, total:null, done:0, remaining:null, start:"", last:"", pending:0, upcoming:[] }
+      ]});
+    }
+    if(action === "trainerSession"){
+      return ok({ ok:true, name:v.name, iso:v.iso, struct:{ ex:[
+        { n:"Dynamic Cardio Stretching", ns:2, ru:"วิ", rn:30 }, { n:"Front Squat", ns:3, ru:"ครั้ง", rn:8 }, { n:"Romanian Deadlift", ns:3, ru:"ครั้ง", rn:8, skip:true }
+      ]}, sets:{ "0-0":{w:"",r:30,rpe:"",rest:30,n:"Dynamic Cardio Stretching"}, "0-1":{w:"",r:30,rpe:"",rest:30,n:"Dynamic Cardio Stretching"},
+        "1-0":{w:20,r:8,rpe:6,rest:120,n:"Front Squat"}, "1-1":{w:25,r:8,rpe:7,rest:120,n:"Front Squat"}, "1-2":{w:25,r:7,rpe:8.5,rest:150,n:"Front Squat"} },
+        exNotes:{ "1":{ n:"Front Squat", note:"ข้อมือตึงนิดหน่อย", tags:["ตึง/ล้ามาก"] } }, day:{ note:"", tags:[], start:"06:32", status:"จบแล้ว" } });
+    }
+    return ok({ ok:false, error:"action" });
+  }
+
+  /* ---------- แท็บ ---------- */
+  function setTab(t, push){
+    V.tab = t;
+    $("tabS").setAttribute("aria-selected", t === "summary" ? "true" : "false");
+    $("tabC").setAttribute("aria-selected", t === "courses" ? "true" : "false");
+    $("ttl").textContent = t === "summary" ? "สรุปเทรน" : "ยอดคอร์ส";
+    if(push){ try{ history.replaceState(null, "", location.pathname + "?v=" + t + (DEMO ? "&demo=1" : "")); }catch(e){} }
+    render();
+    window.scrollTo(0, 0);
+  }
+  document.querySelector(".seg").addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-v]"); if(b) setTab(b.getAttribute("data-v"), true);
+  });
+
+  /* ---------- สรุปเทรน ---------- */
+  function sessionsFiltered(){
+    var s = (D.sum && D.sum.sessions) || [];
+    var from = V.period === "all" ? "" : addDays(todayIso(), -(Number(V.period) - 1));
+    return s.filter(function(x){ return (!from || x.iso >= from) && (!V.who || x.name === V.who); });
+  }
+  function dayHead(iso){
+    var t = todayIso();
+    if(iso === t) return "วันนี้ · " + shortDate(iso);
+    if(iso === addDays(t, -1)) return "เมื่อวาน · " + shortDate(iso);
+    var d = dateOf(iso);
+    return shortDate(iso) + (d && d.getFullYear() !== dateOf(t).getFullYear() ? " " + (d.getFullYear()+543) : "");
+  }
+  function sessCard(s){
+    var k = s.iso + "|" + s.name, isOpen = !!V.open[k];
+    var done = s.status === "จบแล้ว";
+    var times = s.start ? s.start + (s.end ? "–" + s.end : " เป็นต้นไป") : "";
+    var bits = [];
+    if(times) bits.push(times);
+    if(s.nSets > 0){ bits.push(s.nEx + " ท่า"); bits.push(s.nSets + " เซ็ต"); if(s.vol > 0) bits.push(fmtN(s.vol) + " กก."); }
+    else bits.push("ไม่มีเซ็ตที่จดไว้");
+    var tags = s.tags ? s.tags.split(/,\s*/).filter(Boolean) : [];
+    var h = '<article class="cd" data-k="' + esc(k) + '"><div class="r1"><div class="nm">' + esc(s.name) + '</div><span class="pill ' + (done ? 'p-ok' : 'p-warn') + '">' + (done ? "จบแล้ว" : esc(s.status || "กำลังเทรน")) + '</span></div>' +
+      '<div class="meta tabnum">' + esc(bits.join(" · ")) + '</div>';
+    if(s.title) h += '<div class="ttl">' + esc(s.title) + '</div>';
+    if(tags.length) h += '<div class="tags">' + tags.map(function(x){ return '<span class="tag">' + esc(x) + '</span>'; }).join("") + '</div>';
+    if(s.note) h += '<div class="note">' + esc(s.note) + '</div>';
+    if(s.swaps) h += '<div class="lg">สลับ/ข้ามท่า: ' + esc(s.swaps) + '</div>';
+    if(s.ledger) h += '<div class="lg">ผลนับคอร์ส: ' + esc(s.ledger) + '</div>';
+    if(s.nSets > 0 || s.nEx > 0) h += '<button type="button" class="more" data-more="' + esc(k) + '" aria-expanded="' + (isOpen ? "true" : "false") + '">' + (isOpen ? "ซ่อนรายละเอียดท่า ▴" : "ดูท่าและน้ำหนักที่จด ▾") + '</button>';
+    if(isOpen) h += '<div class="dt" id="dt-' + esc(k) + '">' + detailHtml(k) + '</div>';
+    return h + '</article>';
+  }
+  function detailHtml(k){
+    var d = V.detail[k];
+    if(!d) return '<div class="sub">กำลังโหลดรายละเอียด…</div>';
+    if(d.err) return '<div class="sub">โหลดรายละเอียดไม่สำเร็จ ลองกดซ่อนแล้วเปิดใหม่นะครับ</div>';
+    var ex = [];
+    var sets = d.sets || {};
+    if(d.struct && d.struct.ex && d.struct.ex.length){
+      d.struct.ex.forEach(function(e, i){ ex.push({ i:i, n:e.n, ru:e.ru || "ครั้ง", skip:!!e.skip }); });
+    } else {
+      var seen = {};
+      Object.keys(sets).forEach(function(kk){ var i = parseInt(kk.split("-")[0], 10); if(!seen[i]){ seen[i] = 1; ex.push({ i:i, n:sets[kk].n, ru:"ครั้ง", skip:false }); } });
+      ex.sort(function(a, b){ return a.i - b.i; });
+    }
+    if(!ex.length) return '<div class="sub">ไม่มีรายการท่าที่จดไว้ในวันนี้</div>';
+    return ex.map(function(e){
+      var rows = [];
+      Object.keys(sets).forEach(function(kk){
+        var p = kk.split("-"); if(parseInt(p[0], 10) !== e.i) return;
+        rows.push({ j:parseInt(p[1], 10), s:sets[kk] });
+      });
+      rows.sort(function(a, b){ return a.j - b.j; });
+      var h = '<div class="ex' + (e.skip ? " sk" : "") + '"><div class="en">' + (e.i + 1) + '. ' + esc(e.n) + (e.skip ? " (ข้าม)" : "") + '</div><div class="es">';
+      if(!rows.length) h += '<div>ยังไม่มีเซ็ตที่จด</div>';
+      rows.forEach(function(r){
+        var s = r.s, w = s.w === "" || s.w == null ? "" : (Number(s.w) === 0 ? "ตัวเปล่า" : fmtN(Number(s.w)) + " กก.");
+        var rp = s.r === "" || s.r == null ? "" : s.r + " " + e.ru;
+        var parts = [ (w && rp) ? w + " × " + rp : (w || rp || "-") ];
+        if(s.rpe !== "" && s.rpe != null) parts.push("RPE " + s.rpe);
+        if(s.rest !== "" && s.rest != null) parts.push("พัก " + mmss(Number(s.rest)));
+        h += '<div class="tabnum">เซ็ต ' + (r.j + 1) + ': <b>' + esc(parts[0]) + '</b>' + (parts.length > 1 ? ' · ' + esc(parts.slice(1).join(" · ")) : '') + '</div>';
+      });
+      h += '</div>';
+      var xn = d.exNotes && d.exNotes[String(e.i)];
+      if(xn && (xn.note || (xn.tags && xn.tags.length))) h += '<div class="xn">' + esc([xn.note].concat(xn.tags || []).filter(Boolean).join(" · ")) + '</div>';
+      return h + '</div>';
+    }).join("");
+  }
+  function renderSummary(){
+    var all = (D.sum && D.sum.sessions) || [];
+    var names = []; all.forEach(function(s){ if(names.indexOf(s.name) < 0) names.push(s.name); });
+    names.sort(function(a, b){ return a.localeCompare(b, "th"); });
+    var list = sessionsFiltered();
+    var nSess = list.length, nSets = 0, vol = 0;
+    list.forEach(function(s){ nSets += s.nSets; vol += s.vol; });
+    var PER = [["7","7 วัน"],["30","30 วัน"],["all","ทั้งหมด"]];
+    var h = '<div class="frow" role="group" aria-label="ช่วงเวลา">' + PER.map(function(p){ return '<button type="button" class="chip" data-per="' + p[0] + '" aria-pressed="' + (V.period === p[0] ? "true" : "false") + '">' + p[1] + '</button>'; }).join("") +
+      '<select class="sel" id="who" aria-label="เลือกลูกค้า"><option value="">ลูกค้าทุกคน</option>' + names.map(function(n){ return '<option value="' + esc(n) + '"' + (V.who === n ? " selected" : "") + '>' + esc(n) + '</option>'; }).join("") + '</select></div>';
+    h += '<div class="stats tabnum"><div><b>' + nSess + '</b><span>เซสชัน</span></div><div><b>' + fmtN(nSets) + '</b><span>เซ็ตที่จด</span></div><div><b>' + fmtN(vol) + '</b><span>ปริมาณรวม (กก.)</span></div></div>';
+    if(!list.length){
+      h += '<div class="empty">' + (all.length ? "ช่วงนี้ยังไม่มีเซสชันที่จดไว้ ลองเปลี่ยนช่วงเวลาหรือเลือกลูกค้าคนอื่นดูนะครับ" : "ยังไม่มีเซสชันที่จดไว้เลย พอกด \"จบเทรน\" ในแอปจดเทรน สรุปจะมาโชว์ตรงนี้ให้เองครับ") + '</div>';
+    } else {
+      var cur = "";
+      list.forEach(function(s){
+        if(s.iso !== cur){ cur = s.iso; h += '<div class="grp">' + esc(dayHead(cur)) + '</div>'; }
+        h += sessCard(s);
+      });
+      if(D.sum.total > all.length) h += '<div class="foot">แสดงล่าสุด ' + all.length + ' จากทั้งหมด ' + D.sum.total + ' เซสชัน</div>';
+    }
+    return h;
+  }
+
+  /* ---------- ยอดคอร์ส ---------- */
+  function cstate(c){
+    if(!c.total) return "trial";
+    if(c.done >= c.total) return "full";
+    if(c.total - c.done <= NEAR) return "near";
+    return "run";
+  }
+  function whenTxt(a){
+    var d = new Date(a.ts), s = DOWS[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()];
+    if(!a.dateOnly) s += " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+    return s;
+  }
+  function courseCard(c){
+    var st = cstate(c), k = "c|" + c.name, isOpen = !!V.open[k];
+    var PL = { full:["ครบคอร์สแล้ว","p-ok"], near:["ใกล้หมด · ชวนต่อคอร์ส","p-warn"], run:["กำลังเรียน","p-soft"], trial:[c.total ? "" : "ทดลอง/ไม่ระบุครั้ง","p-off"] };
+    var pl = PL[st];
+    var pct = c.total ? Math.min(100, Math.round(c.done * 100 / c.total)) : 0;
+    var h = '<article class="cd cu" data-k="' + esc(k) + '"><div class="r1"><div class="nm">' + esc(c.name) + '</div><span class="pill ' + pl[1] + '">' + esc(pl[0]) + '</span></div>';
+    var sub = [c.pkg, c.perWeek ? c.perWeek + " วัน/สัปดาห์" : ""].filter(Boolean).join(" · ");
+    if(sub) h += '<div class="pk">' + esc(sub) + '</div>';
+    if(c.total){
+      h += '<div class="bigline tabnum"><b>' + c.done + '</b><span>/ ' + c.total + ' ครั้ง</span><em>' + (c.remaining > 0 ? "เหลืออีก " + c.remaining + " ครั้ง" : "ครบแล้ว") + '</em></div>' +
+        '<div class="bar" role="img" aria-label="เทรนแล้ว ' + c.done + ' จาก ' + c.total + ' ครั้ง"><i class="' + (st === "full" ? "ok" : st === "near" ? "warn" : "") + '" style="width:' + pct + '%"></i></div>';
+    } else {
+      h += '<div class="bigline tabnum"><b>' + c.done + '</b><span>ครั้งที่เทรนแล้ว</span></div>';
+    }
+    var nx = c.upcoming && c.upcoming[0];
+    h += '<div class="nx">' + (nx ? 'นัดครั้งถัดไป: <b>' + esc(whenTxt(nx)) + '</b>' + (nx.no ? ' · ครั้งที่ ' + nx.no : '') : (st === "full" ? 'ยังไม่มีนัดใหม่ · ชวนต่อคอร์สได้เลยครับ' : 'ยังไม่มีนัดล่วงหน้าในชีต')) + '</div>';
+    if(c.pending) h += '<div><span class="pill p-warn">ลูกค้าขอเลื่อน รอตอบ ' + c.pending + ' นัด</span></div>';
+    h += '<button type="button" class="more" data-more="' + esc(k) + '" aria-expanded="' + (isOpen ? "true" : "false") + '">' + (isOpen ? "ซ่อนรายละเอียด ▴" : "ดูนัดที่กำลังจะถึง ▾") + '</button>';
+    if(isOpen){
+      h += '<div class="dt">';
+      if(c.upcoming && c.upcoming.length) h += c.upcoming.map(function(a){ return '<div class="ap tabnum"><span class="d">' + esc(whenTxt(a)) + '</span><span class="p">ครั้งที่ ' + (a.no || "-") + (a.place ? " · " + esc(a.place) : "") + (a.status === "ลูกค้าขอเลื่อน" ? " · รอตอบขอเลื่อน" : "") + '</span></div>'; }).join("");
+      else h += '<div class="sub">ไม่มีนัดล่วงหน้า</div>';
+      h += '<div class="sub small">' + (c.last ? "เทรนล่าสุด " + esc(shortDate(c.last)) + " · " : "") + (c.start ? "เริ่มคอร์ส " + esc(shortDate(c.start)) : "ยังไม่ระบุวันเริ่มคอร์ส") + '</div></div>';
+    }
+    return h + '</article>';
+  }
+  function renderCourses(){
+    var all = (D.cou && D.cou.customers) || [];
+    var cnt = { all:all.length, near:0, trial:0, run:0 }, pend = 0;
+    all.forEach(function(c){ var s = cstate(c); if(s === "near" || s === "full") cnt.near++; else if(s === "trial") cnt.trial++; else cnt.run++; pend += c.pending ? 1 : 0; });
+    var list = all.filter(function(c){
+      var s = cstate(c);
+      return V.cf === "all" || (V.cf === "near" && (s === "near" || s === "full")) || (V.cf === "trial" && s === "trial");
+    }).sort(function(a, b){
+      var ra = a.total ? a.total - a.done : 9999, rb = b.total ? b.total - b.done : 9999;
+      return ra !== rb ? ra - rb : a.name.localeCompare(b.name, "th");
+    });
+    var F = [["all","ทั้งหมด " + cnt.all],["near","ใกล้หมด/ครบ " + cnt.near],["trial","ทดลอง " + cnt.trial]];
+    var h = '<div class="frow" role="group" aria-label="กรองลูกค้า">' + F.map(function(f){ return '<button type="button" class="chip" data-cf="' + f[0] + '" aria-pressed="' + (V.cf === f[0] ? "true" : "false") + '">' + f[1] + '</button>'; }).join("") + '</div>';
+    h += '<div class="stats tabnum"><div><b>' + cnt.run + '</b><span>กำลังเรียน</span></div><div><b>' + cnt.near + '</b><span>ใกล้หมด/ครบ</span></div><div><b>' + pend + '</b><span>ขอเลื่อน รอตอบ</span></div></div>';
+    if(!list.length) h += '<div class="empty">ไม่มีลูกค้าในกลุ่มนี้ครับ</div>';
+    else h += '<div class="cl">' + list.map(courseCard).join("") + '</div>';
+    h += '<div class="foot">เรียงตามจำนวนครั้งที่เหลือ น้อยไปมาก · "เหลือ" = ครั้งทั้งหมดของแพ็กเกจ − ครั้งที่สถานะเป็น "เทรนแล้ว" ในแท็บนัดหมาย</div>';
+    return h;
+  }
+
+  /* ---------- วาดหน้า ---------- */
+  function render(){
+    var h = V.tab === "summary" ? renderSummary() : renderCourses();
+    h += '<div class="lnks"><a class="lnk" href="trainer.html' + (DEMO ? "?demo=1" : "") + '">จดเทรน</a><a class="lnk" href="trainer.html?go=resched' + (DEMO ? "&demo=1" : "") + '">แจ้งเลื่อนนัดแทนลูกค้า</a></div>';
+    $("box").innerHTML = h;
+  }
+  $("box").addEventListener("click", function(ev){
+    var p = ev.target.closest("[data-per]"); if(p){ V.period = p.getAttribute("data-per"); render(); return; }
+    var f = ev.target.closest("[data-cf]"); if(f){ V.cf = f.getAttribute("data-cf"); render(); return; }
+    var m = ev.target.closest("[data-more]");
+    if(m){
+      var k = m.getAttribute("data-more");
+      V.open[k] = !V.open[k];
+      render();
+      if(V.open[k] && V.tab === "summary" && !V.detail[k]) loadDetail(k);
+    }
+  });
+  $("box").addEventListener("change", function(ev){
+    if(ev.target.id === "who"){ V.who = ev.target.value; render(); }
+  });
+  function loadDetail(k){
+    var i = k.indexOf("|"), iso = k.slice(0, i), name = k.slice(i + 1);
+    api("trainerSession", { name:name, iso:iso }).then(function(r){
+      V.detail[k] = r && r.ok ? r : { err:true };
+      render();
+    }).catch(function(){ V.detail[k] = { err:true }; render(); });
+  }
+
+  /* ---------- โหลดข้อมูล ---------- */
+  function loadAll(first){
+    if(first) loading(); else $("rf").classList.add("spin");
+    return Promise.all([ api("trainerSumList", { limit:250 }), api("trainerCourses", {}) ]).then(function(rs){
+      var a = rs[0], b = rs[1];
+      var bad = !a.ok ? a : (!b.ok ? b : null);
+      if(bad){
+        if(bad.error === "token" && !retried && window.liff){ retried = true; liff.logout(); liff.login({ redirectUri: location.href }); return; }
+        if(bad.error === "notTrainer"){
+          return msg("บัญชีไลน์นี้ยังไม่ได้รับสิทธิ์เทรนเนอร์", "หน้านี้เปิดได้เฉพาะเทรนเนอร์ครับ ส่งรหัสด้านล่างให้ Claude เพื่อเพิ่มสิทธิ์ให้บัญชีนี้", reloadBtn(), '<code>' + esc(bad.userId || "") + '</code>');
+        }
+        return msg("มีบางอย่างติดขัด", errText(bad), reloadBtn());
+      }
+      D.sum = a; D.cou = b; DATA_TODAY = a.today || b.today || "";
+      V.detail = {};
+      hideMsg(); render();
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้", "เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ", reloadBtn());
+    }).then(function(){ $("rf").classList.remove("spin"); });
+  }
+  $("rf").addEventListener("click", function(){ loadAll(false); });
+
+  function boot(){
+    var m = location.search.match(/[?&]v=(summary|courses)\b/);
+    setTab(m ? m[1] : "summary", false);
+    loading();
+    if(DEMO) return loadAll(true);
+    if(!window.liff){ return setTimeout(boot2, 150); }
+    boot2();
+  }
+  function boot2(){
+    if(!window.liff){ return setTimeout(boot2, 150); }
+    liff.init({ liffId: CONFIG.LIFF_ID }).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({ redirectUri: location.href }); return; }
+      idToken = liff.getIDToken();
+      loadAll(true);
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ", "ลองปิดแล้วเปิดลิงก์ใหม่อีกครั้งนะครับ (" + (e && e.code ? e.code : "liff") + ")", reloadBtn());
+    });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
