@@ -164,6 +164,20 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .pick button.cust{color:var(--accent);font-weight:700}
 .row2{display:flex;gap:10px}
 .row2>*{flex:1}
+.rs-open{width:100%;min-height:54px;border:1px dashed var(--accent);background:var(--soft);color:var(--soft-ink);border-radius:14px;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.rs{display:flex;flex-direction:column;gap:14px}
+.rs .tag.on{border-color:var(--accent);background:var(--soft);color:var(--soft-ink)}
+.rs .lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.rs .aps{display:flex;flex-direction:column;gap:8px}
+.rs .ap{text-align:left;border:1px solid var(--edge);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;min-height:56px;display:flex;flex-direction:column;gap:2px;font-size:16px;font-weight:700}
+.rs .ap small{font-size:13px;font-weight:500;color:var(--muted)}
+.rs .ap.on{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-1px}
+.rs .chk2{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4}
+.rs .chk2 input{width:22px;height:22px;margin:0;flex:none}
+.rs .chk2 .hint{font-size:13px;color:var(--muted)}
+.rs .back2{align-self:flex-start;border:0;background:transparent;color:var(--accent);font-size:14px;font-weight:700;min-height:36px;padding:0}
+.rs .res{display:flex;flex-direction:column;gap:6px;background:var(--soft);color:var(--soft-ink);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.45}
+.rs .res s{opacity:.7}
 .msg{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
 .msg .box{max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
 .msg h2{margin:0;font-size:21px;line-height:1.3}
@@ -247,6 +261,11 @@ if(e === "busy") return "ระบบกำลังยุ่งอยู่ ล
 if(e === "nomatch") return "ไม่พบชื่อลูกค้าคนนี้ในชีต";
 if(e === "nosheet") return "ไม่พบแท็บโปรแกรมในชีต";
 if(e === "token") return "การล็อกอินหมดอายุ ปิดแล้วเปิดใหม่อีกครั้ง";
+if(e === "appt") return "ไม่พบนัดนี้แล้ว (อาจถูกย้ายไปก่อนแล้ว) เปิดใหม่อีกครั้งนะครับ";
+if(e === "reason") return "เลือกเหตุผลที่ลูกค้าแจ้งก่อนนะครับ";
+if(e === "newdate") return "วันนัดใหม่ไม่ถูกต้อง";
+if(e === "newpast") return "วันนัดใหม่เป็นวันที่ผ่านมาแล้ว";
+if(e === "same") return "วัน-เวลาใหม่ตรงกับนัดเดิม";
 return "บันทึกไม่สำเร็จ (" + (e || "unknown") + ")";
 }
 var demoDb = {};
@@ -294,6 +313,24 @@ var cu = D.c.filter(function(x){ return x.name === v.name; })[0];
 if(cu){ cu.state = fin ? "done" : "doing"; if(action === "trainerFinish" && !v.wasDone){ cu.done++; } }
 return ok({ ok:true, sid:v.sid, savedAt:nowHM(), nSets:n, finished:fin, ledger:action === "trainerFinish" ? (cu && cu.plan ? "marked" : "created") : "", course:cu ? { done:cu.done, total:cu.total } : null, notify:(action === "trainerFinish" && v.notify && !v.wasDone) ? { sent:true, text:"แจ้งลูกค้าแล้ว" } : { sent:false, text:"" } });
 }
+if(action === "trainerApptList"){
+if(!D.ap){
+var t0 = new Date(); t0.setHours(18,0,0,0);
+D.ap = [ { ts:t0.getTime()+2*864e5, no:7, place:"บ้านลูกค้า", status:"นัดไว้" }, { ts:t0.getTime()+5*864e5, no:8, place:"บ้านลูกค้า", status:"นัดไว้" } ];
+}
+var DW = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."], MM = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+return ok({ ok:true, name:v.name, hasLine:v.name !== "คุณมายด์", reasons:["ติดงาน","ไม่สบาย","ติดธุระ","เดินทาง","อื่นๆ"],
+appts:D.ap.slice().sort(function(a,b){ return a.ts-b.ts; }).map(function(a){ var d = new Date(a.ts); return { ts:a.ts, dow:DW[d.getDay()], day:d.getDate(), mon:MM[d.getMonth()], time:pad2(d.getHours()) + ":" + pad2(d.getMinutes()), no:a.no, place:a.place, status:a.status, iso:isoOf(d) }; }) });
+}
+if(action === "trainerReschedule"){
+if(!v.reason) return ok({ ok:false, error:"reason" });
+var ap = (D.ap || []).filter(function(a){ return Math.abs(a.ts - v.apptTs) < 60000; })[0];
+if(!ap) return ok({ ok:false, error:"appt" });
+var fmt = function(ts){ var d = new Date(ts); return pad2(d.getDate()) + "/" + pad2(d.getMonth()+1) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + " น."; };
+var oldT = fmt(ap.ts), newT = "";
+if(v.newDate){ var nd = new Date(v.newDate + "T" + (v.newTime || "00:00") + ":00"); ap.ts = nd.getTime(); newT = fmt(ap.ts); } else { ap.status = "ลูกค้าขอเลื่อน"; }
+return ok({ ok:true, status:v.newDate ? "moved" : "pending", oldTxt:oldT, newTxt:newT, notify:v.notifyCust ? { sent:true, text:"ส่งการ์ดให้ลูกค้าแล้ว" } : { sent:false, text:"" } });
+}
 if(action === "trainerNotifySet"){ D.nf = { on:!!v.on, left:109, limit:300 }; return ok({ ok:true, notify:D.nf }); }
 return ok({ ok:false, error:"action" });
 }
@@ -326,6 +363,7 @@ if(r.notify) NOTIFY = r.notify;
 E = null; rest = null;
 $("mEmpty").style.display = "flex"; $("mSession").style.display = "none"; $("mSummary").style.display = "none";
 setView("list"); renderList(); hideMsg();
+if(first && /[?&]go=resched\b/.test(location.search)) openResched();
 }).catch(function(){
 msg("เชื่อมต่อไม่ได้", "เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ", reloadBtn());
 });
@@ -348,12 +386,14 @@ var h = '<div class="dbar"><button type="button" class="sq" data-d="-1" aria-lab
 '<div class="d"><div class="sub tabnum">' + esc(longDate(S.iso)) + '</div><h1>' + (S.iso === today ? 'วันนี้' : 'ย้อนดู/จดวันอื่น') + ' · ' + main.length + ' คน</h1></div>' +
 '<button type="button" class="sq" data-d="1" aria-label="วันถัดไป">›</button></div>';
 if(S.iso !== today) h += '<div><button type="button" class="today" data-d="0">กลับมาวันนี้</button></div>';
+h += '<button type="button" class="rs-open" id="rsOpen">แจ้งเลื่อนนัดแทนลูกค้า</button>';
 h += '<div class="cl">' + (main.length ? main.map(custCard).join("") : '<div class="sub">วันนี้ไม่มีโปรแกรมในชีต เลือกลูกค้าด้านล่างเพื่อจดแบบเลือกท่าเองได้เลย</div>') + '</div>';
 if(other.length) h += '<div class="grp">ไม่มีโปรแกรมวันนี้ (เทรนนอกแผน)</div><div class="cl">' + other.map(custCard).join("") + '</div>';
 h += '<div class="sub small">รายชื่อโปรแกรมดึงจากแท็บ "3. โปรแกรมวันนี้" ตามวันที่ ข้อมูลที่จดบันทึกลงแท็บ "บันทึกการเทรน" และ "สรุปเทรน"' + (DEMO ? ' · นี่คือข้อมูลตัวอย่าง' : '') + '</div>';
 $("listBox").innerHTML = h;
 }
 $("listBox").addEventListener("click", function(ev){
+if(ev.target.closest("#rsOpen")){ openResched(); return; }
 var d = ev.target.closest("[data-d]");
 if(d){
 var step = Number(d.getAttribute("data-d"));
@@ -591,6 +631,76 @@ $("rTm").textContent = txt; $("rBar").style.width = pct + "%";
 if(over && !rest.buzzed){ rest.buzzed = true; try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(x){} }
 }
 setInterval(function(){ if(rest) paintRest(); }, 500);
+function openResched(){
+var h = '<div class="rs"><div><div class="k">แจ้งเลื่อนนัดแทนลูกค้า</div><div class="h">ใครทักมาขอเลื่อน</div></div>' +
+'<input id="rsQ" class="field" type="search" placeholder="พิมพ์ค้นชื่อ" autocomplete="off" aria-label="ค้นหาลูกค้า"><div class="pick" id="rsPick"></div>' +
+'<button type="button" class="btn-line" id="rsX">ปิด</button></div>';
+openSheet(h);
+function paint(){
+var q = $("rsQ").value.trim().toLowerCase();
+var list = S.customers.filter(function(c){ return !q || c.name.toLowerCase().indexOf(q) >= 0; });
+$("rsPick").innerHTML = list.length ? list.map(function(c){ return '<button type="button" data-n="' + esc(c.name) + '">' + esc(c.name) + '</button>'; }).join("") : '<div class="sub" style="padding:14px">ไม่พบชื่อนี้</div>';
+}
+paint();
+$("rsQ").oninput = paint;
+$("rsPick").onclick = function(ev){ var b = ev.target.closest("[data-n]"); if(b) rsForm(b.getAttribute("data-n")); };
+$("rsX").onclick = closeSheet;
+}
+function rsForm(name){
+openSheet('<div class="rs"><div class="spin" role="status" aria-label="กำลังโหลด"></div></div>');
+api("trainerApptList", { name:name }).then(function(r){
+if(!r || !r.ok){ toast(errMsg(r)); return openResched(); }
+var ap = r.appts || [], pick = ap.length === 1 ? 0 : -1, reason = "อื่นๆ", reasons = r.reasons || ["ติดงาน","ไม่สบาย","ติดธุระ","เดินทาง","อื่นๆ"];
+if(!ap.length){
+openSheet('<div class="rs"><button type="button" class="back2" id="rsB">← เปลี่ยนคน</button><div class="h">' + esc(name) + '</div><div class="sub">ไม่มีนัดล่วงหน้าที่รออยู่ในแท็บ "นัดหมาย" ของคนนี้ ถ้าต้องการเพิ่มนัดให้ลงในชีตก่อนนะครับ</div><button type="button" class="btn-line" id="rsX">ปิด</button></div>');
+$("rsB").onclick = openResched; $("rsX").onclick = closeSheet; return;
+}
+var today = isoOf(new Date());
+var h = '<div class="rs"><button type="button" class="back2" id="rsB">← เปลี่ยนคน</button><div><div class="k">ลูกค้าขอเลื่อนนัด</div><div class="h">' + esc(name) + '</div></div>' +
+'<div><div class="lbl">นัดที่จะเลื่อน</div><div class="aps" id="rsAps">' +
+ap.map(function(a, i){ return '<button type="button" class="ap' + (i === pick ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (i === pick) + '">' + esc(a.dow + " " + a.day + " " + a.mon + (a.time ? " " + a.time + " น." : "")) +
+'<small>' + (a.no ? "ครั้งที่ " + esc(a.no) : "") + (a.place ? (a.no ? " · " : "") + esc(a.place) : "") + (a.status === "ลูกค้าขอเลื่อน" ? " · รอนัดใหม่" : "") + '</small></button>'; }).join("") + '</div></div>' +
+'<div><div class="lbl">เหตุผลที่ลูกค้าแจ้ง</div><div class="tags" id="rsRs">' + reasons.map(function(x){ return '<button type="button" class="tag' + (x === reason ? ' on' : '') + '" data-r="' + esc(x) + '" aria-pressed="' + (x === reason) + '">' + esc(x) + '</button>'; }).join("") + '</div></div>' +
+'<div><div class="lbl">วัน-เวลานัดใหม่ (ถ้าตกลงกันแล้ว)</div><div class="row2"><input id="rsD" class="field" type="date" min="' + today + '" aria-label="วันนัดใหม่"><input id="rsT" class="field" type="time" aria-label="เวลานัดใหม่"></div>' +
+'<div class="sub small" style="margin-top:6px">ถ้ายังไม่ได้วันใหม่ เว้นว่างได้ ระบบจะโยกนัดเดิมเป็น "รอนัดใหม่" ครั้งที่เหลือในคอร์สไม่หาย</div></div>' +
+'<input id="rsN" class="field" type="text" maxlength="300" placeholder="หมายเหตุ (ไม่บังคับ)" aria-label="หมายเหตุ">' +
+'<label class="chk2"><input type="checkbox" id="rsC"' + (r.hasLine ? '' : ' disabled') + '><span><b>ส่งการ์ดยืนยันให้ลูกค้าทางไลน์</b><br><span class="hint" id="rsCH">' + (r.hasLine ? 'ไม่ติ๊ก = ไม่ส่ง (ใช้โควตาข้อความไลน์ 1 ข้อความถ้าส่ง)' : 'ลูกค้าคนนี้ยังไม่มี LINE ID ในระบบ ส่งการ์ดไม่ได้') + '</span></span></label>' +
+'<button type="button" class="big blue" id="rsGo" disabled>เลือกนัดที่จะเลื่อน</button></div>';
+openSheet(h);
+var cid = "rs" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), busy = false;
+function sync(){
+var go = $("rsGo"), moved = !!$("rsD").value;
+go.disabled = busy || pick < 0;
+go.textContent = busy ? "กำลังบันทึก…" : (pick < 0 ? "เลือกนัดที่จะเลื่อน" : (moved ? "ย้ายนัดเลย" : "บันทึกเป็นรอนัดใหม่"));
+}
+sync();
+$("rsB").onclick = openResched;
+$("rsAps").onclick = function(ev){ var b = ev.target.closest("[data-i]"); if(!b) return; pick = Number(b.getAttribute("data-i")); [].forEach.call($("rsAps").children, function(x){ var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); sync(); };
+$("rsRs").onclick = function(ev){ var b = ev.target.closest("[data-r]"); if(!b) return; reason = b.getAttribute("data-r"); [].forEach.call($("rsRs").children, function(x){ var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); };
+$("rsD").oninput = sync;
+$("rsGo").onclick = function(){
+if(busy || pick < 0) return;
+var d = $("rsD").value, t = $("rsT").value;
+if(!d && t){ return toast("ใส่วันที่นัดใหม่ด้วย หรือเคลียร์เวลาออกนะครับ"); }
+busy = true; sync();
+api("trainerReschedule", { name:name, apptTs:ap[pick].ts, reason:reason, note:$("rsN").value.trim(), newDate:d, newTime:d ? t : "", notifyCust:!!$("rsC").checked, cid:cid }).then(function(res){
+busy = false;
+if(!res || !res.ok){ sync(); return toast(errMsg(res)); }
+rsDone(name, res);
+}).catch(function(){ busy = false; sync(); toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); });
+};
+}).catch(function(){ toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); closeSheet(); });
+}
+function rsDone(name, res){
+var t, body;
+if(res.status === "moved"){ t = "ย้ายนัดให้แล้ว"; body = '<div>นัดเดิม <s>' + esc(res.oldTxt || "") + '</s></div><div><b>นัดใหม่ ' + esc(res.newTxt || "") + '</b></div>'; }
+else if(res.status === "pending"){ t = "บันทึกว่ารอนัดใหม่แล้ว"; body = '<div>นัดเดิม ' + esc(res.oldTxt || "") + ' ถูกโยกเป็น "รอนัดใหม่"</div><div>พอได้วันใหม่ ลงในแท็บ "คำขอเลื่อนนัด" หรือกดแจ้งเลื่อนซ้ำอีกรอบได้เลย</div>'; }
+else { t = "บันทึกคำขอแล้ว แต่ย้ายนัดไม่สำเร็จ"; body = '<div>ลองดูในแท็บ "คำขอเลื่อนนัด" ว่าติดตรงไหน</div>'; }
+if(res.dup) body += '<div>(รายการนี้บันทึกไปแล้วก่อนหน้านี้)</div>';
+if(res.notify && res.notify.text) body += '<div>' + esc(res.notify.text) + '</div>';
+openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">' + esc(t) + '</div></div><div class="res">' + body + '</div><button type="button" class="big" id="rsOk">เรียบร้อย</button></div>');
+$("rsOk").onclick = closeSheet;
+}
 function openSheet(html){ $("sheet").innerHTML = html; $("scrim").hidden = false; }
 function closeSheet(){ $("scrim").hidden = true; $("sheet").innerHTML = ""; }
 $("scrim").addEventListener("click", function(ev){ if(ev.target === $("scrim")) closeSheet(); });
