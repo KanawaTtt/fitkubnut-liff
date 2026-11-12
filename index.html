@@ -187,6 +187,8 @@ var CONFIG = {
   if(/[?&]page=program(&|$)/.test(location.search)){ location.replace("program.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=trainer(&|$)/.test(location.search)){ location.replace("trainer.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=reschedule(&|$)/.test(location.search)){ location.replace("trainer.html?go=resched"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
+  if(/[?&]page=tsummary(&|$)/.test(location.search)){ location.replace("report.html?v=summary"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
+  if(/[?&]page=tcourses(&|$)/.test(location.search)){ location.replace("report.html?v=courses"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
   var $ = function(id){ return document.getElementById(id); };
   var DEMO = /[?&]demo=1/.test(location.search);
   var idToken = "";
