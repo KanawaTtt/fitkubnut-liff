@@ -843,7 +843,7 @@ openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class
 $("rsOk").onclick = closeSheet;
 }
 function nudgeMsg(name){
-return khun(name) + "ครับ 💪\nเหลืออีก 1 ครั้งสุดท้ายของคอร์สแล้วนะครับ ถ้าอยากไปต่อให้ไม่ขาดช่วง บอกณัฒไว้ได้เลย จะได้จัดโปรแกรมรอบใหม่รอไว้ให้\nไม่รีบก็ได้ครับ ค่อยๆ คิดได้เลย 😄";
+return (name.indexOf("คุณ") === 0 ? name : "คุณ" + name) + "ครับ 💪\nเหลืออีก 1 ครั้งสุดท้ายของคอร์สแล้วนะครับ ถ้าอยากไปต่อให้ไม่ขาดช่วง บอกณัฒไว้ได้เลย จะได้จัดโปรแกรมรอบใหม่รอไว้ให้\nไม่รีบก็ได้ครับ ค่อยๆ คิดได้เลย 😄";
 }
 function openNudge(name){
 var c = S.customers.filter(function(x){ return x.name === name; })[0] || {};
