@@ -164,6 +164,10 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .pick button.cust{color:var(--accent);font-weight:700}
 .row2{display:flex;gap:10px}
 .row2>*{flex:1}
+.nudge{display:flex;gap:12px;align-items:center;border:1.5px solid var(--accent);background:var(--soft);color:var(--soft-ink);border-radius:16px;padding:12px 14px}
+.nudge .t{flex:1;min-width:0;font-size:15px;line-height:1.35}
+.nudge .t b{display:block;font-size:16px}
+.nudge button{flex:none;min-height:44px;border:0;border-radius:12px;background:var(--accent);color:var(--on-accent);font-size:15px;font-weight:700;padding:0 14px}
 .rs-open{width:100%;min-height:54px;border:1px dashed var(--accent);background:var(--soft);color:var(--soft-ink);border-radius:14px;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 .rs{display:flex;flex-direction:column;gap:14px}
 .rs .tag.on{border-color:var(--accent);background:var(--soft);color:var(--soft-ink)}
@@ -311,7 +315,7 @@ var D = demoDb;
 if(!D.c){
 D.c = [
 { name:"คุณพี่ป้อม", plan:true, title:"Full Body Foundation", nEx:3, state:"none", done:6, total:16 },
-{ name:"คุณพี่มีน", plan:true, title:"Upper Body Basics", nEx:3, state:"none", done:9, total:12 },
+{ name:"คุณพี่มีน", plan:true, title:"Upper Body Basics", nEx:3, state:"none", done:11, total:12, nudge:true },
 { name:"คุณฮาร์ท", plan:true, title:"Lower Body + Core", nEx:2, state:"none", done:5, total:12 },
 { name:"คุณมายด์", plan:false, title:"", nEx:0, state:"none", done:2, total:8 },
 { name:"คุณพี่ Q", plan:false, title:"", nEx:0, state:"none", done:4, total:12 }
@@ -378,6 +382,11 @@ var dd = new Date(apc.ts);
 return ok({ ok:true, status:"cut", no:apc.no, done:cc ? cc.done : 0, total:cc ? cc.total : 0, left:cc && cc.total ? Math.max(0, cc.total - cc.done) : null,
 apptTxt:pad2(dd.getDate()) + "/" + pad2(dd.getMonth()+1) + " " + pad2(dd.getHours()) + ":" + pad2(dd.getMinutes()) + " น.", notify:v.notifyCust ? { sent:true, text:"ส่งข้อความให้ลูกค้าแล้ว" } : { sent:false, text:"" } });
 }
+if(action === "trainerRenewNudge"){
+var rc = D.c.filter(function(x){ return x.name === v.name; })[0];
+if(rc) rc.nudge = false;
+return ok({ ok:true, sent:true, text:"ส่งข้อความชวนต่อคอร์สแล้ว (เดโม)" });
+}
 if(action === "trainerNotifySet"){ D.nf = { on:!!v.on, left:109, limit:300 }; return ok({ ok:true, notify:D.nf }); }
 return ok({ ok:false, error:"action" });
 }
@@ -433,6 +442,9 @@ var h = '<div class="dbar"><button type="button" class="sq" data-d="-1" aria-lab
 '<div class="d"><div class="sub tabnum">' + esc(longDate(S.iso)) + '</div><h1>' + (S.iso === today ? 'วันนี้' : 'ย้อนดู/จดวันอื่น') + ' · ' + main.length + ' คน</h1></div>' +
 '<button type="button" class="sq" data-d="1" aria-label="วันถัดไป">›</button></div>';
 if(S.iso !== today) h += '<div><button type="button" class="today" data-d="0">กลับมาวันนี้</button></div>';
+S.customers.filter(function(c){ return c.nudge; }).forEach(function(c){
+h += '<div class="nudge"><div class="t"><b>' + esc(c.name) + ' เหลือ 1 ครั้งสุดท้าย</b>เทรนแล้ว ' + esc(c.done) + '/' + esc(c.total) + ' · ชวนต่อคอร์สไหมครับ</div><button type="button" data-nudge="' + esc(c.name) + '">ชวนต่อคอร์ส</button></div>';
+});
 h += '<button type="button" class="rs-open" id="rsOpen">แจ้งเลื่อนนัดแทนลูกค้า</button>';
 h += '<div class="cl">' + (main.length ? main.map(custCard).join("") : '<div class="sub">วันนี้ไม่มีโปรแกรมในชีต เลือกลูกค้าด้านล่างเพื่อจดแบบเลือกท่าเองได้เลย</div>') + '</div>';
 if(other.length) h += '<div class="grp">ไม่มีโปรแกรมวันนี้ (เทรนนอกแผน)</div><div class="cl">' + other.map(custCard).join("") + '</div>';
@@ -441,6 +453,8 @@ $("listBox").innerHTML = h;
 }
 $("listBox").addEventListener("click", function(ev){
 if(ev.target.closest("#rsOpen")){ openResched(); return; }
+var nb = ev.target.closest("[data-nudge]");
+if(nb){ openNudge(nb.getAttribute("data-nudge")); return; }
 var d = ev.target.closest("[data-d]");
 if(d){
 var step = Number(d.getAttribute("data-d"));
@@ -828,15 +842,42 @@ if(res.notify && res.notify.text) body += '<div>' + esc(res.notify.text) + '</di
 openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">' + esc(t) + '</div></div><div class="res">' + body + '</div><button type="button" class="big" id="rsOk">เรียบร้อย</button></div>');
 $("rsOk").onclick = closeSheet;
 }
+function nudgeMsg(name){
+return khun(name) + "ครับ 💪\nเหลืออีก 1 ครั้งสุดท้ายของคอร์สแล้วนะครับ ถ้าอยากไปต่อให้ไม่ขาดช่วง บอกณัฒไว้ได้เลย จะได้จัดโปรแกรมรอบใหม่รอไว้ให้\nไม่รีบก็ได้ครับ ค่อยๆ คิดได้เลย 😄";
+}
+function openNudge(name){
+var c = S.customers.filter(function(x){ return x.name === name; })[0] || {};
+var cid = "rn" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), busy = false, msg = nudgeMsg(name);
+openSheet('<div class="rs"><div><div class="k">ชวนต่อคอร์ส</div><div class="h">' + esc(name) + '</div><div class="sub small">เทรนแล้ว ' + esc(c.done || "") + '/' + esc(c.total || "") + ' · เหลือ 1 ครั้งสุดท้าย</div></div>' +
+'<div><div class="lbl">ข้อความที่จะส่งให้ลูกค้า</div><div class="chat"><p class="who">Fit Kub Nut</p><div class="m"><div class="av">FK</div><div class="bub" id="rnBub"></div></div></div>' +
+'<button type="button" class="link" id="rnEdit">แก้ข้อความก่อนส่ง</button><textarea id="rnT" class="field" maxlength="1500" hidden aria-label="แก้ข้อความที่จะส่ง"></textarea>' +
+'<div class="sub small">ใช้โควตาข้อความไลน์ 1 ข้อความ ไม่ต้องการส่งก็ปิดหน้านี้ได้เลย</div></div>' +
+'<button type="button" class="big blue" id="rnGo">ส่งข้อความชวนต่อคอร์ส</button><button type="button" class="btn-line" id="rnNo" style="min-height:48px">ไว้ก่อน</button></div>');
+$("rnBub").textContent = msg;
+$("rnEdit").onclick = function(){ var t = $("rnT"); t.value = msg; t.hidden = false; $("rnEdit").hidden = true; t.focus(); t.oninput = function(){ msg = t.value; $("rnBub").textContent = msg; }; };
+$("rnNo").onclick = closeSheet;
+$("rnGo").onclick = function(){
+if(busy) return; busy = true; $("rnGo").disabled = true; $("rnGo").textContent = "กำลังส่ง…";
+api("trainerRenewNudge", { name:name, msg:msg.trim() === nudgeMsg(name).trim() ? "" : msg.trim(), cid:cid }).then(function(r){
+busy = false;
+if(!r.ok){ $("rnGo").disabled = false; $("rnGo").textContent = "ส่งข้อความชวนต่อคอร์ส"; return toast(r.error === "notlast" ? "ลูกค้าคนนี้ไม่ได้เหลือ 1 ครั้งแล้ว เปิดรายการใหม่อีกครั้งนะครับ" : errMsg(r)); }
+if(r.sent || r.dup){ c.nudge = false; try{ renderList(); }catch(x){} }
+openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">' + (r.sent ? "ส่งแล้ว" : "ยังไม่ได้ส่ง") + '</div></div><div class="res"><div>' + esc(r.text || "") + '</div></div><button type="button" class="big" id="rsOk">เรียบร้อย</button></div>');
+$("rsOk").onclick = closeSheet;
+}).catch(function(){ busy = false; $("rnGo").disabled = false; $("rnGo").textContent = "ส่งข้อความชวนต่อคอร์ส"; toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); });
+};
+}
 function rsDoneCut(name, res){
 var body = '<div>นัด ' + esc(res.apptTxt || "") + ' นับเป็น "เทรนแล้ว"</div>';
 body += '<div><b>เทรนแล้ว ' + esc(res.done) + ' ครั้ง' + (res.left !== null && res.left !== undefined ? ' · คงเหลือ ' + esc(res.left) + ' ครั้ง' : '') + '</b></div><div>ไม่ได้สร้างนัดใหม่</div>';
 if(res.dup) body += '<div>(รายการนี้บันทึกไปแล้วก่อนหน้านี้)</div>';
 if(res.notify && res.notify.text) body += '<div>' + esc(res.notify.text) + '</div>';
 var c = S.customers.filter(function(x){ return x.name === name; })[0];
-if(c && res.done !== undefined && res.done !== null){ c.done = res.done; try{ renderList(); }catch(x){} }
-openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">ตัดเทรนแล้ว</div></div><div class="res">' + body + '</div><button type="button" class="big" id="rsOk">เรียบร้อย</button></div>');
+if(c && res.done !== undefined && res.done !== null){ c.done = res.done; if(res.left === 1) c.nudge = true; try{ renderList(); }catch(x){} }
+var offer = c && res.left === 1;
+openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">ตัดเทรนแล้ว</div></div><div class="res">' + body + '</div>' + (offer ? '<button type="button" class="big blue" id="rsNudge">เหลือ 1 ครั้งสุดท้าย · ชวนต่อคอร์ส</button>' : '') + '<button type="button" class="' + (offer ? 'btn-line' : 'big') + '" id="rsOk"' + (offer ? ' style="min-height:48px"' : '') + '>เรียบร้อย</button></div>');
 $("rsOk").onclick = closeSheet;
+if(offer) $("rsNudge").onclick = function(){ openNudge(name); };
 }
 function openSheet(html){ $("sheet").innerHTML = html; $("scrim").hidden = false; }
 function closeSheet(){ $("scrim").hidden = true; $("sheet").innerHTML = ""; }
