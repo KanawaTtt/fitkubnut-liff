@@ -779,7 +779,7 @@ go.disabled = busy || pick < 0;
 go.textContent = busy ? "กำลังบันทึก…" : (pick < 0 ? "เลือกนัดที่จะเลื่อน" : (moved ? "ย้ายนัดเลย" : "บันทึกเป็นรอนัดใหม่"));
 // โหมดตัดเทรน
 var after = doneNow + 1, leftB = totalNow ? Math.max(0, totalNow - doneNow) : -1, leftA = totalNow ? Math.max(0, totalNow - after) : -1;
-$("rsSum").innerHTML = a ? '<div><span>นัดที่ตัด</span><b>' + esc((a.no ? "ครั้งที่ " + a.no + " · " : "") + a.dow + " " + a.day + " " + a.mon) + '</b></div><div><span>สถานะนัดนี้</span><b>นับเป็น "เทรนแล้ว"</b></div><div><span>เทรนแล้ว</span><b><s>' + doneNow + '</s> → ' + after + ' ครั้ง</b></div>' +
+$("rsSum").innerHTML = a ? '<div><span>นัดที่ตัด</span><b>' + esc((a.no ? "ครั้งที่ " + a.no + " · " : "") + a.dow + " " + a.day + " " + a.mon) + '</b></div><div><span>สถานะนัดนี้</span><b>ตัดเทรนครั้งนี้</b></div><div><span>เทรนแล้ว</span><b><s>' + doneNow + '</s> → ' + after + ' ครั้ง</b></div>' +
 (leftB >= 0 ? '<div><span>คงเหลือ</span><b><s>' + leftB + '</s> → ' + leftA + ' ครั้ง</b></div>' : '') + '<div><span>นัดใหม่</span><b>ไม่สร้าง</b></div>' : '<div><span>เลือกนัดด้านบนก่อน</span></div>';
 $("rsTog").classList.toggle("on", send); $("rsTog").setAttribute("aria-checked", String(send));
 $("rsMsgBox").hidden = !send;
@@ -868,7 +868,7 @@ $("rsOk").onclick = closeSheet;
 };
 }
 function rsDoneCut(name, res){
-var body = '<div>นัด ' + esc(res.apptTxt || "") + ' นับเป็น "เทรนแล้ว"</div>';
+var body = '<div>นัด ' + esc(res.apptTxt || "") + ' ตัดเทรนครั้งนี้แล้ว</div>';
 body += '<div><b>เทรนแล้ว ' + esc(res.done) + ' ครั้ง' + (res.left !== null && res.left !== undefined ? ' · คงเหลือ ' + esc(res.left) + ' ครั้ง' : '') + '</b></div><div>ไม่ได้สร้างนัดใหม่</div>';
 if(res.dup) body += '<div>(รายการนี้บันทึกไปแล้วก่อนหน้านี้)</div>';
 if(res.notify && res.notify.text) body += '<div>' + esc(res.notify.text) + '</div>';
