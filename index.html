@@ -186,6 +186,7 @@ var CONFIG = {
   if(/[?&]page=course(&|$)/.test(location.search)){ location.replace("course.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=program(&|$)/.test(location.search)){ location.replace("program.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=trainer(&|$)/.test(location.search)){ location.replace("trainer.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
+  if(/[?&]page=enroll(&|$)/.test(location.search)){ var _eo=(location.search.match(/[?&]o=([\w-]+)/)||[])[1]; location.replace("enroll.html"+(_eo?"?o="+_eo:"")+(/[?&]demo=1/.test(location.search)?(_eo?"&":"?")+"demo=1":"")); return; }
   if(/[?&]page=reschedule(&|$)/.test(location.search)){ location.replace("trainer.html?go=resched"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
   if(/[?&]page=tsummary(&|$)/.test(location.search)){ location.replace("report.html?v=summary"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
   if(/[?&]page=tcourses(&|$)/.test(location.search)){ location.replace("report.html?v=courses"+(/[?&]demo=1/.test(location.search)?"&demo=1":"")); return; }
