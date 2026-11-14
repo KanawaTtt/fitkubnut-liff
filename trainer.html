@@ -191,6 +191,18 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .rs .mode.cut svg{color:var(--warn-ink)}
 .rs .mode.move.on{border:2.5px solid var(--accent);background:var(--soft)}
 .rs .mode.cut.on{border:2.5px solid var(--warn-line);background:var(--warn-bg)}
+.rs .mode.freeze{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;min-height:0;padding:12px 14px}
+.rs .mode.freeze .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rs .mode.freeze .t{margin-top:0}
+.rs .mode.freeze svg{color:var(--ok);flex:none}
+.rs .mode.freeze.on{border:2.5px solid var(--ok);background:var(--ok-bg)}
+.rs .fzsum{border:1.5px solid var(--ok);background:var(--ok-bg);color:var(--ok-ink);border-radius:14px;padding:4px 14px}
+.rs .fzsum div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:15px}
+.rs .fzsum div+div{border-top:1px dashed var(--ok)}
+.rs .fzsum b{text-align:right}
+.rs .fzsum s{opacity:.7;font-weight:400}
+.rs .cfm.fz{border-color:var(--ok);background:var(--ok-bg);color:var(--ok-ink)}
+.big.green{background:var(--ok);color:var(--on-accent)}
 .rs .bdg{position:absolute;top:-10px;right:10px;background:var(--ok);color:var(--bg);font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px}
 .rs .rule{font-size:13.5px;border-radius:12px;padding:10px 12px;background:var(--field);margin-top:-4px}
 .rs .sum{border:1.5px solid var(--warn-line);background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:4px 14px}
@@ -305,6 +317,8 @@ if(e === "newdate") return "วันนัดใหม่ไม่ถูกต�
 if(e === "newpast") return "วันนัดใหม่เป็นวันที่ผ่านมาแล้ว";
 if(e === "same") return "วัน-เวลาใหม่ตรงกับนัดเดิม";
 if(e === "clash") return "ลูกค้ามีนัดอื่นอยู่ในวันนั้นแล้ว เลือกวันอื่นนะครับ";
+if(e === "newfar") return "วันกลับไกลเกินไป (เกิน 1 ปี) เลือกวันที่ใกล้กว่านี้นะครับ";
+if(e === "plan") return "คำนวณนัดใหม่ไม่ได้ ลองเลือกวันกลับอีกวันนะครับ";
 return "บันทึกไม่สำเร็จ (" + (e || "unknown") + ")";
 }
 var demoDb = {};
@@ -359,7 +373,7 @@ D.ap = [ { ts:Date.now()+3*36e5, no:6, place:"บ้านลูกค้า", s
 }
 var DW = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"], MM = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 var dc = D.c.filter(function(x){ return x.name === v.name; })[0] || {};
-return ok({ ok:true, name:v.name, hasLine:v.name !== "คุณมายด์", done:dc.done || 0, total:dc.total || 0, reasons:["ติดงาน","ไม่สบาย","ติดธุระ","เดินทาง","อื่นๆ"],
+return ok({ ok:true, name:v.name, pend:D.ap.length, hasLine:v.name !== "คุณมายด์", done:dc.done || 0, total:dc.total || 0, reasons:["ติดงาน","ไม่สบาย","ติดธุระ","เดินทาง","อื่นๆ"],
 appts:D.ap.slice().sort(function(a,b){ return a.ts-b.ts; }).map(function(a){ var d = new Date(a.ts); return { ts:a.ts, dow:DW[d.getDay()], day:d.getDate(), mon:MM[d.getMonth()], time:pad2(d.getHours()) + ":" + pad2(d.getMinutes()), no:a.no, place:a.place, status:a.status, iso:isoOf(d) }; }) });
 }
 if(action === "trainerReschedule"){
@@ -381,6 +395,23 @@ if(cc) cc.done++;
 var dd = new Date(apc.ts);
 return ok({ ok:true, status:"cut", no:apc.no, done:cc ? cc.done : 0, total:cc ? cc.total : 0, left:cc && cc.total ? Math.max(0, cc.total - cc.done) : null,
 apptTxt:pad2(dd.getDate()) + "/" + pad2(dd.getMonth()+1) + " " + pad2(dd.getHours()) + ":" + pad2(dd.getMinutes()) + " น.", notify:v.notifyCust ? { sent:true, text:"ส่งข้อความให้ลูกค้าแล้ว" } : { sent:false, text:"" } });
+}
+if(action === "trainerFreeze"){
+if(!v.reason) return ok({ ok:false, error:"reason" });
+if(!D.ap || !D.ap.length) return ok({ ok:false, error:"appt" });
+var fa = D.ap.slice().sort(function(a, b){ return a.ts - b.ts; }), fr = new Date(v.resumeDate + "T00:00:00");
+if(isNaN(fr.getTime()) || fr.getTime() <= Date.now()) return ok({ ok:false, error:"newpast" });
+var fw = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"], fm = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+var f0 = new Date(fa[0].ts); f0.setHours(0,0,0,0);
+var shiftW = Math.max(1, Math.ceil((fr.getTime() - f0.getTime()) / (7 * 864e5)));
+var tx = function(ts){ var d = new Date(ts + shiftW * 7 * 864e5); return "วัน" + fw[d.getDay()] + "ที่ " + d.getDate() + " " + fm[d.getMonth()]; };
+var fo = new Date(fa[0].ts), pat = [];
+fa.forEach(function(a){ var w = fw[new Date(a.ts).getDay()]; if(pat.indexOf(w) < 0 && a.ts - fa[0].ts < 7 * 864e5) pat.push(w); });
+if(!v.dry){ fa.forEach(function(a){ a.ts += shiftW * 7 * 864e5; a.status = "นัดไว้"; }); }
+var fpl = { n:fa.length, days:fa.length, pattern:pat.join("/"), perWeek:pat.length, oldFirstTxt:"วัน" + fw[fo.getDay()] + "ที่ " + fo.getDate() + " " + fm[fo.getMonth()], firstTxt:tx(fa[0].ts - (v.dry ? 0 : shiftW * 7 * 864e5)), lastTxt:tx(fa[fa.length-1].ts - (v.dry ? 0 : shiftW * 7 * 864e5)), progMove:fa.length, progSkip:0 };
+if(v.dry) return ok({ ok:true, dry:true, plan:fpl });
+fpl.status = "frozen"; fpl.ok = true; fpl.notify = v.notifyCust ? { sent:true, text:"ส่งข้อความแจ้งลูกค้าแล้ว" } : { sent:false, text:"" };
+return ok(fpl);
 }
 if(action === "trainerRenewNudge"){
 var rc = D.c.filter(function(x){ return x.name === v.name; })[0];
@@ -716,10 +747,11 @@ if(!ap.length){
 openSheet('<div class="rs"><button type="button" class="back2" id="rsB">← เปลี่ยนคน</button><div class="h">' + esc(name) + '</div><div class="sub">ไม่มีนัดล่วงหน้าที่รออยู่ในแท็บ "นัดหมาย" ของคนนี้ ถ้าต้องการเพิ่มนัดให้ลงในชีตก่อนนะครับ</div><button type="button" class="btn-line" id="rsX">ปิด</button></div>');
 $("rsB").onclick = openResched; $("rsX").onclick = closeSheet; return;
 }
-var today = isoOf(new Date());
+var today = isoOf(new Date()), tmr = isoOf(new Date(Date.now() + 864e5));
+var ICON_FZ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/><path d="M9.5 4.8 12 7l2.5-2.2M9.5 19.2 12 17l2.5 2.2"/></svg>';
 var ICON_MOVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M9 15h6m-2-2 2 2-2 2"/></svg>';
 var ICON_CUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>';
-var doneNow = Number(r.done) || 0, totalNow = Number(r.total) || 0;
+var doneNow = Number(r.done) || 0, totalNow = Number(r.total) || 0, pend = Number(r.pend) || ap.length;
 var mode = "move", late = false, send = !!r.hasLine, edited = false, msgText = "";
 function khun(n){ return n.indexOf("คุณ") === 0 ? n : "คุณ" + n; }
 function isLate(a){
@@ -741,12 +773,13 @@ return khun(name) + "ครับ 🙌\nนัด" + when + " ผมเข้า
 "\n\n" + (isToday ? "วันนี้" : "วันนั้น") + "ไม่ได้ออก ไม่เป็นไรเลยครับ เก็บแต้มจากชีวิตประจำวันแทน เช่น เดินขึ้นบันไดแทนบันไดเลื่อน แล้วดูแลเรื่องกินไปด้วยก็เท่ากับไม่หายไปไหนแล้ว 💪\n\nแล้วเจอกันนัดครั้งต่อไปนะครับ";
 }
 var h = '<div class="rs"><button type="button" class="back2" id="rsB">← เปลี่ยนคน</button><div><div class="k">ลูกค้าแจ้งเลื่อนนัด</div><div class="h">' + esc(name) + '</div></div>' +
-'<div><div class="lbl">นัดที่จะจัดการ</div><div class="aps" id="rsAps">' +
+'<div id="rsApW"><div class="lbl">นัดที่จะจัดการ</div><div class="aps" id="rsAps">' +
 ap.map(function(a, i){ return '<button type="button" class="ap' + (i === pick ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (i === pick) + '">' + esc(a.dow + " " + a.day + " " + a.mon + (a.time ? " " + a.time + " น." : "")) +
 '<small>' + (a.no ? "ครั้งที่ " + esc(a.no) : "") + (a.place ? (a.no ? " · " : "") + esc(a.place) : "") + (a.status === "ลูกค้าขอเลื่อน" ? " · รอนัดใหม่" : "") + '</small></button>'; }).join("") + '</div></div>' +
 '<div><div class="lbl">เลือกวิธีจัดการ</div><div class="modes">' +
 '<button type="button" class="mode move on" id="rsMdMove" aria-pressed="true"><span class="bdg" id="rsBdMove" hidden>แนะนำ</span>' + ICON_MOVE + '<span class="t">เลื่อนนัด</span><span class="d">แจ้งล่วงหน้าตามเงื่อนไข · ไม่หักครั้ง</span></button>' +
 '<button type="button" class="mode cut" id="rsMdCut" aria-pressed="false"><span class="bdg" id="rsBdCut" hidden>แนะนำ</span>' + ICON_CUT + '<span class="t">ตัดเทรนครั้งนี้</span><span class="d">แจ้งกะทันหัน · นับเป็นเทรน 1 ครั้ง</span></button>' +
+'<button type="button" class="mode freeze" id="rsMdFz" aria-pressed="false">' + ICON_FZ + '<span class="tx"><span class="t">พักคอร์ส (Freeze)</span><span class="d">ลูกค้าไปต่างจังหวัด/ต่างประเทศหลายสัปดาห์ · ย้ายนัดที่เหลือทั้งหมด</span></span></button>' +
 '</div><div class="rule" id="rsRule" style="margin-top:10px"></div></div>' +
 '<div><div class="lbl">เหตุผลที่ลูกค้าแจ้ง</div><div class="tags" id="rsRs">' + reasons.map(function(x){ return '<button type="button" class="tag' + (x === reason ? ' on' : '') + '" data-r="' + esc(x) + '" aria-pressed="' + (x === reason) + '">' + esc(x) + '</button>'; }).join("") + '</div></div>' +
 '<div class="rs" id="rsMove">' +
@@ -763,6 +796,15 @@ ap.map(function(a, i){ return '<button type="button" class="ap' + (i === pick ? 
 '<button type="button" class="link" id="rsEdit">แก้ข้อความก่อนส่ง</button><textarea id="rsMsgT" class="field" maxlength="1500" hidden aria-label="แก้ข้อความที่จะส่ง"></textarea></div>' +
 '<button type="button" class="big amber" id="rsCutGo" disabled>เลือกนัดที่จะตัดเทรน</button>' +
 '<div class="cfm" id="rsCfm" hidden><b>ยืนยันตัดเทรน 1 ครั้ง?</b><div id="rsCfmT"></div><div class="row2"><button type="button" class="btn-line" id="rsCfmNo" style="min-height:52px">ยกเลิก</button><button type="button" class="big amber" id="rsCfmYes" style="min-height:52px">ยืนยันตัดเทรน</button></div></div>' +
+'</div>' +
+'<div class="rs" id="rsFz" hidden>' +
+'<div><div class="lbl">วันกลับมาเริ่มเทรนใหม่</div><input id="rsFD" class="field" type="date" min="' + tmr + '" aria-label="วันกลับมาเริ่มเทรนใหม่">' +
+'<div class="sub small" style="margin-top:6px">ต้องใส่วันกลับเสมอ ถ้ายังไม่แน่ใจ ใส่วันที่คาดไว้ก่อน ถ้าลูกค้าเลื่อนกลับ มาพักซ้ำเพื่อเลื่อนต่อได้</div></div>' +
+'<div id="rsFP"></div>' +
+'<input id="rsFN" class="field" type="text" maxlength="300" placeholder="หมายเหตุ เช่น ไปทำงานที่เชียงใหม่ (ไม่บังคับ)" aria-label="หมายเหตุพักคอร์ส">' +
+'<label class="chk2"><input type="checkbox" id="rsFC"' + (r.hasLine ? '' : ' disabled') + '><span><b>ส่งข้อความแจ้งลูกค้าทางไลน์</b><br><span class="hint">' + (r.hasLine ? 'ไม่ติ๊ก = ไม่ส่ง (ใช้โควตาข้อความไลน์ 1 ข้อความถ้าส่ง)' : 'ลูกค้าคนนี้ยังไม่มี LINE ID ในระบบ ส่งข้อความไม่ได้') + '</span></span></label>' +
+'<button type="button" class="big green" id="rsFGo" disabled>ใส่วันกลับก่อน</button>' +
+'<div class="cfm fz" id="rsFCfm" hidden><b>ยืนยันพักคอร์ส?</b><div id="rsFCfmT"></div><div class="row2"><button type="button" class="btn-line" id="rsFCfmNo" style="min-height:52px">ยกเลิก</button><button type="button" class="big green" id="rsFCfmYes" style="min-height:52px">ยืนยันพักคอร์ส</button></div></div>' +
 '</div></div>';
 openSheet(h);
 var cid = "rs" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8), busy = false;
@@ -770,11 +812,11 @@ if(pick >= 0) mode = isLate(ap[pick]) ? "cut" : "move";
 function sync(){
 var a = pick >= 0 ? ap[pick] : null, go = $("rsGo"), moved = !!$("rsD").value;
 if(a){ late = isLate(a); }
-$("rsMdMove").classList.toggle("on", mode === "move"); $("rsMdCut").classList.toggle("on", mode === "cut");
-$("rsMdMove").setAttribute("aria-pressed", String(mode === "move")); $("rsMdCut").setAttribute("aria-pressed", String(mode === "cut"));
+$("rsMdMove").classList.toggle("on", mode === "move"); $("rsMdCut").classList.toggle("on", mode === "cut"); $("rsMdFz").classList.toggle("on", mode === "fz");
+$("rsMdMove").setAttribute("aria-pressed", String(mode === "move")); $("rsMdCut").setAttribute("aria-pressed", String(mode === "cut")); $("rsMdFz").setAttribute("aria-pressed", String(mode === "fz"));
 $("rsBdCut").hidden = !(a && late); $("rsBdMove").hidden = !(a && !late);
-$("rsRule").innerHTML = !a ? 'เลือกนัดด้านบนก่อน ระบบจะบอกว่าแจ้งทันเงื่อนไขล่วงหน้า 1 วันหรือไม่' : (late ? '<b>แจ้งไม่ถึง 1 วัน</b> ก่อนเวลานัด — ไม่เข้าเงื่อนไขล่วงหน้า 1 วัน แนะนำ ตัดเทรนครั้งนี้' : '<b>แจ้งล่วงหน้า ' + daysAhead(a) + ' วัน</b> — เข้าเงื่อนไขล่วงหน้าอย่างน้อย 1 วัน เลื่อนนัดได้เลย');
-$("rsMove").hidden = mode !== "move"; $("rsCut").hidden = mode !== "cut";
+$("rsRule").innerHTML = mode === "fz" ? ('<b>พักคอร์ส</b> — ย้ายนัดที่เหลือทั้ง ' + pend + ' ครั้ง ไปเริ่มวันใหม่ · ไม่หักครั้ง · ใช้วันเทรนเดิมของลูกค้า') : !a ? 'เลือกนัดด้านบนก่อน ระบบจะบอกว่าแจ้งทันเงื่อนไขล่วงหน้า 1 วันหรือไม่' : (late ? '<b>แจ้งไม่ถึง 1 วัน</b> ก่อนเวลานัด — ไม่เข้าเงื่อนไขล่วงหน้า 1 วัน แนะนำ ตัดเทรนครั้งนี้' : '<b>แจ้งล่วงหน้า ' + daysAhead(a) + ' วัน</b> — เข้าเงื่อนไขล่วงหน้าอย่างน้อย 1 วัน เลื่อนนัดได้เลย');
+$("rsMove").hidden = mode !== "move"; $("rsCut").hidden = mode !== "cut"; $("rsFz").hidden = mode !== "fz"; $("rsApW").hidden = mode === "fz";
 go.disabled = busy || pick < 0;
 go.textContent = busy ? "กำลังบันทึก…" : (pick < 0 ? "เลือกนัดที่จะเลื่อน" : (moved ? "ย้ายนัดเลย" : "บันทึกเป็นรอนัดใหม่"));
 // โหมดตัดเทรน
@@ -788,12 +830,18 @@ $("rsBub").textContent = msgText;
 var cg = $("rsCutGo");
 cg.disabled = busy || pick < 0;
 cg.textContent = busy ? "กำลังบันทึก…" : (pick < 0 ? "เลือกนัดที่จะตัดเทรน" : "ตัดเทรน" + (a.no ? "ครั้งที่ " + a.no : "ครั้งนี้") + (send ? " และส่งข้อความ" : ""));
+fzSync();
 }
 sync();
 $("rsB").onclick = openResched;
 $("rsAps").onclick = function(ev){ var b = ev.target.closest("[data-i]"); if(!b) return; pick = Number(b.getAttribute("data-i")); mode = isLate(ap[pick]) ? "cut" : "move"; edited = false; [].forEach.call($("rsAps").children, function(x){ var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); $("rsCfm").hidden = true; $("rsCutGo").hidden = false; sync(); };
 $("rsMdMove").onclick = function(){ mode = "move"; sync(); };
 $("rsMdCut").onclick = function(){ mode = "cut"; sync(); };
+$("rsMdFz").onclick = function(){
+mode = "fz";
+if(reason === "อื่นๆ"){ reason = "เดินทาง"; [].forEach.call($("rsRs").children, function(x){ var on = x.getAttribute("data-r") === reason; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); }
+sync();
+};
 $("rsRs").onclick = function(ev){ var b = ev.target.closest("[data-r]"); if(!b) return; reason = b.getAttribute("data-r"); [].forEach.call($("rsRs").children, function(x){ var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); };
 $("rsD").oninput = sync;
 $("rsTog").onclick = function(){ if(!r.hasLine) return; send = !send; sync(); };
@@ -830,7 +878,58 @@ if(!res || !res.ok){ $("rsCfmYes").disabled = false; $("rsCfmYes").textContent =
 rsDoneCut(name, res);
 }).catch(function(){ busy = false; $("rsCfmYes").disabled = false; $("rsCfmYes").textContent = "ยืนยันตัดเทรน"; toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); });
 };
+var fzPlan = null, fzLoading = false, fzSeq = 0;
+function fzSync(){
+var go = $("rsFGo"), d = $("rsFD").value;
+go.disabled = busy || !d || fzLoading || !fzPlan;
+go.textContent = busy ? "กำลังบันทึก…" : (!d ? "ใส่วันกลับก่อน" : (fzLoading ? "กำลังคำนวณนัดใหม่…" : (fzPlan ? "พักคอร์สและย้ายนัดทั้งหมด" : "เลือกวันกลับอื่น")));
+}
+function fzPaint(h){ $("rsFP").innerHTML = h || ""; }
+function fzPreview(){
+var d = $("rsFD").value;
+fzPlan = null; $("rsFCfm").hidden = true; $("rsFGo").hidden = false;
+if(!d){ fzLoading = false; fzPaint(""); return fzSync(); }
+var my = ++fzSeq; fzLoading = true; fzPaint('<div class="sub small">กำลังคำนวณนัดใหม่…</div>'); fzSync();
+api("trainerFreeze", { name:name, reason:reason, resumeDate:d, dry:true }).then(function(res){
+if(my !== fzSeq) return;
+fzLoading = false;
+if(!res || !res.ok){ fzPaint('<div class="rule">' + esc(errMsg(res)) + '</div>'); return fzSync(); }
+var p = res.plan; fzPlan = p;
+fzPaint('<div class="fzsum">' +
+'<div><span>วันเทรนเดิม</span><b>' + esc(p.pattern) + ' · ' + esc(p.perWeek) + ' วัน/สัปดาห์</b></div>' +
+'<div><span>นัดแรกเดิม</span><b><s>' + esc(p.oldFirstTxt) + '</s></b></div>' +
+'<div><span>กลับมาเทรนวันแรก</span><b>' + esc(p.firstTxt) + '</b></div>' +
+'<div><span>ครั้งที่เหลือ</span><b>' + esc(p.n) + ' ครั้ง · ถึง' + esc(p.lastTxt) + '</b></div></div>' +
+(p.progSkip ? '<div class="sub small" style="margin-top:6px">มี ' + esc(p.progSkip) + ' แถวในแท็บโปรแกรมที่ชนวันกัน จึงไม่ถูกย้าย ต้องย้ายเองในชีต</div>' : ''));
+fzSync();
+}).catch(function(){ if(my !== fzSeq) return; fzLoading = false; fzPaint('<div class="rule">เชื่อมต่อไม่ได้ ลองเลือกวันอีกครั้งนะครับ</div>'); fzSync(); });
+}
+$("rsFD").oninput = fzPreview; $("rsFD").onchange = fzPreview;
+$("rsFGo").onclick = function(){
+if(busy || !fzPlan) return;
+var s2 = !!$("rsFC").checked && !!r.hasLine;
+$("rsFCfmT").textContent = khun(name) + "จะถูกย้ายนัดที่เหลือ " + fzPlan.n + " ครั้ง ไปเริ่มใหม่" + fzPlan.firstTxt + (s2 ? " และระบบจะส่งข้อความแจ้งให้ทางไลน์" : " (ไม่ส่งข้อความ)") + " ครั้งที่เหลือในคอร์สไม่หาย ถ้าพลาด ใส่วันกลับใหม่แล้วพักซ้ำได้เลย";
+$("rsFGo").hidden = true; $("rsFCfm").hidden = false;
+try{ $("rsFCfm").scrollIntoView({ block:"nearest" }); }catch(x){}
+};
+$("rsFCfmNo").onclick = function(){ $("rsFCfm").hidden = true; $("rsFGo").hidden = false; };
+$("rsFCfmYes").onclick = function(){
+if(busy || !fzPlan) return;
+busy = true; $("rsFCfmYes").disabled = true; $("rsFCfmYes").textContent = "กำลังบันทึก…";
+api("trainerFreeze", { name:name, reason:reason, resumeDate:$("rsFD").value, note:$("rsFN").value.trim(), notifyCust:!!$("rsFC").checked && !!r.hasLine, cid:cid }).then(function(res){
+busy = false;
+if(!res || !res.ok){ $("rsFCfmYes").disabled = false; $("rsFCfmYes").textContent = "ยืนยันพักคอร์ส"; return toast(errMsg(res)); }
+rsDoneFz(name, res);
+}).catch(function(){ busy = false; $("rsFCfmYes").disabled = false; $("rsFCfmYes").textContent = "ยืนยันพักคอร์ส"; toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); });
+};
 }).catch(function(){ toast("เชื่อมต่อไม่ได้ ลองอีกครั้งนะครับ"); closeSheet(); });
+}
+function rsDoneFz(name, res){
+var body = res.dup ? '<div>(รายการนี้บันทึกไปแล้วก่อนหน้านี้)</div>' : '<div>ย้ายนัดที่เหลือ <b>' + esc(res.n) + ' ครั้ง</b> แล้ว</div><div>นัดแรกเดิม <s>' + esc(res.oldFirstTxt) + '</s></div><div><b>กลับมาเทรน' + esc(res.firstTxt) + '</b></div><div>ถึง' + esc(res.lastTxt) + ' · ใช้วันเทรนเดิม ' + esc(res.pattern) + '</div>';
+if(res.progSkip) body += '<div>มี ' + esc(res.progSkip) + ' แถวในแท็บโปรแกรมที่ไม่ได้ย้าย (ชนวันกัน) ย้ายเองในชีตนะครับ</div>';
+if(res.notify && res.notify.text) body += '<div>' + esc(res.notify.text) + '</div>';
+openSheet('<div class="rs"><div><div class="k">' + esc(name) + '</div><div class="h">พักคอร์สแล้ว</div></div><div class="res">' + body + '</div><button type="button" class="big" id="rsOk">เรียบร้อย</button></div>');
+$("rsOk").onclick = closeSheet;
 }
 function rsDone(name, res){
 var t, body;
