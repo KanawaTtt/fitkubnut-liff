@@ -119,6 +119,21 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
 .hwb .bx{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center}
 .hwb[aria-pressed="true"] .bx{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .hwb .bx svg{width:14px;height:14px}
+.xpg{display:flex;flex-direction:column;gap:10px}
+.xpd{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.xpd summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;min-height:52px;font-size:15px;font-weight:700;line-height:1.4}
+.xpd summary::-webkit-details-marker{display:none}
+.xpd summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:0 4px 4px 2px;flex:none;transition:transform .15s}
+.xpd[open] summary::after{transform:rotate(-135deg);margin-bottom:-2px}
+.xpd summary:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.xpd .xpn{flex:1 1 0;min-width:0}
+.xpl{display:flex;flex-direction:column;gap:8px;padding:0 12px 12px}
+.xpb{align-items:flex-start;padding:10px 12px;width:100%}
+.xpb .bx{margin-top:1px}
+.xpb .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.xpb .tx b{font-size:15px;font-weight:600;line-height:1.4}
+.xpb .tx .ds{font-size:13px;font-weight:600;color:var(--accent);line-height:1.4}
+.xpb .tx .eq{font-size:12px;font-weight:400;color:var(--muted);line-height:1.4}
 .hwok{display:flex;align-items:center;gap:12px;background:var(--accent);color:var(--on-accent);border-radius:16px;padding:14px 16px}
 .hwok[hidden]{display:none}
 .hwok .ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);flex:none;display:flex;align-items:center;justify-content:center}
@@ -218,7 +233,11 @@ h2{font-size:16px;line-height:1.35;margin:0;font-weight:700}
       <div class="chips" id="eqChips"></div>
     </div>
 
+    <div class="xpg" id="xpPre" hidden></div>
+
     <div class="exs" id="exList"></div>
+
+    <div class="xpg" id="xpPost" hidden></div>
 
     <button class="btn" id="finBtn" type="button">เทรนเสร็จแล้ว</button>
     <div class="tmr" id="tmrT"></div>
@@ -323,11 +342,13 @@ var CONFIG = {
   var $ = function(id){ return document.getElementById(id); };
   var DEMO = /[?&]demo=1/.test(location.search);
   var DEMO_REST = /[?&]rest=1/.test(location.search);
+  var DEMO_XP = /[?&]xp=1/.test(location.search);
   var idToken = "";
   var S = null;          /* ข้อมูลล่าสุดจากเซิร์ฟเวอร์ */
   var T = null;          /* โปรแกรมที่กำลังแสดง (วันนี้ หรือชุดขี้เกียจของวันพัก) */
   var lazy = false, bonus = false;
   var done = {}, eqOn = [], hwOn = [], hwKeep = [], openId = -1, fin = false, feeling = "";
+  var xpDone = [], xpDirty = false, xpSaving = false, xpTimer = null;   /* ท่าประกอบ (วอร์มอัป/คูลดาวน์ ฯลฯ) ที่ติ๊กแล้ว */
   var saveTimer = 0, dirty = false, retried = false, saving = false;
 
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -367,7 +388,12 @@ var CONFIG = {
       {i:3,n:"Dumbbell Row",sets:3,reps:"12 ครั้ง ต่อข้าง",kg:["8 กก.","8 กก.","8 กก."],rest:90,eq:["ดัมเบล","เก้าอี้"],yt:"",url:"https://drive.google.com/file/d/demo/view"},
       {i:4,n:"Plank",sets:3,reps:"30 วินาที",kg:["","",""],rest:45,eq:["เสื่อโยคะ"],yt:"",url:""}
     ];
-    return {iso:"demo",title:title,dayName:"Full Body",level:"ระดับ กลาง",mins:"40-50 นาที",seq:3,week:2,ex:ex,equip:["ดัมเบล","เก้าอี้","เสื่อโยคะ"],lazy:[{i:1,sets:2},{i:2,sets:2},{i:4,sets:2}]};
+    var xp = [
+      {no:1,name:"Pillar Prep (10 นาที)",pre:true,items:[{k:"1-1",n:"Foam roll: น่อง ต้นขาหน้า/หลัง",fw:"Foam roller",fn:"Massage ball",dose:"30 วิ/จุด"},{k:"1-2",n:"90/90 Hip switch",fw:"ตัวเปล่า + เสื่อ",fn:"ตัวเปล่า + เสื่อ",dose:"2 × 6/ข้าง"}]},
+      {no:3,name:"Movement Skills (10 นาที)",pre:true,items:[{k:"3-1",n:"Split-stance deceleration",fw:"ตัวเปล่า",fn:"Cone เป็นจุดหยุด",dose:"3 × 5/ข้าง • พัก 45 วิ"}]},
+      {no:7,name:"Regeneration (10 นาที)",pre:false,items:[{k:"7-1",n:"Static stretch: สะโพกหน้า ต้นขาหลัง น่อง",fw:"ตัวเปล่า + เสื่อ",fn:"Stretch strap / Band",dose:"30 วิ/ท่า/ข้าง"}]}
+    ];
+    return {iso:"demo",title:title,dayName:"Full Body",level:"ระดับ กลาง",mins:"40-50 นาที",seq:3,week:2,ex:ex,equip:["ดัมเบล","เก้าอี้","เสื่อโยคะ"],lazy:[{i:1,sets:2},{i:2,sets:2},{i:4,sets:2}],xp:(DEMO_XP?xp:null),xpDone:(DEMO_XP?["1-1"]:[])};
   }
   var demoState = {done:{}, mode:"normal", eq:[], finished:false, feeling:"", note:""};
   function demoInit(){
@@ -385,6 +411,7 @@ var CONFIG = {
     return new Promise(function(res){
       setTimeout(function(){
         if(p.action === "programInit") return res(demoInit());
+        if(p.action === "programXpSave") return res({ok:true, done:(p.values||{}).done||[]});
         var v = p.values || {};
         demoState = {done:v.done||{}, mode:v.mode||"normal", eq:v.eq||[], finished:p.action==="programFinish", feeling:v.feeling||"", note:v.note||""};
         res({ok:true, finished:p.action==="programFinish"});
@@ -430,6 +457,7 @@ var CONFIG = {
       fin = !!pg.finished;
       if(r.mode === "train"){
         T = r.train; lazy = (pg.mode === "lazy"); bonus = false;
+        xpDone = (T && T.xpDone) ? T.xpDone.slice() : [];
         if(fin){ renderDone(); show("vDone"); }
         else { renderTrain(); show("vTrain"); }
       } else {
@@ -490,9 +518,55 @@ var CONFIG = {
       d.className = "ex"; d.id = "ex-" + p.ex.i;
       box.appendChild(d); renderCard(p.ex.i);
     });
+    renderXp();
     renderTmr($("tmrT"));
     updateProgress();
   }
+  /* ---------- ท่าประกอบ (บล็อกวอร์มอัป / Movement Skills / Med Ball / คูลดาวน์) ---------- */
+  function xpShow(){ return !!(T && T.xp && T.xp.length && !lazy && !bonus); }
+  function xpCount(b){ var n = 0; b.items.forEach(function(it){ if(xpDone.indexOf(it.k) > -1) n++; }); return n; }
+  function xpBlk(b){
+    var h = '<details class="xpd" data-b="'+b.no+'"><summary><span class="xpn">'+esc(b.name)+'</span><span class="pill" id="xc-'+b.no+'">'+xpCount(b)+'/'+b.items.length+'</span></summary><div class="xpl">';
+    b.items.forEach(function(it){
+      var on = xpDone.indexOf(it.k) > -1;
+      var eq = (it.fw && it.fn && it.fw !== it.fn) ? "Free weight: " + it.fw + " · Functional: " + it.fn : (it.fw || it.fn ? "อุปกรณ์: " + (it.fw || it.fn) : "");
+      h += '<button type="button" class="hwb xpb" data-xp="'+esc(it.k)+'" aria-pressed="'+on+'"><span class="bx">'+(on?CHECK:"")+'</span><span class="tx"><b>'+esc(it.n)+'</b>'
+        + (it.dose ? '<span class="ds">'+esc(it.dose)+'</span>' : '') + (eq ? '<span class="eq">'+esc(eq)+'</span>' : '') + '</span></button>';
+    });
+    return h + '</div></details>';
+  }
+  function renderXp(){
+    var pre = $("xpPre"), post = $("xpPost");
+    if(!xpShow()){ pre.hidden = true; post.hidden = true; pre.innerHTML = ""; post.innerHTML = ""; return; }
+    var a = T.xp.filter(function(b){ return b.pre; }), z = T.xp.filter(function(b){ return !b.pre; });
+    pre.innerHTML = a.length ? '<div><h2>วอร์มอัปก่อนเริ่ม</h2><div class="sub small">ติ๊กตามที่ทำจริงได้เลย ข้ามบางท่าก็ไม่เป็นไรครับ</div></div>' + a.map(xpBlk).join("") : "";
+    post.innerHTML = z.length ? '<div><h2>คูลดาวน์หลังเทรน</h2><div class="sub small">ปิดท้ายเบาๆ ให้ร่างกายได้ผ่อน</div></div>' + z.map(xpBlk).join("") : "";
+    pre.hidden = !a.length; post.hidden = !z.length;
+  }
+  function xpTap(k){
+    var i = xpDone.indexOf(k);
+    if(i > -1) xpDone.splice(i, 1); else xpDone.push(k);
+    var on = i < 0;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-xp="'+k+'"]'), function(btn){
+      btn.setAttribute("aria-pressed", String(on)); btn.querySelector(".bx").innerHTML = on ? CHECK : "";
+    });
+    T.xp.forEach(function(b){ var c = $("xc-" + b.no); if(c) c.textContent = xpCount(b) + "/" + b.items.length; });
+    xpDirty = true; clearTimeout(xpTimer); xpTimer = setTimeout(xpFlush, 700);
+  }
+  function xpFlush(keep){
+    if(!xpDirty) return;
+    if(xpSaving){ clearTimeout(xpTimer); xpTimer = setTimeout(xpFlush, 900); return; }
+    xpDirty = false; xpSaving = true;
+    api({action:"programXpSave", values:{done:xpDone}}, keep).then(function(r){
+      xpSaving = false; if(!r || !r.ok) xpDirty = true;
+    }).catch(function(){ xpSaving = false; xpDirty = true; });
+  }
+  function xpClick(ev){ var b = ev.target.closest("[data-xp]"); if(b) xpTap(b.getAttribute("data-xp")); }
+  $("xpPre").addEventListener("click", xpClick); $("xpPost").addEventListener("click", xpClick);
+  $("finBtn").addEventListener("click", function(){ xpFlush(true); });
+  document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "hidden") xpFlush(true); });
+  window.addEventListener("pagehide", function(){ xpFlush(true); });
+
   function updateProgress(){
     var t = totals();
     $("pTxt").textContent = "ทำแล้ว " + t.done + " จาก " + t.total + " เซ็ต";
