@@ -114,6 +114,26 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .exf{display:flex;flex-wrap:wrap;gap:8px}
 .mini{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:13px;font-weight:600;padding:0 12px}
 .add{min-height:56px;border:2px dashed var(--edge);background:transparent;color:var(--soft-ink);border-radius:16px;font-size:16px;font-weight:700}
+.xpg{display:flex;flex-direction:column;gap:10px}
+.xph{font-size:16px;font-weight:700;line-height:1.35}
+.xph small{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:2px}
+.xpd{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.xpd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px;min-height:52px;font-size:15px;font-weight:700;line-height:1.4}
+.xpd summary::-webkit-details-marker{display:none}
+.xpd summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:0 4px 4px 2px;flex:none;transition:transform .15s}
+.xpd[open] summary::after{transform:rotate(-135deg);margin-bottom:-2px}
+.xpd summary:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.xpd .xpn{flex:1 1 0;min-width:0}
+.xpd .xpc{font-size:12px;font-weight:700;background:var(--soft);color:var(--soft-ink);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.xpl{display:flex;flex-direction:column;gap:8px;padding:0 12px 12px}
+.xpb{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:52px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:10px 12px;text-align:left;font-size:15px}
+.xpb[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-row)}
+.xpb .bx{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--on-accent);margin-top:1px}
+.xpb[aria-pressed="true"] .bx{background:var(--ok);border-color:var(--ok)}
+.xpb .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.xpb .tx b{font-size:15px;font-weight:600;line-height:1.4}
+.xpb .tx .ds{font-size:13px;font-weight:600;color:var(--soft-ink);line-height:1.4}
+.xpb .tx .eq{font-size:12px;color:var(--muted);line-height:1.4}
 .empty{margin:auto;text-align:center;color:var(--muted);padding:32px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .banner{border-radius:14px;padding:10px 14px;font-size:14px;line-height:1.45}
 .b-info{background:var(--soft);color:var(--soft-ink)}
@@ -349,7 +369,11 @@ var plans = {
 "Lower Body + Core": [ {n:"Leg Press",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[50,50,55],rest:90}, {n:"Walking Lunge",ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[8,8,8],rest:75} ]
 };
 var plan = c && c.plan ? { title:c.title, ex:plans[c.title].map(function(e){ var o = JSON.parse(JSON.stringify(e)); o.reps = o.reps; o.src = "plan"; return o; }) } : null;
-return ok({ ok:true, name:v.name, iso:iso, plan:plan, struct:saved ? saved.struct : null, sets:saved ? saved.sets : {}, exNotes:saved ? saved.exNotes : {},
+if(plan && /[?&]xp=1/.test(location.search)) plan.xp = [
+{no:1,name:"Pillar Prep (10 นาที)",pre:true,items:[{k:"1-1",n:"Foam roll: น่อง ต้นขาหน้า/หลัง",fw:"Foam roller",fn:"Massage ball",dose:"30 วิ/จุด"},{k:"1-2",n:"90/90 Hip switch",fw:"ตัวเปล่า + เสื่อ",fn:"ตัวเปล่า + เสื่อ",dose:"2 × 6/ข้าง"}]},
+{no:3,name:"Movement Skills (10 นาที)",pre:true,items:[{k:"3-1",n:"Split-stance deceleration",fw:"ตัวเปล่า",fn:"Cone เป็นจุดหยุด",dose:"3 × 5/ข้าง • พัก 45 วิ"}]},
+{no:7,name:"Regeneration (10 นาที)",pre:false,items:[{k:"7-1",n:"Static stretch: สะโพกหน้า ต้นขาหลัง น่อง",fw:"ตัวเปล่า + เสื่อ",fn:"Stretch strap / Band",dose:"30 วิ/ท่า/ข้าง"}]}];
+return ok({ ok:true, name:v.name, iso:iso, plan:plan, xpDone:(plan && plan.xp) ? ["1-1"] : [], struct:saved ? saved.struct : null, sets:saved ? saved.sets : {}, exNotes:saved ? saved.exNotes : {},
 day:saved ? saved.day : {note:"",tags:[],start:"",status:""}, sid:saved ? saved.sid : "",
 lastAll:{ "goblet squat":{iso:"2026-11-04",sets:[{s:1,w:10,r:12},{s:2,w:10,r:12},{s:3,w:12,r:10}]}, "leg press":{iso:"2026-11-04",sets:[{s:1,w:45,r:12},{s:2,w:45,r:12},{s:3,w:50,r:10}]}, "seated row":{iso:"2026-11-03",sets:[{s:1,w:20,r:12}]} } });
 }
@@ -418,6 +442,7 @@ var rc = D.c.filter(function(x){ return x.name === v.name; })[0];
 if(rc) rc.nudge = false;
 return ok({ ok:true, sent:true, text:"ส่งข้อความชวนต่อคอร์สแล้ว (เดโม)" });
 }
+if(action === "trainerXpSave"){ return ok({ ok:true, done:v.done || [] }); }
 if(action === "trainerNotifySet"){ D.nf = { on:!!v.on, left:109, limit:300 }; return ok({ ok:true, notify:D.nf }); }
 return ok({ ok:false, error:"action" });
 }
@@ -499,7 +524,7 @@ var c = ev.target.closest("[data-c]");
 if(c) openCustomer(c.getAttribute("data-c"));
 });
 function openCustomer(name){
-flushNow();
+flushNow(); xpFlush();
 loading();
 api("trainerSession", { name: name, iso: S.iso }).then(function(r){
 if(!r.ok){ hideMsg(); return toast(errMsg(r)); }
@@ -553,7 +578,7 @@ if(r.struct && r.struct.ex && r.struct.ex.length) base = r.struct.ex;
 else if(r.plan && r.plan.ex) base = r.plan.ex;
 var s = { name:r.name, iso:r.iso, cust:c, title:(r.plan && r.plan.title) || "", hasPlan:!!r.plan, lastAll:r.lastAll || {}, ex:[],
 dayNote:(r.day && r.day.note) || "", dayTags:(r.day && r.day.tags) || [], start:(r.day && r.day.start) || "", status:(r.day && r.day.status) || "",
-sid:r.sid || Math.random().toString(36).slice(2, 8), result:null };
+sid:r.sid || Math.random().toString(36).slice(2, 8), result:null, xp:(r.plan && r.plan.xp) || null, xpDone:(r.xpDone || []).slice() };
 E = s;                         /* defW/defR ใช้ E.lastAll */
 (base || []).forEach(function(b, i){
 var e = newEx(b);
@@ -616,12 +641,56 @@ var h = '<div class="top"><div class="r1"><button type="button" class="btn-soft 
 '<div class="scroll" id="sesScroll"><div class="padm" id="sesBody">';
 if(E.status === "จบแล้ว") h += '<div class="banner b-ok">เทรนครั้งนี้จบและนับในคอร์สแล้ว แก้ไขตัวเลขได้ ระบบบันทึกทับให้อัตโนมัติ</div>';
 if(!E.ex.length) h += '<div class="banner b-info">วันนี้ลูกค้าคนนี้ไม่มีโปรแกรมในชีต กด "เพิ่มท่า" เพื่อเลือกท่าจากคลังท่าได้เลย</div>';
+h += xpHtml(true);
 E.ex.forEach(function(e, i){ h += exCardHtml(e, i); });
-h += '<button type="button" class="add" data-act="addex">+ เพิ่มท่า</button></div></div>' +
+h += '<button type="button" class="add" data-act="addex">+ เพิ่มท่า</button>' + xpHtml(false) + '</div></div>' +
 '<div class="foot"><div id="restBox"></div><button type="button" class="big" data-act="summary">จบเทรน ดูสรุป ›</button></div>';
 $("mSession").innerHTML = h;
 paintSave(); paintRest();
 }
+/* ---------- ท่าประกอบ (บล็อกวอร์มอัป / Movement Skills / Med Ball / คูลดาวน์) ---------- */
+var xpPend = null, xpTimer = null, xpSaving = false;
+function xpCount(b){ var n = 0; b.items.forEach(function(it){ if(E.xpDone.indexOf(it.k) > -1) n++; }); return n; }
+function xpHtml(pre){
+if(!E || !E.xp) return "";
+var list = E.xp.filter(function(b){ return !!b.pre === pre; });
+if(!list.length) return "";
+var h = '<div class="xpg"><div class="xph">' + (pre ? 'วอร์มอัปก่อนเริ่ม<small>ติ๊กตามที่ทำจริง ข้ามบางท่าได้ ลูกค้าติ๊กเองในแอปได้เหมือนกัน</small>' : 'คูลดาวน์หลังเทรน') + '</div>';
+list.forEach(function(b){
+h += '<details class="xpd"><summary><span class="xpn">' + esc(b.name) + '</span><span class="xpc" id="xc-' + b.no + '">' + xpCount(b) + '/' + b.items.length + '</span></summary><div class="xpl">';
+b.items.forEach(function(it){
+var on = E.xpDone.indexOf(it.k) > -1;
+var eq = (it.fw && it.fn && it.fw !== it.fn) ? "Free weight: " + it.fw + " · Functional: " + it.fn : (it.fw || it.fn ? "อุปกรณ์: " + (it.fw || it.fn) : "");
+h += '<button type="button" class="xpb" data-xp="' + esc(it.k) + '" aria-pressed="' + on + '"><span class="bx">' + (on ? "✓" : "") + '</span><span class="tx"><b>' + esc(it.n) + '</b>' +
+(it.dose ? '<span class="ds">' + esc(it.dose) + '</span>' : '') + (eq ? '<span class="eq">' + esc(eq) + '</span>' : '') + '</span></button>';
+});
+h += '</div></details>';
+});
+return h + '</div>';
+}
+function xpTap(k){
+if(!E || !E.xp) return;
+if(xpPend && (xpPend.name !== E.name || xpPend.iso !== E.iso)) xpFlush();
+var i = E.xpDone.indexOf(k);
+if(i > -1) E.xpDone.splice(i, 1); else E.xpDone.push(k);
+var on = i < 0;
+Array.prototype.forEach.call($("mSession").querySelectorAll('[data-xp="' + k + '"]'), function(btn){ btn.setAttribute("aria-pressed", String(on)); btn.querySelector(".bx").textContent = on ? "✓" : ""; });
+E.xp.forEach(function(b){ var c = $("xc-" + b.no); if(c) c.textContent = xpCount(b) + "/" + b.items.length; });
+xpPend = { name:E.name, iso:E.iso, done:E.xpDone.slice() };
+clearTimeout(xpTimer); xpTimer = setTimeout(function(){ xpFlush(); }, 700);
+}
+function xpFlush(keep){
+if(!xpPend) return;
+if(xpSaving){ clearTimeout(xpTimer); xpTimer = setTimeout(function(){ xpFlush(keep); }, 900); return; }
+var snap = xpPend; xpPend = null; xpSaving = true;
+api("trainerXpSave", { name:snap.name, iso:snap.iso, done:snap.done }, keep).then(function(r){
+xpSaving = false;
+if(!r || !r.ok){ if(!xpPend) xpPend = snap; clearTimeout(xpTimer); xpTimer = setTimeout(function(){ xpFlush(); }, 4000); }
+}).catch(function(){ xpSaving = false; if(!xpPend) xpPend = snap; clearTimeout(xpTimer); xpTimer = setTimeout(function(){ xpFlush(); }, 4000); });
+}
+$("mSession").addEventListener("click", function(ev){ var b = ev.target.closest("[data-xp]"); if(b) xpTap(b.getAttribute("data-xp")); });
+document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "hidden") xpFlush(true); });
+window.addEventListener("pagehide", function(){ xpFlush(true); });
 function paintProgress(){
 var cn = counts(), b = $("progBar"), t = $("progTxt");
 if(b) b.style.width = Math.round(cn.done / Math.max(1, cn.total) * 100) + "%";
