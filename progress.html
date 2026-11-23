@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>ความคืบหน้าของฉัน | Fit Kub Nut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F4; --ink:#16241F; --muted:#5B6D63; --card:#FFFFFF; --line:#D8E3DB; --soft:#E3EEE7;
+  --accent:#17806A; --on-accent:#FFFFFF; --warn-bg:#FFF1CC; --warn-ink:#6F5300; --err:#B3382C; --err-bg:#FBE4DF;
+  --tip:#16241F; --on-tip:#F3F7F4;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1914; --ink:#E7F1EB; --muted:#9BB0A4; --card:#16231D; --line:#273A31; --soft:#1D2E26;
+    --accent:#3FB899; --on-accent:#07261D; --warn-bg:#3A2F10; --warn-ink:#EDD38A; --err:#FF9D90; --err-bg:#3A1F1B;
+    --tip:#E7F1EB; --on-tip:#0E1914;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Prompt','Noto Sans Thai','Sarabun',system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.brand{font-size:13px;color:var(--muted)}
+.brand b{color:var(--accent);font-weight:600}
+h1{font-size:23px;line-height:1.3;margin:2px 0 0;font-weight:700;text-wrap:balance}
+h2{font-size:15px;margin:0;font-weight:600}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.small{font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.btn{width:100%;border:0;border-radius:16px;background:var(--accent);color:var(--on-accent);font:inherit;font-weight:600;font-size:16px;padding:13px;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.btn.out{background:var(--card);color:var(--ink);border:1.5px solid var(--line);font-size:15px}
+.btn:focus-visible,.chip:focus-visible,.dot:focus-visible,.seg button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.center{text-align:center;padding:36px 8px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.center .sub{text-wrap:balance}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--soft);border-top-color:var(--accent);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{font-size:12px;background:var(--soft);color:var(--ink);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.big small{font-size:14px;font-weight:400;color:var(--muted)}
+
+/* สัปดาห์นี้ */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:12px 0 2px}
+.day{text-align:center;border-radius:12px;padding:6px 0 7px;background:var(--soft);font-size:11.5px;color:var(--muted);line-height:1.25;border:1.5px solid transparent}
+.day b{display:block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.day i{display:block;font-style:normal;font-size:10.5px;margin-top:2px;min-height:14px}
+.day.done{background:var(--accent);color:var(--on-accent)}
+.day.done b{color:var(--on-accent)}
+.day.plan{background:var(--card);border:1.5px dashed var(--accent)}
+.day.today{box-shadow:0 0 0 2px var(--ink)}
+.kv{display:flex;gap:10px;margin-top:10px}
+.kv div{flex:1;background:var(--soft);border-radius:14px;padding:8px 12px}
+.kv small{display:block;color:var(--muted);font-size:12px}
+.kv strong{font-size:19px;font-variant-numeric:tabular-nums}
+.nx{margin:10px 0 0;font-size:13.5px}
+
+/* คอร์ส: จุดกดได้ + กล่องข้อความ */
+.dots{display:grid;gap:2px;margin-top:10px}
+.dot{border:0;background:transparent;padding:6px 0;cursor:pointer;display:block;border-radius:8px;font:inherit}
+.dot i{display:block;height:12px;border-radius:6px;background:var(--soft)}
+.dot.on i{background:var(--accent)}
+.dot.plan i,.dot.pending i{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.dot[aria-pressed="true"]{background:var(--soft)}
+.bar{display:flex;gap:4px;margin-top:10px}
+.bar i{flex:1;height:12px;border-radius:6px;background:var(--soft)}
+.bar i.on{background:var(--accent)}
+.bar.solid{display:block;height:12px;border-radius:6px;background:var(--soft);overflow:hidden}
+.bar.solid i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+.tip{position:relative;margin-top:8px;background:var(--tip);color:var(--on-tip);border-radius:16px;padding:11px 14px;font-size:14px;line-height:1.5}
+.tip:before{content:"";position:absolute;top:-7px;left:var(--x,50%);width:14px;height:14px;background:var(--tip);transform:translateX(-50%) rotate(45deg);border-radius:3px}
+.tip b{font-size:16px;font-weight:600;display:block}
+.tip .how{display:inline-block;margin-top:5px;font-size:12px;border-radius:999px;padding:2px 10px;background:rgba(127,127,127,.28)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.legend span:before{content:"";display:inline-block;width:14px;height:8px;border-radius:4px;margin-right:5px;vertical-align:middle;background:var(--accent)}
+.legend span.p:before{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.legend span.e:before{background:var(--soft)}
+
+/* ค่าร่างกาย */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:500;border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+svg.chart{width:100%;height:auto;display:block}
+.seg{display:flex;background:var(--soft);border-radius:999px;padding:3px;gap:2px;margin-top:10px}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;font-weight:500;border-radius:999px;padding:6px 8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.18);font-weight:600}
+.tw{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:500;color:var(--muted);font-size:12px}
+td.na{color:var(--muted)}
+.opt{font-size:11px;color:var(--muted)}
+.empty{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><b>Fit Kub Nut</b> · ความคืบหน้าของฉัน</div>
+
+  <section id="vLoad" class="center"><div class="spin" aria-hidden="true"></div><div id="loadTxt">กำลังเปิดหน้า…</div></section>
+
+  <section id="vMsg" hidden class="center">
+    <h1 id="msgH"></h1>
+    <p class="sub" id="msgP"></p>
+    <button class="btn ghost" id="msgBtn" type="button" hidden></button>
+  </section>
+
+  <section id="vMain" hidden class="stack">
+    <div>
+      <h1 id="hello">สวัสดีครับ</h1>
+      <p class="sub">ดูได้ทุกวัน ไม่ต้องรอข้อความวันอาทิตย์</p>
+    </div>
+
+    <div class="card" id="weekCard"></div>
+
+    <div class="card" id="courseCard"></div>
+
+    <div class="card" id="bodyCard"></div>
+
+    <div class="card">
+      <h2>ดูต่อ</h2>
+      <p class="sub small" style="margin:2px 0 10px">รูปก่อน-หลัง มื้ออาหาร และเหรียญรางวัล อยู่ในหน้า "ภาพรวมของฉัน"</p>
+      <a class="btn out" id="ovLink" href="overview.html">เปิดภาพรวมของฉัน</a>
+    </div>
+  </section>
+</main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js" defer></script>
+<script>
+/* ===== ตั้งค่า (ใช้ค่าเดียวกับหน้าอื่น) ===== */
+var CONFIG = {
+  LIFF_ID: "2012288678-D28CcUj0",
+  API_URL: "https://script.google.com/macros/s/AKfycbxgsb7gU-x-0vH3T-WEkLV67DMdI4EloOBxAC-yNpqsCEKpSt1cENGhbMco7ZHGl3ib/exec"
+};
+/* ========================================== */
+
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var DEMO = /[?&]demo=1/.test(location.search);
+  var idToken = "";
+  var P = null;          /* ข้อมูลล่าสุดจากเซิร์ฟเวอร์ */
+  var retried = false;
+  var selDot = -1;       /* จุดที่เลือกในการ์ดคอร์ส */
+  var curMetric = "weight";
+  var baseMode = "prev"; /* เทียบกับ: prev = ครั้งก่อน, first = ครั้งแรก */
+  var MON = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  var CHARTS = ["weight","fat","muscle","visceral"];
+  var ROWS = [
+    {k:"weight",  th:"น้ำหนัก (กก.)",     dec:1},
+    {k:"fat",     th:"% ไขมัน",            dec:1},
+    {k:"fatkg",   th:"ไขมัน (กก.)",        dec:1, calc:1},
+    {k:"bone",    th:"กระดูก (กก.)",       dec:1, opt:1},
+    {k:"water",   th:"% น้ำ",              dec:1, opt:1},
+    {k:"muscle",  th:"กล้ามเนื้อ (กก.)",   dec:1},
+    {k:"phys",    th:"Physical Rate",      dec:1, opt:1},
+    {k:"kcal",    th:"เผาผลาญ (kcal)",     dec:0, opt:1},
+    {k:"mage",    th:"อายุเซลล์ (ปี)",     dec:0, opt:1},
+    {k:"visceral",th:"ไขมันช่องท้อง",      dec:1},
+    {k:"mrate",   th:"Muscle Rate (%)",    dec:1, calc:1}
+  ];
+  function rowDef(k){ for(var i=0;i<ROWS.length;i++) if(ROWS[i].k===k) return ROWS[i]; return null; }
+
+  function esc(x){ return String(x).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function num(v,d){ return (v===null||v===undefined||v==="")?"-":Number(v).toFixed(d); }
+  function tdate(ts){ var d=new Date(ts); return d.getDate()+" "+MON[d.getMonth()]; }
+  function demoQ(){ return DEMO?"?demo=1":""; }
+  function show(id){
+    ["vLoad","vMsg","vMain"].forEach(function(v){ $(v).hidden=(v!==id); });
+    window.scrollTo(0,0);
+  }
+  function msg(h,p,btn){
+    $("msgH").textContent=h; $("msgP").textContent=p||"";
+    var b=$("msgBtn");
+    if(btn){ b.hidden=false; b.textContent=btn.text; b.onclick=btn.fn; } else { b.hidden=true; }
+    show("vMsg");
+  }
+  function retryBtn(){ return {text:"ลองอีกครั้ง",fn:function(){location.reload();}}; }
+
+  /* ---------- API ---------- */
+  function api(payload){
+    if(DEMO) return demoApi(payload);
+    payload.idToken = idToken;
+    return fetch(CONFIG.API_URL + (CONFIG.API_URL.indexOf("?")>-1?"&":"?") + "liff=1", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow"
+    }).then(function(r){ return r.json(); });
+  }
+  /* โหมดตัวอย่าง (?demo=1) ข้อมูลสมมติ ไม่ติดต่อเซิร์ฟเวอร์ */
+  function demoData(){
+    var how=["ลูกค้ากดเทรนเสร็จ","ลูกค้ากดเทรนเสร็จ","ณัฒจดให้ในแอป","ณัฒจดให้ในแอป","ระบบนับให้อัตโนมัติ","ลูกค้ากดเทรนเสร็จในแชท","ระบบนับให้อัตโนมัติ","ระบบนับให้อัตโนมัติ","ณัฒจดให้ในแอป"];
+    var dd=[["เสาร์",7,"พ.ย."],["อังคาร",10,"พ.ย."],["พฤหัสบดี",12,"พ.ย."],["ศุกร์",13,"พ.ย."],["จันทร์",16,"พ.ย."],["อังคาร",17,"พ.ย."],["พฤหัสบดี",19,"พ.ย."],["ศุกร์",20,"พ.ย."],["จันทร์",23,"พ.ย."],
+            ["อังคาร",24,"พ.ย."],["ศุกร์",27,"พ.ย."],["จันทร์",30,"พ.ย."],["พฤหัสบดี",3,"ธ.ค."],["ศุกร์",4,"ธ.ค."],["อังคาร",8,"ธ.ค."],["พฤหัสบดี",10,"ธ.ค."]];
+    var ses=dd.map(function(x,i){ return {n:i+1,st:i<9?"done":"plan",dow:x[0],day:x[1],mon:x[2],time:"",how:i<9?how[i]:""}; });
+    function b(ts,w,f,m,v,ex){ var o={ts:new Date(ts).getTime(),weight:w,fat:f,muscle:m,visceral:v,fatkg:Math.round(w*f)/100,bone:null,water:null,phys:null,kcal:null,mage:null,mrate:Math.round(m/w*10000)/100};
+      if(ex){ o.bone=ex[0]; o.water=ex[1]; o.phys=ex[2]; o.kcal=ex[3]; o.mage=ex[4]; } return o; }
+    return {ok:true,name:"คุณเมย์",
+      week:{label:"23–29 พ.ย.",done:1,planned:3,sets:22,
+        days:[{dow:"จ",day:23,state:"done",today:true,time:""},{dow:"อ",day:24,state:"plan",today:false,time:""},{dow:"พ",day:25,state:"none",today:false,time:""},
+              {dow:"พฤ",day:26,state:"none",today:false,time:""},{dow:"ศ",day:27,state:"plan",today:false,time:"18:00"},{dow:"ส",day:28,state:"none",today:false,time:""},{dow:"อา",day:29,state:"none",today:false,time:""}],
+        upcoming:[{dow:"อังคาร",day:24,mon:"พ.ย.",time:""},{dow:"ศุกร์",day:27,mon:"พ.ย.",time:"18:00"}]},
+      course:{package:"16 Session Online",total:16,used:9,remaining:7,sessions:ses},
+      body:[b("2026-11-06",75.5,12.8,62.5,6,[null,54.3,6,1880,19]),b("2026-11-16",75.7,12.8,62.6,6),b("2026-11-23",75.9,12.8,62.8,6.5,[3.4,54.5,6,1880,19])],now:Date.now()};
+  }
+  function demoApi(p){
+    return new Promise(function(res){ setTimeout(function(){ res(p.action==="progressInit"?demoData():{ok:false,error:"action"}); },500); });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){
+    show("vLoad");
+    if(DEMO){ return init(); }
+    if(!window.liff){ return setTimeout(boot,150); }
+    liff.init({liffId:CONFIG.LIFF_ID}).then(function(){
+      if(!liff.isLoggedIn()){ liff.login({redirectUri:location.href}); return; }
+      idToken = liff.getIDToken();
+      init();
+    }).catch(function(e){
+      msg("เปิดหน้านี้ไม่สำเร็จ","ลองปิดแล้วกดปุ่มจากเมนูในแชทใหม่อีกครั้งนะครับ ("+(e&&e.code?e.code:"liff")+")",retryBtn());
+    });
+  }
+  function init(){
+    $("loadTxt").textContent="กำลังรวบรวมความคืบหน้าของคุณ…";
+    api({action:"progressInit"}).then(function(r){
+      if(!r.ok){
+        if(r.error==="token" && !retried && window.liff){ retried=true; liff.logout(); liff.login({redirectUri:location.href}); return; }
+        if(r.error==="nomatch") return msg("ยังไม่พบข้อมูลของคุณในระบบ","ทักแชทบอกณัฒได้เลยครับ เดี๋ยวณัฒจับคู่ให้");
+        return msg("มีบางอย่างติดขัด","ลองใหม่อีกครั้ง หรือทักแชทบอกณัฒได้เลยครับ ("+(r.error||"unknown")+")",retryBtn());
+      }
+      P=r; render(); show("vMain");
+    }).catch(function(){
+      msg("เชื่อมต่อไม่ได้","เช็กอินเทอร์เน็ตแล้วลองอีกครั้งนะครับ",retryBtn());
+    });
+  }
+
+  /* ---------- สัปดาห์นี้ ---------- */
+  function renderWeek(){
+    var w=P.week, h='<div class="row2"><h2>สัปดาห์นี้</h2><span class="pill">'+esc(w.label)+'</span></div>';
+    h+='<div class="week" role="list" aria-label="ตารางสัปดาห์นี้">'+w.days.map(function(d){
+      var cls="day"+(d.state==="done"?" done":d.state==="plan"?" plan":"")+(d.today?" today":"");
+      var lb=d.state==="done"?"เทรนแล้ว":d.state==="plan"?(d.time||"นัด"):"";
+      return '<div class="'+cls+'" role="listitem">'+esc(d.dow)+'<b>'+esc(d.day)+'</b><i>'+esc(lb)+'</i></div>';
+    }).join("")+'</div>';
+    if(w.planned>0){
+      h+='<div class="kv"><div><small>เทรนแล้ว</small><strong>'+esc(w.done)+' / '+esc(w.planned)+' นัด</strong></div>'
+        +'<div><small>เซ็ตรวมสัปดาห์นี้</small><strong>'+esc(w.sets)+' เซ็ต</strong></div></div>';
+      if(w.upcoming&&w.upcoming.length){
+        h+='<p class="nx">นัดต่อไป: '+w.upcoming.slice(0,2).map(function(a){return esc(a.dow+" "+a.day+" "+a.mon+(a.time?" "+a.time+" น.":""));}).join(" · ")+'</p>';
+      }
+      h+='<p class="sub small" style="margin-top:8px">ไม่ต้องเป๊ะทุกวันนะครับ ตามจังหวะชีวิตตัวเองได้เลย</p>';
+    } else {
+      h+='<div class="empty" style="margin-top:10px">ยังไม่มีนัดในสัปดาห์นี้ ณัฒจะนัดเวลาให้ในแชทนะครับ</div>';
+    }
+    $("weekCard").innerHTML=h;
+  }
+
+  /* ---------- คอร์ส ---------- */
+  function sessLabel(s){
+    var dt=s.dow+" "+s.day+" "+s.mon+(s.time?" · "+s.time+" น.":"");
+    return {dt:dt};
+  }
+  function tipHtml(s){
+    if(s.st==="done") return '<b>ครั้งที่ '+esc(s.n)+' · '+esc(sessLabel(s).dt)+'</b>เทรนแล้ว'+(s.how?'<br><span class="how">'+esc(s.how)+'</span>':'');
+    if(s.st==="plan") return '<b>ครั้งที่ '+esc(s.n)+' · '+esc(sessLabel(s).dt)+'</b>นัดไว้แล้ว ยังไม่ถึงวันเทรน';
+    if(s.st==="pending") return '<b>ครั้งที่ '+esc(s.n)+' · '+esc(sessLabel(s).dt)+'</b>ส่งคำขอเลื่อนแล้ว รอณัฒตกลงเวลาใหม่';
+    return '<b>ครั้งที่ '+esc(s.n)+'</b>ยังไม่มีนัดสำหรับครั้งนี้ ณัฒจะนัดเวลาให้ในแชทนะครับ';
+  }
+  function placeTip(){
+    var t=$("tip"), d=$("dotsBox"); if(!t||!d||selDot<0) return;
+    var el=d.children[selDot]; if(!el) return;
+    var a=el.getBoundingClientRect(), b=t.getBoundingClientRect();
+    t.style.setProperty("--x",Math.max(18,Math.min(b.width-18,a.left+a.width/2-b.left))+"px");
+  }
+  function drawTip(){
+    var S=P.course.sessions, t=$("tip");
+    if(!t) return;
+    if(selDot<0||!S[selDot]){ t.hidden=true; return; }
+    t.hidden=false; t.innerHTML=tipHtml(S[selDot]);
+    var kids=$("dotsBox").children;
+    for(var i=0;i<kids.length;i++) kids[i].setAttribute("aria-pressed",String(i===selDot));
+    placeTip();
+  }
+  function renderCourse(){
+    var c=P.course, h='<div class="row2"><h2>คอร์สของฉัน</h2>'+(c.package?'<span class="pill">'+esc(c.package)+'</span>':'')+'</div>';
+    if(c.total){
+      h+='<div class="big" style="margin-top:6px">เทรนไปแล้ว '+esc(c.used)+' / '+esc(c.total)+' <small>ครั้ง</small></div>';
+      var S=c.sessions||[];
+      if(S.length===c.total && c.total<=24){
+        h+='<div class="dots" id="dotsBox" style="grid-template-columns:repeat('+c.total+',1fr)">'+S.map(function(s,i){
+          var cls=s.st==="done"?"on":(s.st==="plan"||s.st==="pending")?"plan":"";
+          return '<button type="button" class="dot '+cls+'" data-i="'+i+'" aria-pressed="false" aria-label="ครั้งที่ '+esc(s.n)+(s.st==="done"?" เทรนแล้ว":"")+'"><i></i></button>';
+        }).join("")+'</div><div class="tip" id="tip" role="status" aria-live="polite" hidden></div>'
+        +'<div class="legend"><span>เทรนแล้ว</span><span class="p">นัดไว้แล้ว</span><span class="e">ยังไม่มีนัด</span></div>';
+        if(selDot<0 && c.used>0) selDot=Math.min(c.used,S.length)-1;
+      } else if(c.total<=24){
+        var seg=""; for(var i=0;i<c.total;i++) seg+='<i'+(i<c.used?' class="on"':'')+'></i>';
+        h+='<div class="bar" role="img" aria-label="เทรนแล้ว '+esc(c.used)+' จาก '+esc(c.total)+' ครั้ง">'+seg+'</div>';
+      } else {
+        h+='<div class="bar solid" role="img" aria-label="เทรนแล้ว '+esc(c.used)+' จาก '+esc(c.total)+' ครั้ง"><i style="width:'+Math.min(100,Math.round(c.used/c.total*100))+'%"></i></div>';
+      }
+      h+='<p class="sub small" style="margin-top:8px">เหลืออีก '+esc(c.remaining)+' ครั้ง · กดที่จุดเพื่อดูว่าเป็นวันไหน</p>';
+    } else {
+      h+='<div class="big" style="margin-top:6px">เทรนไปแล้ว '+esc(c.used)+' <small>ครั้ง</small></div>';
+    }
+    h+='<a class="btn out" style="margin-top:12px" href="course.html'+demoQ()+'">ดูนัดครั้งถัดไป / แจ้งเลื่อนนัด</a>';
+    $("courseCard").innerHTML=h;
+    drawTip();
+  }
+
+  /* ---------- ค่าร่างกาย ---------- */
+  function drawChart(){
+    var B=P.body, k=curMetric, vals=B.map(function(b){return b[k];});
+    var pts=[]; for(var i=0;i<B.length;i++) if(vals[i]!==null&&vals[i]!==undefined) pts.push({i:i,v:vals[i],ts:B[i].ts});
+    var svg=$("chart"); if(!pts.length){ svg.innerHTML=""; $("chartNote").textContent=""; return; }
+    var lo=Math.min.apply(null,pts.map(function(p){return p.v;})), hi=Math.max.apply(null,pts.map(function(p){return p.v;}));
+    var span=hi-lo, pad=span===0?Math.max(0.5,Math.abs(hi)*0.02):span*0.35, y0=lo-pad, y1=hi+pad;
+    var L=34,R=286,T=24,H=94, n=pts.length;
+    function X(j){ return n===1?(L+R)/2:L+(R-L)*j/(n-1); }
+    function Y(v){ return T+H-(v-y0)/(y1-y0)*H; }
+    var dec=rowDef(k).dec, s='';
+    [0.25,0.75].forEach(function(g){ var yy=Y(y0+(y1-y0)*g).toFixed(1); s+='<line x1="10" x2="310" y1="'+yy+'" y2="'+yy+'" stroke="var(--line)" stroke-width="1"/>'; });
+    if(n>1) s+='<polyline fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="'+pts.map(function(p,j){return X(j).toFixed(1)+","+Y(p.v).toFixed(1);}).join(" ")+'"/>';
+    pts.forEach(function(p,j){
+      var last=j===n-1, x=X(j).toFixed(1), y=Y(p.v).toFixed(1);
+      s+='<circle cx="'+x+'" cy="'+y+'" r="'+(last?6:4.5)+'" fill="'+(last?'var(--accent)':'var(--card)')+'" stroke="var(--accent)" stroke-width="2.5"/>';
+      if(n<=6||j===0||last) s+='<text x="'+x+'" y="'+(Number(y)-12)+'" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">'+p.v.toFixed(dec)+'</text>';
+      if(n<=4||j===0||last) s+='<text x="'+x+'" y="142" text-anchor="middle" font-size="11" fill="var(--muted)">'+esc(tdate(p.ts))+'</text>';
+    });
+    svg.innerHTML=s;
+    var note=rowDef(k).th+": ";
+    if(n<2) note+="บันทึกครั้งแรกแล้ว ครั้งหน้าจะมีให้เทียบนะครับ";
+    else { var d=pts[n-1].v-pts[n-2].v; note+=Math.abs(d)<0.005?"เท่าครั้งก่อน":(d>0?"เพิ่มขึ้น ":"ลดลง ")+Math.abs(d).toFixed(1)+" จากครั้งก่อน"; }
+    $("chartNote").textContent=note;
+  }
+  function delta(a,b,dec){
+    if(a===null||a===undefined||b===null||b===undefined) return null;
+    var d=b-a, s=d.toFixed(dec);
+    if(Number(s)===0 && Math.abs(d)>=0.005) s=d.toFixed(2);
+    if(Number(s)===0) return "0";
+    return (d>0?"+":"")+s;
+  }
+  function drawTable(){
+    var B=P.body, last=B[B.length-1], base=B.length>1?(baseMode==="first"?B[0]:B[B.length-2]):null;
+    var h='<tr><th>ค่า</th>'+(base?'<th>'+esc(tdate(base.ts))+'</th>':'')+'<th>'+esc(tdate(last.ts))+'</th>'+(base?'<th>ต่าง</th>':'')+'</tr>';
+    ROWS.forEach(function(r){
+      var any=B.some(function(b){return b[r.k]!==null&&b[r.k]!==undefined;});
+      if(!any) return;
+      var a=base?base[r.k]:null, b=last[r.k], d=base?delta(a,b,r.dec):null;
+      h+='<tr><td>'+esc(r.th)+(r.opt?' <span class="opt">ไม่บังคับ</span>':'')+(r.calc?' <span class="opt">คำนวณให้</span>':'')+'</td>'
+        +(base?'<td'+(a===null||a===undefined?' class="na"':'')+'>'+num(a,r.dec)+'</td>':'')
+        +'<td'+(b===null||b===undefined?' class="na"':'')+'>'+num(b,r.dec)+'</td>'
+        +(base?'<td'+(d===null?' class="na"':'')+'>'+(d===null?"-":d)+'</td>':'')+'</tr>';
+    });
+    $("tbl").innerHTML=h;
+  }
+  function renderBody(){
+    var B=P.body, h='<div class="row2"><h2>ค่าร่างกาย</h2><span class="pill">'+(B.length?B.length+' ครั้งที่บันทึก':'ยังไม่มีข้อมูล')+'</span></div>';
+    if(!B.length){
+      h+='<div class="empty" style="margin-top:10px">ยังไม่มีข้อมูลเช็คหุ่นครับ ส่งค่าร่างกายครั้งแรกได้เลย ใช้เวลาไม่ถึงนาที</div>';
+    } else {
+      h+='<div class="chips" id="chips" role="group" aria-label="เลือกค่าที่จะดูกราฟ">'+CHARTS.map(function(k){
+        return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(k===curMetric)+'">'+esc(rowDef(k).th.replace(/ \(.*\)/,""))+'</button>';
+      }).join("")+'</div>'
+      +'<svg class="chart" id="chart" viewBox="0 0 320 150" role="img" aria-label="กราฟค่าร่างกาย"></svg>'
+      +'<p class="sub small" id="chartNote"></p>';
+      if(B.length>1){
+        h+='<div class="seg" role="group" aria-label="เทียบกับ"><button type="button" data-b="prev" aria-pressed="'+(baseMode==="prev")+'">เทียบครั้งก่อน</button><button type="button" data-b="first" aria-pressed="'+(baseMode==="first")+'">เทียบครั้งแรก</button></div>';
+      }
+      h+='<div class="tw"><table id="tbl"></table></div>'
+      +'<p class="opt" style="margin:8px 0 0">ช่องที่ไม่ได้กรอก จะขึ้น "-" และไม่นำมาคิดส่วนต่าง</p>';
+    }
+    h+='<a class="btn" style="margin-top:12px" id="sendBody" href="index.html'+demoQ()+'">ส่งค่าร่างกายประจำสัปดาห์</a>';
+    $("bodyCard").innerHTML=h;
+    if(B.length){ drawChart(); drawTable(); }
+  }
+
+  function render(){
+    $("hello").textContent="สวัสดีครับ "+(P.name||"");
+    $("ovLink").setAttribute("href","overview.html"+demoQ());
+    renderWeek(); renderCourse(); renderBody();
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click",function(e){
+    var d=e.target.closest&&e.target.closest("#dotsBox .dot");
+    if(d){ selDot=Number(d.getAttribute("data-i")); drawTip(); return; }
+    var c=e.target.closest&&e.target.closest("#chips .chip");
+    if(c){ curMetric=c.getAttribute("data-k"); var cs=$("chips").children; for(var i=0;i<cs.length;i++) cs[i].setAttribute("aria-pressed",String(cs[i]===c)); drawChart(); return; }
+    var b=e.target.closest&&e.target.closest(".seg button");
+    if(b){ baseMode=b.getAttribute("data-b"); var bs=b.parentNode.children; for(var j=0;j<bs.length;j++) bs[j].setAttribute("aria-pressed",String(bs[j]===b)); drawTable(); }
+  });
+  window.addEventListener("resize",placeTip);
+
+  boot();
+})();
+</script>
+</body>
+</html>
