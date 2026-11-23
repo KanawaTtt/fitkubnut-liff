@@ -92,6 +92,8 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .sh-body td:not(:first-child),.sh-body th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .bx{border:1px dashed var(--line);border-radius:14px;padding:11px 12px;margin:8px 0}.bx b{font-weight:600;display:block;margin-bottom:8px}.links{display:flex;gap:8px;flex-wrap:wrap}.lk{border:0;border-radius:12px;background:var(--soft);color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer}a.lk{text-decoration:none;display:inline-block}.lk.main{background:var(--accent);color:var(--on-accent)}.lk:disabled{opacity:.7;cursor:default}.lk:focus-visible{outline:3px solid var(--accent);outline-offset:2px}.more{margin-top:14px}
 .opt{font-weight:400;color:var(--muted)}
+.xhead h2{margin:0;font-size:15px;line-height:1.4;font-weight:600}
+.xhead p{margin:2px 0 0;font-size:13px;color:var(--muted)}
 .pick{width:100%;border:1.5px dashed var(--line);background:var(--card);color:var(--accent);font:inherit;font-weight:600;font-size:14px;border-radius:14px;padding:13px;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center}
 .pick svg{width:20px;height:20px}
 .pick:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -126,6 +128,14 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
         <div><div class="lbrow"><label for="fat">เปอร์เซ็นต์ไขมัน</label><button type="button" class="tip" data-tip="fat" aria-label="วิธีดูค่าเปอร์เซ็นต์ไขมัน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-fat"><input id="fat" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>%</span></div><div class="hint" id="h-fat"></div></div>
         <div><div class="lbrow"><label for="muscle">มวลกล้ามเนื้อ</label><button type="button" class="tip" data-tip="muscle" aria-label="วิธีดูค่ามวลกล้ามเนื้อ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-muscle"><input id="muscle" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-muscle"></div></div>
         <div><div class="lbrow"><label for="visceral">ไขมันช่องท้อง</label><button type="button" class="tip" data-tip="visceral" aria-label="วิธีดูค่าไขมันช่องท้อง"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-visceral"><input id="visceral" inputmode="decimal" autocomplete="off" placeholder="0"><span>ระดับ</span></div><div class="hint" id="h-visceral"></div></div>
+      </div>
+      <div class="xhead"><h2>ค่าเพิ่มเติมจากเครื่องวัดองค์ประกอบร่างกาย <span class="opt">(ไม่บังคับ)</span></h2><p>กรอกเท่าที่เครื่องของคุณแสดงได้เลย ไม่ต้องครบก็ส่งได้ แต่ถ้ามีครบทุกช่องก็จะยิ่งดี ณัฒจะเห็นภาพร่างกายละเอียดขึ้นครับ</p></div>
+      <div class="grid">
+        <div><div class="lbrow"><label for="bone">กระดูก</label><button type="button" class="tip" data-tip="bone" aria-label="วิธีดูค่าน้ำหนักกระดูก"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-bone"><input id="bone" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>กก.</span></div><div class="hint" id="h-bone"></div></div>
+        <div><div class="lbrow"><label for="water">% น้ำในร่างกาย</label><button type="button" class="tip" data-tip="water" aria-label="วิธีดูค่าเปอร์เซ็นต์น้ำในร่างกาย"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-water"><input id="water" inputmode="decimal" autocomplete="off" placeholder="0.0"><span>%</span></div><div class="hint" id="h-water"></div></div>
+        <div><div class="lbrow"><label for="phys">Physical Rate</label><button type="button" class="tip" data-tip="phys" aria-label="วิธีดูค่า Physical Rate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-phys"><input id="phys" inputmode="decimal" autocomplete="off" placeholder="0"><span>1–9</span></div><div class="hint" id="h-phys"></div></div>
+        <div><div class="lbrow"><label for="kcal">เผาผลาญต่อวัน</label><button type="button" class="tip" data-tip="kcal" aria-label="วิธีดูค่าการเผาผลาญต่อวัน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-kcal"><input id="kcal" inputmode="decimal" autocomplete="off" placeholder="0"><span>kcal</span></div><div class="hint" id="h-kcal"></div></div>
+        <div><div class="lbrow"><label for="mage">อายุเซลล์ (M-Age)</label><button type="button" class="tip" data-tip="mage" aria-label="วิธีดูค่าอายุเซลล์ของร่างกาย"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="6.5" r=".6" fill="currentColor"/></svg></button></div><div class="in" id="w-mage"><input id="mage" inputmode="decimal" autocomplete="off" placeholder="0"><span>ปี</span></div><div class="hint" id="h-mage"></div></div>
       </div>
       <div id="photoBox">
         <div class="lbrow"><label for="photo">รูป Check หุ่น <span class="opt" id="photoOpt">(ไม่บังคับ แต่ช่วยให้เห็นความเปลี่ยนแปลงชัดขึ้น)</span></label></div>
@@ -198,7 +208,13 @@ var CONFIG = {
     {k:"weight",  name:"น้ำหนัก",          unit:"กก.",  min:20, max:300, dec:1},
     {k:"fat",     name:"ไขมัน",            unit:"%",    min:3,  max:70,  dec:1},
     {k:"muscle",  name:"มวลกล้ามเนื้อ",     unit:"กก.",  min:5,  max:150, dec:1},
-    {k:"visceral",name:"ไขมันช่องท้อง",     unit:"",     min:1,  max:60,  dec:1}
+    {k:"visceral",name:"ไขมันช่องท้อง",     unit:"",     min:1,  max:60,  dec:1},
+    /* ค่าเพิ่มเติมจากเครื่อง Tanita — ไม่บังคับกรอก (opt) */
+    {k:"bone",    name:"กระดูก",           unit:"กก.",  min:0.5,max:10,  dec:1, opt:true},
+    {k:"water",   name:"% น้ำในร่างกาย",    unit:"%",    min:20, max:80,  dec:1, opt:true},
+    {k:"phys",    name:"Physical Rate",    unit:"",     min:1,  max:9,   dec:1, opt:true},
+    {k:"kcal",    name:"เผาผลาญต่อวัน",     unit:"kcal", min:500,max:6000,dec:0, opt:true},
+    {k:"mage",    name:"อายุเซลล์ (M-Age)", unit:"ปี",   min:10, max:99,  dec:0, opt:true}
   ];
 
   function show(id){
@@ -228,9 +244,9 @@ var CONFIG = {
   function demoApi(p){
     return new Promise(function(res){
       setTimeout(function(){
-        var hist=[{d:"4 ต.ค.",weight:64.8,fat:30.6,muscle:24.1,visceral:7},{d:"11 ต.ค.",weight:63.4,fat:29.9,muscle:24.4,visceral:6}];
+        var hist=[{d:"4 ต.ค.",weight:64.8,fat:30.6,muscle:24.1,visceral:7,bone:2.4,water:49.5,phys:5,kcal:1380,mage:38},{d:"11 ต.ค.",weight:63.4,fat:29.9,muscle:24.4,visceral:6,bone:2.4,water:50.1,phys:5,kcal:1392,mage:37}];
         if(p.action==="bodyInit") return res({ok:true,name:"คุณเมย์",count:2,last:hist[1],history:hist,sentThisWeek:""});
-        var v=p.values; var h2=hist.concat([{d:"18 ต.ค.",weight:v.weight,fat:v.fat,muscle:v.muscle,visceral:v.visceral}]);
+        var v=p.values; var h2=hist.concat([{d:"18 ต.ค.",weight:v.weight,fat:v.fat,muscle:v.muscle,visceral:v.visceral,bone:v.bone,water:v.water,phys:v.phys,kcal:v.kcal,mage:v.mage}]);
         res({ok:true,name:"คุณเมย์",prev:hist[1],now:h2[2],history:h2});
       },500);
     });
@@ -284,6 +300,10 @@ var CONFIG = {
     FIELDS.forEach(function(f){
       var w=$("w-"+f.k), h=$("h-"+f.k), n=num($(f.k).value);
       w.classList.remove("bad");
+      if(f.opt && String($(f.k).value||"").trim()===""){
+        if(state.prev&&state.prev[f.k]!=null&&state.prev[f.k]!==""){ h.className="hint prev"; h.innerHTML="ครั้งก่อน <b>"+fmt(state.prev[f.k])+"</b> "+f.unit; } else { h.textContent=""; h.className="hint"; }
+        return;
+      }
       if(n===null){ ok=false; w.classList.add("bad"); h.className="hint e"; h.textContent="กรอกตัวเลขด้วยนะครับ"; first=first||f.k; }
       else if(n<f.min||n>f.max){ ok=false; w.classList.add("bad"); h.className="hint e"; h.textContent="ลองเช็กอีกที (ช่วง "+f.min+"–"+f.max+")"; first=first||f.k; }
       else { vals[f.k]=Math.round(n*10)/10; if(state.prev&&state.prev[f.k]!=null&&state.prev[f.k]!==""){ h.className="hint prev"; h.innerHTML="ครั้งก่อน <b>"+fmt(state.prev[f.k])+"</b> "+f.unit; } else { h.textContent=""; h.className="hint"; } }
@@ -361,6 +381,7 @@ var CONFIG = {
     $("doneP2").textContent= (sentPhoto ? "ได้รับรูปด้วยแล้ว " : "") + "ณัฒจะดูผลแล้วส่งคำแนะนำให้ในแชทนะครับ";
     var html=FIELDS.map(function(f){
       var cur=r.now[f.k], pv=r.prev?r.prev[f.k]:null, d="";
+      if(f.opt && (cur==null||cur==="")) return "";
       if(pv!=null&&pv!==""){
         var diff=Math.round((cur-pv)*10)/10;
         d = diff===0 ? "เท่าเดิม" : (diff<0?"ลดลงจาก ":"เพิ่มขึ้นจาก ")+fmt(pv);
@@ -444,6 +465,56 @@ var CONFIG = {
        +'<div class="soft">เป็นค่าประมาณ แต่ละยี่ห้อสเกลไม่เหมือนกัน (เช่น Tanita 1–12 ช่วงปกติ) เทียบกับเครื่องเดิมของตัวเองเท่านั้น ณัฒใช้ดูแนวโน้ม ไม่ได้ใช้ตัดสินสุขภาพ ถ้ากังวลปรึกษาแพทย์ได้ครับ</div>'
        +FREE+MORE
        +'<p class="src">ที่มา: '+SRC_TAN+' · '+SRC_BIA+'</p>'
+    }
+    ,bone:{
+      t:"น้ำหนักกระดูก",
+      h:'<p class="lead">ดูได้จากช่อง “Bone” หรือ “Bone Mass / น้ำหนักกระดูก” หน่วยเป็นกิโลกรัม ในเครื่องชั่งวัดองค์ประกอบร่างกาย</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>ช่วยให้ณัฒเห็นองค์ประกอบร่างกายครบขึ้น ว่าน้ำหนักตัวมาจากไขมัน กล้ามเนื้อ กระดูก และน้ำอย่างละเท่าไร</li>'
+       +'<li>ค่านี้ขยับน้อยมาก ใช้เป็นหลักอ้างอิงเทียบกับค่าอื่นๆ</li></ul>'
+       +'<div class="soft">เป็นค่าประมาณจากเครื่อง ไม่ใช่การตรวจกระดูกทางการแพทย์ ใช้ดูแนวโน้มเท่านั้นครับ</div>'
+       +FREE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    water:{
+      t:"เปอร์เซ็นต์น้ำในร่างกาย",
+      h:'<p class="lead">ดูได้จากช่อง “Water %” หรือ “Total Body Water %” ในเครื่องชั่งวัดองค์ประกอบร่างกาย</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>ช่วยอ่านค่ามวลกล้ามเนื้อและไขมันได้ถูกขึ้น เพราะเครื่องประมาณค่าเหล่านี้จากน้ำในร่างกาย</li>'
+       +'<li>ถ้าวันไหนค่าน้ำขยับมาก ณัฒจะรู้ว่าตัวเลขอื่นอาจแกว่งตามไปด้วย</li></ul>'
+       +'<div class="soft">ค่าน้ำขยับตามการดื่มน้ำ อาหาร และเวลาที่ชั่ง ชั่งเวลาใกล้เคียงกันทุกครั้งจะเทียบกันได้ดีขึ้นครับ</div>'
+       +FREE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    phys:{
+      t:"Physical Rate (รูปแบบของร่างกาย)",
+      h:'<p class="lead">ดูได้จากช่อง “Physique Rating” หรือ “Physical Rate” เป็นตัวเลข 1–9 ที่เครื่อง Tanita สรุปสัดส่วนไขมันกับกล้ามเนื้อของร่างกาย</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>เป็นตัวเลขเดียวที่สรุปภาพรวมรูปร่าง ดูง่ายว่าสัปดาห์นี้ขยับไปทางไหน</li>'
+       +'<li>ณัฒใช้ประกอบกับค่าไขมันและกล้ามเนื้อเวลาปรับโปรแกรม</li></ul>'
+       +'<div class="soft">กรอกตามที่เครื่องแสดงได้เลย ใช้ดูแนวโน้มรายสัปดาห์ ไม่ต้องกังวลกับตัวเลขเดียวครับ</div>'
+       +FREE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    kcal:{
+      t:"เผาผลาญต่อวัน (K Cal)",
+      h:'<p class="lead">ดูได้จากช่อง “BMR” หรือ “kcal” เป็นพลังงานโดยประมาณที่ร่างกายใช้ขณะพักในหนึ่งวัน</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>เห็นแนวโน้มว่าร่างกายเปลี่ยนไปทางไหน เพราะค่านี้มักขยับตามน้ำหนักและมวลกล้ามเนื้อ</li>'
+       +'<li>เป็นข้อมูลประกอบให้ณัฒดูภาพรวมร่างกายของคุณ</li></ul>'
+       +'<div class="soft">เป็นค่าประมาณจากเครื่อง ไม่ใช่ตัวเลขที่ต้องกินให้ตรงเป๊ะ ใช้ดูแนวโน้มเฉยๆ ได้เลยครับ</div>'
+       +FREE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
+    },
+    mage:{
+      t:"อายุเซลล์ของร่างกาย (M-Age)",
+      h:'<p class="lead">ดูได้จากช่อง “Metabolic Age” หรือ “Body Age” เป็นอายุที่เครื่องประเมินจากอัตราการเผาผลาญของร่างกาย เทียบกับคนทั่วไป</p>'
+       +'<h3>ข้อดีของค่านี้</h3>'
+       +'<ul><li>เป็นตัวเลขที่เห็นผลง่ายและให้กำลังใจ เวลาออกกำลังกายต่อเนื่องแล้วค่านี้ค่อยๆ ขยับ</li>'
+       +'<li>ณัฒใช้ติดตามพัฒนาการควบคู่กับค่าอื่นๆ</li></ul>'
+       +'<div class="soft">เป็นค่าประมาณจากเครื่อง ไม่ใช่อายุจริงของร่างกายทางการแพทย์ ดูไว้เป็นกำลังใจพอครับ</div>'
+       +FREE
+       +'<p class="src">ที่มา: '+SRC_BIA+'</p>'
     }
   };
   var lastTip=null;
