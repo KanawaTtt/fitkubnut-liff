@@ -194,6 +194,7 @@ var CONFIG = {
   if(/[?&]page=overview(&|$)/.test(location.search)){ location.replace("overview.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=meal(&|$)/.test(location.search)){ location.replace("meal.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=course(&|$)/.test(location.search)){ location.replace("course.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
+  if(/[?&]page=progress(&|$)/.test(location.search)){ location.replace("progress.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=program(&|$)/.test(location.search)){ location.replace("program.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=trainer(&|$)/.test(location.search)){ location.replace("trainer.html"+(/[?&]demo=1/.test(location.search)?"?demo=1":"")); return; }
   if(/[?&]page=enroll(&|$)/.test(location.search)){ var _eo=(location.search.match(/[?&]o=([\w-]+)/)||[])[1]; location.replace("enroll.html"+(_eo?"?o="+_eo:"")+(/[?&]demo=1/.test(location.search)?(_eo?"&":"?")+"demo=1":"")); return; }
