@@ -139,6 +139,9 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .b-info{background:var(--soft);color:var(--soft-ink)}
 .b-warn{background:var(--warn-bg);color:var(--warn-ink)}
 .b-ok{background:var(--ok-bg);color:var(--ok-ink)}
+.dsel{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--mute,var(--soft-ink))}
+.dsel select{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:0 10px;font-size:15px;font-weight:600;font-family:inherit}
+.ro{pointer-events:none}
 .foot{background:var(--card);border-top:1px solid var(--line);padding:10px 16px max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
 .rest{background:var(--accent);color:var(--on-accent);border-radius:14px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:10px}
 .rest .lb{font-size:12px;font-weight:600;line-height:1.2}
@@ -373,7 +376,8 @@ if(plan && /[?&]xp=1/.test(location.search)) plan.xp = [
 {no:1,name:"Pillar Prep (10 นาที)",pre:true,items:[{k:"1-1",n:"Foam roll: น่อง ต้นขาหน้า/หลัง",fw:"Foam roller",fn:"Massage ball",dose:"30 วิ/จุด"},{k:"1-2",n:"90/90 Hip switch",fw:"ตัวเปล่า + เสื่อ",fn:"ตัวเปล่า + เสื่อ",dose:"2 × 6/ข้าง"}]},
 {no:3,name:"Movement Skills (10 นาที)",pre:true,items:[{k:"3-1",n:"Split-stance deceleration",fw:"ตัวเปล่า",fn:"Cone เป็นจุดหยุด",dose:"3 × 5/ข้าง • พัก 45 วิ"}]},
 {no:7,name:"Regeneration (10 นาที)",pre:false,items:[{k:"7-1",n:"Static stretch: สะโพกหน้า ต้นขาหลัง น่อง",fw:"ตัวเปล่า + เสื่อ",fn:"Stretch strap / Band",dose:"30 วิ/ท่า/ข้าง"}]}];
-return ok({ ok:true, name:v.name, iso:iso, plan:plan, xpDone:(plan && plan.xp) ? ["1-1"] : [], struct:saved ? saved.struct : null, sets:saved ? saved.sets : {}, exNotes:saved ? saved.exNotes : {},
+var dd = []; if(c && c.plan){ for(var q = -7; q <= 14; q += 7){ dd.push({ iso:isoOf(new Date(Date.now() + q * 864e5)), title:c.title, done:q < 0 }); } }
+return ok({ ok:true, name:v.name, iso:iso, dates:dd, plan:plan, xpDone:(plan && plan.xp) ? ["1-1"] : [], struct:saved ? saved.struct : null, sets:saved ? saved.sets : {}, exNotes:saved ? saved.exNotes : {},
 day:saved ? saved.day : {note:"",tags:[],start:"",status:""}, sid:saved ? saved.sid : "",
 lastAll:{ "goblet squat":{iso:"2026-11-04",sets:[{s:1,w:10,r:12},{s:2,w:10,r:12},{s:3,w:12,r:10}]}, "leg press":{iso:"2026-11-04",sets:[{s:1,w:45,r:12},{s:2,w:45,r:12},{s:3,w:50,r:10}]}, "seated row":{iso:"2026-11-03",sets:[{s:1,w:20,r:12}]} } });
 }
@@ -523,10 +527,10 @@ flushNow(); go(); return;
 var c = ev.target.closest("[data-c]");
 if(c) openCustomer(c.getAttribute("data-c"));
 });
-function openCustomer(name){
+function openCustomer(name, iso0){
 flushNow(); xpFlush();
 loading();
-api("trainerSession", { name: name, iso: S.iso }).then(function(r){
+api("trainerSession", { name: name, iso: iso0 || S.iso }).then(function(r){
 if(!r.ok){ hideMsg(); return toast(errMsg(r)); }
 var c = S.customers.filter(function(x){ return x.name === name; })[0] || { name:name };
 E = buildSession(r, c);
@@ -576,7 +580,7 @@ function buildSession(r, c){
 var base = null;
 if(r.struct && r.struct.ex && r.struct.ex.length) base = r.struct.ex;
 else if(r.plan && r.plan.ex) base = r.plan.ex;
-var s = { name:r.name, iso:r.iso, cust:c, title:(r.plan && r.plan.title) || "", hasPlan:!!r.plan, lastAll:r.lastAll || {}, ex:[],
+var s = { name:r.name, iso:r.iso, dates:r.dates || [], cust:c, title:(r.plan && r.plan.title) || "", hasPlan:!!r.plan, lastAll:r.lastAll || {}, ex:[],
 dayNote:(r.day && r.day.note) || "", dayTags:(r.day && r.day.tags) || [], start:(r.day && r.day.start) || "", status:(r.day && r.day.status) || "",
 sid:r.sid || Math.random().toString(36).slice(2, 8), result:null, xp:(r.plan && r.plan.xp) || null, xpDone:(r.xpDone || []).slice() };
 E = s;                         /* defW/defR ใช้ E.lastAll */
@@ -631,20 +635,37 @@ if(E.status === "จบแล้ว") return c.total ? "นับในคอร
 var n = (c.done || 0) + 1;
 return c.total ? "ครั้งที่ " + n + " จาก " + c.total : "ครั้งที่ " + n;
 }
+function todayIso(){ return isoOf(new Date()); }
+var DOWS = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+function dateSelHtml(){
+var src = E.dates || [];
+if(!src.length) return "";
+var list = src.slice();
+if(!list.some(function(d){ return d.iso === E.iso; })) list.push({ iso:E.iso, title:"ไม่มีโปรแกรมวันนี้", done:false });
+list.sort(function(a, b){ return a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0; });
+var h = '<label class="dsel"><span>ดูวันที่</span><select id="dateSel" aria-label="เลือกวันที่ของโปรแกรม">';
+list.forEach(function(d){
+var lb = (d.done ? '✓ ' : '') + DOWS[dateOf(d.iso).getDay()] + ' ' + shortDate(d.iso) + (d.iso === todayIso() ? ' (วันนี้)' : '') + (d.title ? ' · ' + d.title : '');
+h += '<option value="' + esc(d.iso) + '"' + (d.iso === E.iso ? ' selected' : '') + '>' + esc(lb) + '</option>';
+});
+return h + '</select></label>';
+}
 function renderSession(){
 var cn = counts();
 var sub = (E.hasPlan ? esc(E.title) : "เทรนนอกแผน · เลือกท่าเอง") + " · " + esc(courseTxt());
+var ro = E.iso > todayIso();
 var h = '<div class="top"><div class="r1"><button type="button" class="btn-soft back" data-act="back">‹ ลูกค้า</button><div class="sav" id="savTxt"></div><div class="sp"></div>' +
-'<button type="button" class="btn-line" data-act="daynote">หมายเหตุวันนี้' + ((E.dayNote || E.dayTags.length) ? ' ⚑' : '') + '</button></div>' +
-'<div><div class="nm">' + esc(E.name) + '</div><div class="sub">' + sub + '</div></div>' +
+(ro ? '' : '<button type="button" class="btn-line" data-act="daynote">หมายเหตุวันนี้' + ((E.dayNote || E.dayTags.length) ? ' ⚑' : '') + '</button>') + '</div>' +
+'<div><div class="nm">' + esc(E.name) + '</div><div class="sub">' + sub + '</div>' + dateSelHtml() + '</div>' +
 '<div class="prog"><div class="tr"><i id="progBar" style="width:' + Math.round(cn.done / Math.max(1, cn.total) * 100) + '%"></i></div><b id="progTxt">' + cn.done + '/' + cn.total + ' เซ็ต</b></div></div>' +
-'<div class="scroll" id="sesScroll"><div class="padm" id="sesBody">';
+'<div class="scroll" id="sesScroll"><div class="padm' + (ro ? ' ro' : '') + '" id="sesBody">';
+if(ro) h += '<div class="banner b-info">ดูโปรแกรมล่วงหน้า · ยังไม่ถึงวันเทรน (' + esc(longDate(E.iso)) + ') เปิดดูได้อย่างเดียว จะจดเซ็ตได้เมื่อถึงวันนั้นครับ</div>';
 if(E.status === "จบแล้ว") h += '<div class="banner b-ok">เทรนครั้งนี้จบและนับในคอร์สแล้ว แก้ไขตัวเลขได้ ระบบบันทึกทับให้อัตโนมัติ</div>';
 if(!E.ex.length) h += '<div class="banner b-info">วันนี้ลูกค้าคนนี้ไม่มีโปรแกรมในชีต กด "เพิ่มท่า" เพื่อเลือกท่าจากคลังท่าได้เลย</div>';
 h += xpHtml(true);
 E.ex.forEach(function(e, i){ h += exCardHtml(e, i); });
 h += '<button type="button" class="add" data-act="addex">+ เพิ่มท่า</button>' + xpHtml(false) + '</div></div>' +
-'<div class="foot"><div id="restBox"></div><button type="button" class="big" data-act="summary">จบเทรน ดูสรุป ›</button></div>';
+(ro ? '<div class="foot"><button type="button" class="big" data-act="gotoday">กลับไปโปรแกรมวันนี้</button></div>' : '<div class="foot"><div id="restBox"></div><button type="button" class="big" data-act="summary">จบเทรน ดูสรุป ›</button></div>');
 $("mSession").innerHTML = h;
 paintSave(); paintRest();
 }
@@ -713,6 +734,7 @@ var setEl = b.closest(".set"), cardEl = b.closest(".card");
 var i = cardEl ? Number(cardEl.getAttribute("data-i")) : -1;
 var j = setEl ? Number(setEl.getAttribute("data-j")) : -1;
 var e = i >= 0 ? E.ex[i] : null, s = (e && j >= 0) ? e.sets[j] : null;
+if(act === "gotoday"){ closeRestSilently(); openCustomer(E.name, todayIso()); return; }
 if(act === "back"){ flushNow(); closeRestSilently(); setView("list"); return; }
 if(act === "daynote") return openNote(-1);
 if(act === "summary"){ flushNow(); closeRest(); renderSummary(); setView("summary"); $("mSession").style.display = "none"; $("mSummary").style.display = "flex"; return; }
@@ -753,6 +775,8 @@ rerenderSet(i, j); paintProgress(); paintRest(); touch(true);
 }
 });
 $("mSession").addEventListener("change", function(ev){
+var ds = ev.target.closest("#dateSel");
+if(ds && E){ var nv = ds.value; if(nv && nv !== E.iso){ closeRestSilently(); openCustomer(E.name, nv); } return; }
 var inp = ev.target.closest("input[data-f]");
 if(!inp || !E) return;
 var setEl = inp.closest(".set"), cardEl = inp.closest(".card");
