@@ -141,6 +141,12 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .b-ok{background:var(--ok-bg);color:var(--ok-ink)}
 .dsel{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--mute,var(--soft-ink))}
 .dsel select{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:0 10px;font-size:15px;font-weight:600;font-family:inherit}
+.xgrp{border:2px solid var(--soft-ink);border-radius:20px;padding:8px;background:var(--soft);display:flex;flex-direction:column;gap:10px}
+.grph{padding:6px 8px 2px}
+.grph b{display:block;font-size:15px;color:var(--soft-ink)}
+.grph small{display:block;font-size:13px;line-height:1.4;color:var(--soft-ink)}
+.gc{display:inline-block;min-width:26px;padding:0 6px;border-radius:8px;background:var(--soft-ink);color:#fff;font-size:12px;line-height:20px;text-align:center;margin-right:6px;vertical-align:2px}
+.dsb{display:inline-block;padding:0 8px;border-radius:8px;background:var(--warn-bg);color:var(--warn-ink);font-size:12px;line-height:20px;margin-left:6px;vertical-align:2px}
 .ro button:disabled,.ro input:disabled,.ro select:disabled,.ro textarea:disabled{opacity:1;color:inherit}
 .ro .xpd>summary{cursor:pointer}
 .foot{background:var(--card);border-top:1px solid var(--line);padding:10px 16px max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
@@ -369,7 +375,7 @@ var c = D.c.filter(function(x){ return x.name === v.name; })[0];
 var saved = D.sess[v.name + "|" + iso] || null;
 var plans = {
 "Full Body Foundation": [ {n:"Goblet Squat",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[12,12,12],rest:75}, {n:"Dumbbell Romanian Deadlift",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[14,14,14],rest:75}, {n:"Plank",ns:3,reps:"30 วินาที",rn:30,ru:"วิ",kg:[],rest:45} ],
-"Upper Body Basics": [ {n:"Incline Push-up",ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[],rest:60}, {n:"Seated Row",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[20,20,20],rest:60}, {n:"Dumbbell Shoulder Press",ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[6,6,6],rest:75} ],
+"Upper Body Basics": [ {n:"Incline Push-up",g:"A",gc:"A1",ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[],rest:60}, {n:"Seated Row",g:"A",gc:"A2",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[20,20,20],rest:60}, {n:"Dumbbell Shoulder Press",ds:true,ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[6,6,6],rest:75} ],
 "Lower Body + Core": [ {n:"Leg Press",ns:3,reps:"12 ครั้ง",rn:12,ru:"ครั้ง",kg:[50,50,55],rest:90}, {n:"Walking Lunge",ns:3,reps:"10 ครั้ง",rn:10,ru:"ครั้ง",kg:[8,8,8],rest:75} ]
 };
 var plan = c && c.plan ? { title:c.title, ex:plans[c.title].map(function(e){ var o = JSON.parse(JSON.stringify(e)); o.reps = o.reps; o.src = "plan"; return o; }) } : null;
@@ -564,7 +570,7 @@ return e.ru === "วิ" ? 30 : 10;
 }
 function newEx(o){
 return { n:o.n, ns:o.ns || 3, reps:o.reps || "", rn:(typeof o.rn === "number") ? o.rn : "", ru:o.ru === "วิ" ? "วิ" : "ครั้ง", kg:o.kg || [], rest:(typeof o.rest === "number") ? o.rest : 60,
-src:o.src || "plan", base:o.base || "", sets:[], note:"", tags:[] };
+src:o.src || "plan", base:o.base || "", g:o.g || "", gc:o.gc || "", ds:!!o.ds, sets:[], note:"", tags:[] };
 }
 function fillSets(e, i, saved){
 var maxJ = e.ns - 1;
@@ -587,6 +593,9 @@ sid:r.sid || Math.random().toString(36).slice(2, 8), result:null, xp:(r.plan && 
 E = s;                         /* defW/defR ใช้ E.lastAll */
 (base || []).forEach(function(b, i){
 var e = newEx(b);
+var pl = r.plan && r.plan.ex && r.plan.ex[i];
+if(!e.g && pl && pl.g && pl.n === b.n && b.src !== "added"){ e.g = pl.g; e.gc = pl.gc || ""; }
+if(!e.ds && pl && pl.ds && pl.n === b.n) e.ds = true;
 fillSets(e, i, r.sets);
 var nt = r.exNotes && r.exNotes[i];
 if(nt){ e.note = nt.note || ""; e.tags = nt.tags || []; }
@@ -612,11 +621,19 @@ h += '<span class="lb rl">พัก</span><input class="rest-in" data-f="rest" i
 }
 return h + '</div>';
 }
+function grpRange(i){
+var g = E.ex[i] && E.ex[i].g; if(!g) return null;
+var a = i, b = i;
+while(a > 0 && E.ex[a-1].g === g) a--;
+while(b < E.ex.length - 1 && E.ex[b+1].g === g) b++;
+return (b - a >= 1) ? { a:a, b:b } : null;
+}
+function isGroupMid(i){ var r = grpRange(i); return !!r && i < r.b; }
 function exCardHtml(e, i){
 var flagged = !!(e.note || e.tags.length), skip = e.tags.indexOf(SKIP) >= 0;
 var planTxt = e.src === "added" ? "เพิ่มเอง" : (e.src === "swap" ? "แทน " + e.base : "แผน " + (typeof e.kg[0] === "number" ? kg(e.kg[0]) : "ตัวเปล่า") + (e.reps ? " × " + e.reps.replace(/\s*ครั้ง$/, "") : ""));
-var h = '<div class="card' + (skip ? ' skipped' : '') + '" data-i="' + i + '"><div class="exh"><div class="exn"><div class="t">' + esc(e.n) + '</div>' +
-'<div class="m">' + e.ns + ' เซ็ต · ' + esc(planTxt) + (e.rest ? ' · พัก ' + e.rest + ' วิ' : '') + '</div><div class="m last">' + esc(lastText(e)) + '</div></div>' +
+var h = '<div class="card' + (skip ? ' skipped' : '') + '" data-i="' + i + '"><div class="exh"><div class="exn"><div class="t">' + (e.gc && grpRange(i) ? '<span class="gc">' + esc(e.gc) + '</span>' : '') + esc(e.n) + (e.ds ? '<span class="dsb">ดรอปเซ็ต</span>' : '') + '</div>' +
+'<div class="m">' + e.ns + ' เซ็ต · ' + esc(planTxt) + (isGroupMid(i) ? ' · ต่อท่าถัดไปเลย ไม่พัก' : (e.rest ? ' · พัก ' + e.rest + ' วิ' : '')) + '</div><div class="m last">' + esc(lastText(e)) + '</div></div>' +
 '<button type="button" class="chip' + (flagged ? ' flag' : '') + '" data-act="note" aria-label="หมายเหตุหรืออาการของท่านี้">⚑ ' + (flagged ? 'จดแล้ว' : 'หมายเหตุ') + '</button></div><div class="sets">';
 for(var j = 0; j < e.sets.length; j++) h += setRowHtml(e, i, j);
 h += '</div><div class="exf"><button type="button" class="mini" data-act="addset">+ เซ็ต</button>' +
@@ -664,7 +681,19 @@ if(ro) h += '<div class="banner b-info">ดูโปรแกรมล่วง�
 if(E.status === "จบแล้ว") h += '<div class="banner b-ok">เทรนครั้งนี้จบและนับในคอร์สแล้ว แก้ไขตัวเลขได้ ระบบบันทึกทับให้อัตโนมัติ</div>';
 if(!E.ex.length) h += '<div class="banner b-info">วันนี้ลูกค้าคนนี้ไม่มีโปรแกรมในชีต กด "เพิ่มท่า" เพื่อเลือกท่าจากคลังท่าได้เลย</div>';
 h += xpHtml(true);
-E.ex.forEach(function(e, i){ h += exCardHtml(e, i); });
+var gi = 0;
+while(gi < E.ex.length){
+var gr = grpRange(gi);
+if(gr && gr.a === gi){
+var n = gr.b - gr.a + 1, codes = [];
+for(var q = gr.a; q <= gr.b; q++) codes.push(E.ex[q].gc || String(q - gr.a + 1));
+var lastRest = E.ex[gr.b].rest;
+h += '<div class="xgrp"><div class="grph"><b>' + (n === 2 ? 'จับคู่เล่น (Superset)' : 'เล่นเป็นวงจร (Circuit) · ' + n + ' ท่า') + ' · ' + esc(codes.join(' → ')) + '</b><small>ทำต่อเนื่องไม่พัก ครบทุกท่าในรอบแล้วค่อยพัก' + (lastRest ? ' ' + lastRest + ' วิ' : '') + '</small></div>';
+for(var q2 = gr.a; q2 <= gr.b; q2++) h += exCardHtml(E.ex[q2], q2);
+h += '</div>';
+gi = gr.b + 1;
+} else { h += exCardHtml(E.ex[gi], gi); gi++; }
+}
 h += '<button type="button" class="add" data-act="addex">+ เพิ่มท่า</button>' + xpHtml(false) + '</div></div>' +
 (ro ? '<div class="foot"><button type="button" class="big" data-act="gotoday">กลับไปโปรแกรมวันนี้</button></div>' : '<div class="foot"><div id="restBox"></div><button type="button" class="big" data-act="summary">จบเทรน ดูสรุป ›</button></div>');
 $("mSession").innerHTML = h;
@@ -769,7 +798,7 @@ if(!s.done){
 closeRest();
 s.done = true;
 if(!E.start) E.start = nowHM();
-if(e.rest > 0){ rest = { i:i, j:j, total:e.rest, t0:Date.now(), buzzed:false }; }
+if(e.rest > 0 && !isGroupMid(i)){ rest = { i:i, j:j, total:e.rest, t0:Date.now(), buzzed:false }; }
 } else {
 s.done = false;
 if(rest && rest.i === i && rest.j === j) rest = null;
@@ -1145,7 +1174,7 @@ setTimeout(function(){ try{ $("pq").focus(); }catch(x){} }, 50);
 }
 function statePayload(){
 return { title:E.title, start:E.start, dayNote:E.dayNote, dayTags:E.dayTags,
-ex:E.ex.map(function(e){ return { n:e.n, ns:e.ns, reps:e.reps, rn:e.rn, ru:e.ru, kg:e.kg, rest:e.rest, src:e.src, base:e.base, skip:e.tags.indexOf(SKIP) >= 0, note:e.note, tags:e.tags,
+ex:E.ex.map(function(e){ return { n:e.n, ns:e.ns, reps:e.reps, rn:e.rn, ru:e.ru, kg:e.kg, rest:e.rest, src:e.src, base:e.base, g:e.g || "", gc:e.gc || "", ds:!!e.ds, skip:e.tags.indexOf(SKIP) >= 0, note:e.note, tags:e.tags,
 sets:e.sets.map(function(s){ return { done:s.done, w:s.w, r:s.r, rpe:s.rpe || "", rest:s.rest }; }) }; }) };
 }
 function paintSave(){
