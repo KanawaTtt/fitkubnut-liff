@@ -141,14 +141,21 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .b-ok{background:var(--ok-bg);color:var(--ok-ink)}
 .dsel{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--mute,var(--soft-ink))}
 .dsel select{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:0 10px;font-size:15px;font-weight:600;font-family:inherit}
-.xgrp{border:2px solid var(--soft-ink);border-radius:20px;padding:8px;background:var(--soft);display:flex;flex-direction:column;gap:10px}
-.grph{padding:6px 8px 2px}
+.xgrp{border:2px solid var(--soft-ink);border-radius:20px;background:var(--soft);overflow:hidden}
+.xgrp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:56px}
+.xgrp>summary::-webkit-details-marker{display:none}
+.xgrp>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--soft-ink);border-bottom:2px solid var(--soft-ink);transform:rotate(45deg);margin:0 4px 4px 2px;flex:none;transition:transform .15s}
+.xgrp[open]>summary::after{transform:rotate(-135deg);margin-bottom:-2px}
+.xgrp>summary:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.xgrp .grph{flex:1 1 0;min-width:0}
+.xgrp .gcnt{font-size:12px;font-weight:700;background:var(--card);color:var(--soft-ink);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.xgrp .gbody{display:flex;flex-direction:column;gap:10px;padding:0 8px 8px}
 .grph b{display:block;font-size:15px;color:var(--soft-ink)}
 .grph small{display:block;font-size:13px;line-height:1.4;color:var(--soft-ink)}
 .gc{display:inline-block;min-width:26px;padding:0 6px;border-radius:8px;background:var(--soft-ink);color:#fff;font-size:12px;line-height:20px;text-align:center;margin-right:6px;vertical-align:2px}
 .dsb{display:inline-block;padding:0 8px;border-radius:8px;background:var(--warn-bg);color:var(--warn-ink);font-size:12px;line-height:20px;margin-left:6px;vertical-align:2px}
 .ro button:disabled,.ro input:disabled,.ro select:disabled,.ro textarea:disabled{opacity:1;color:inherit}
-.ro .xpd>summary{cursor:pointer}
+.ro .xpd>summary,.ro .xgrp>summary{cursor:pointer}
 .foot{background:var(--card);border-top:1px solid var(--line);padding:10px 16px max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
 .rest{background:var(--accent);color:var(--on-accent);border-radius:14px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:10px}
 .rest .lb{font-size:12px;font-weight:600;line-height:1.2}
@@ -628,6 +635,12 @@ while(a > 0 && E.ex[a-1].g === g) a--;
 while(b < E.ex.length - 1 && E.ex[b+1].g === g) b++;
 return (b - a >= 1) ? { a:a, b:b } : null;
 }
+function grpCount(a, b){
+var t = 0, d = 0;
+for(var q = a; q <= b; q++){ var e = E.ex[q]; if(!e || e.tags.indexOf(SKIP) >= 0) continue; t += e.sets.length; e.sets.forEach(function(s){ if(s.done) d++; }); }
+return { done:d, total:t };
+}
+function grpCountTxt(a, b){ var c = grpCount(a, b); return c.done + "/" + c.total + " เซ็ต"; }
 function isGroupMid(i){ var r = grpRange(i); return !!r && i < r.b; }
 function exCardHtml(e, i){
 var flagged = !!(e.note || e.tags.length), skip = e.tags.indexOf(SKIP) >= 0;
@@ -681,16 +694,20 @@ if(ro) h += '<div class="banner b-info">ดูโปรแกรมล่วง�
 if(E.status === "จบแล้ว") h += '<div class="banner b-ok">เทรนครั้งนี้จบและนับในคอร์สแล้ว แก้ไขตัวเลขได้ ระบบบันทึกทับให้อัตโนมัติ</div>';
 if(!E.ex.length) h += '<div class="banner b-info">วันนี้ลูกค้าคนนี้ไม่มีโปรแกรมในชีต กด "เพิ่มท่า" เพื่อเลือกท่าจากคลังท่าได้เลย</div>';
 h += xpHtml(true);
-var gi = 0;
+var gi = 0, openPicked = false;
+if(!E.gOpen) E.gOpen = {};
 while(gi < E.ex.length){
 var gr = grpRange(gi);
 if(gr && gr.a === gi){
 var n = gr.b - gr.a + 1, codes = [];
 for(var q = gr.a; q <= gr.b; q++) codes.push(E.ex[q].gc || String(q - gr.a + 1));
 var lastRest = E.ex[gr.b].rest;
-h += '<div class="xgrp"><div class="grph"><b>' + (n === 2 ? 'จับคู่เล่น (Superset)' : 'เล่นเป็นวงจร (Circuit) · ' + n + ' ท่า') + ' · ' + esc(codes.join(' → ')) + '</b><small>ทำต่อเนื่องไม่พัก ครบทุกท่าในรอบแล้วค่อยพัก' + (lastRest ? ' ' + lastRest + ' วิ' : '') + '</small></div>';
+var names = [];
+for(var q3 = gr.a; q3 <= gr.b; q3++) names.push(E.ex[q3].n);
+if(E.gOpen[gr.a] === undefined){ var gdone = grpCount(gr.a, gr.b); E.gOpen[gr.a] = !openPicked && gdone.done < gdone.total; if(E.gOpen[gr.a]) openPicked = true; }
+h += '<details class="xgrp" data-a="' + gr.a + '" data-b="' + gr.b + '"' + (E.gOpen[gr.a] ? ' open' : '') + '><summary><div class="grph"><b>' + (n === 2 ? 'จับคู่เล่น (Superset)' : 'เล่นเป็นวงจร (Circuit) · ' + n + ' ท่า') + ' · ' + esc(codes.join(' → ')) + '</b><small>' + esc(names.join(' + ')) + '</small><small>ทำต่อเนื่องไม่พัก ครบทุกท่าในรอบแล้วค่อยพัก' + (lastRest ? ' ' + lastRest + ' วิ' : '') + '</small></div><span class="gcnt">' + grpCountTxt(gr.a, gr.b) + '</span></summary><div class="gbody">';
 for(var q2 = gr.a; q2 <= gr.b; q2++) h += exCardHtml(E.ex[q2], q2);
-h += '</div>';
+h += '</div></details>';
 gi = gr.b + 1;
 } else { h += exCardHtml(E.ex[gi], gi); gi++; }
 }
@@ -748,6 +765,9 @@ function paintProgress(){
 var cn = counts(), b = $("progBar"), t = $("progTxt");
 if(b) b.style.width = Math.round(cn.done / Math.max(1, cn.total) * 100) + "%";
 if(t) t.textContent = cn.done + "/" + cn.total + " เซ็ต";
+Array.prototype.forEach.call(document.querySelectorAll("#mSession .xgrp"), function(el){
+var c = el.querySelector(".gcnt"); if(c) c.textContent = grpCountTxt(Number(el.getAttribute("data-a")), Number(el.getAttribute("data-b")));
+});
 }
 function rerenderSet(i, j){
 var el = $("mSession").querySelector('.set[data-i="' + i + '"][data-j="' + j + '"]');
@@ -806,6 +826,9 @@ if(rest && rest.i === i && rest.j === j) rest = null;
 rerenderSet(i, j); paintProgress(); paintRest(); touch(true);
 }
 });
+$("mSession").addEventListener("toggle", function(ev){
+var g = ev.target; if(g && g.classList && g.classList.contains("xgrp") && E){ if(!E.gOpen) E.gOpen = {}; E.gOpen[Number(g.getAttribute("data-a"))] = g.open; }
+}, true);
 $("mSession").addEventListener("change", function(ev){
 var ds = ev.target.closest("#dateSel");
 if(ds && E){ var nv = ds.value; if(nv && nv !== E.iso){ closeRestSilently(); openCustomer(E.name, nv); } return; }
