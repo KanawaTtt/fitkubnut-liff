@@ -141,8 +141,8 @@ h1{margin:0;font-size:27px;line-height:1.2;font-weight:700;text-wrap:balance}
 .b-ok{background:var(--ok-bg);color:var(--ok-ink)}
 .dsel{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--mute,var(--soft-ink))}
 .dsel select{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:0 10px;font-size:15px;font-weight:600;font-family:inherit}
-.ro{pointer-events:none}
-.ro .xpd>summary{pointer-events:auto;cursor:pointer}
+.ro button:disabled,.ro input:disabled,.ro select:disabled,.ro textarea:disabled{opacity:1;color:inherit}
+.ro .xpd>summary{cursor:pointer}
 .foot{background:var(--card);border-top:1px solid var(--line);padding:10px 16px max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
 .rest{background:var(--accent);color:var(--on-accent);border-radius:14px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:10px}
 .rest .lb{font-size:12px;font-weight:600;line-height:1.2}
@@ -668,6 +668,7 @@ E.ex.forEach(function(e, i){ h += exCardHtml(e, i); });
 h += '<button type="button" class="add" data-act="addex">+ เพิ่มท่า</button>' + xpHtml(false) + '</div></div>' +
 (ro ? '<div class="foot"><button type="button" class="big" data-act="gotoday">กลับไปโปรแกรมวันนี้</button></div>' : '<div class="foot"><div id="restBox"></div><button type="button" class="big" data-act="summary">จบเทรน ดูสรุป ›</button></div>');
 $("mSession").innerHTML = h;
+if(ro) Array.prototype.forEach.call($("sesBody").querySelectorAll("button,input,select,textarea"), function(el){ el.disabled = true; });
 paintSave(); paintRest();
 }
 /* ---------- ท่าประกอบ (บล็อกวอร์มอัป / Movement Skills / Med Ball / คูลดาวน์) ---------- */
